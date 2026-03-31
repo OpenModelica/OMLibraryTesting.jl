@@ -1,0 +1,16 @@
+name = "OMLibraryTesting"
+uuid = "4866894a-ca78-4bef-9a5c-0d35f2f81ce1"
+authors = ["John Tinnerholm <john.tinnerholm@liu.se>"]
+version = "0.1.0"
+
+[deps]
+OM = "2f925a0b-2436-437b-858e-49aee461894b"
+OMBackend = "9400bd5f-7561-42f6-8760-03756753da50"
+OMFrontend = "b10394b5-f439-4073-a0c5-e09cb00cf46c"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+
+[compat]
+julia = "1.10"

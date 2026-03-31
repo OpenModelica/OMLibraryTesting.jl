@@ -1,0 +1,47 @@
+// Generate reference values for MSL coverage testing.
+// Run with: omc generate_refs.mos
+// MSL 3.2.3
+
+loadModel(Modelica, {"3.2.3"});
+getErrorString();
+
+// ---- Mechanics.MultiBody ----
+
+simulate(Modelica.Mechanics.MultiBody.Examples.Elementary.Pendulum,
+         stopTime=1.0, simflags="-lv=LOG_SUCCESS");
+val(revolute1.phi, 1.0);
+val(revolute1.w, 1.0);
+
+simulate(Modelica.Mechanics.MultiBody.Examples.Elementary.DoublePendulum,
+         stopTime=1.0, simflags="-lv=LOG_SUCCESS");
+val(revolute1.phi, 1.0);
+val(revolute1.w, 1.0);
+val(revolute2.phi, 1.0);
+val(revolute2.w, 1.0);
+
+simulate(Modelica.Mechanics.MultiBody.Examples.Loops.Engine1a,
+         stopTime=0.72, simflags="-lv=LOG_SUCCESS");
+val(Inertia.phi, 0.72);
+val(Inertia.w, 0.72);
+
+// ---- Mechanics.Rotational ----
+
+simulate(Modelica.Mechanics.Rotational.Examples.First,
+         stopTime=5.0, simflags="-lv=LOG_SUCCESS");
+val(inertia1.phi, 5.0);
+val(inertia3.phi, 5.0);
+
+// ---- Electrical.Analog ----
+
+simulate(Modelica.Electrical.Analog.Examples.ChuaCircuit,
+         stopTime=5.0, simflags="-lv=LOG_SUCCESS");
+val(C1.v, 5.0);
+val(C2.v, 5.0);
+val(L.i, 5.0);
+
+// ---- Thermal.HeatTransfer ----
+
+simulate(Modelica.Thermal.HeatTransfer.Examples.TwoMasses,
+         stopTime=1.0, simflags="-lv=LOG_SUCCESS");
+
+// ---- Add new models below this line ----

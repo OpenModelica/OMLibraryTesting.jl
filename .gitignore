@@ -1,0 +1,30 @@
+# Julia build artifacts
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+/deps/deps.jl
+
+# Julia package manifest (keep Project.toml, ignore Manifest)
+Manifest.toml
+
+# Generated results and reports (large, machine-generated)
+results/
+reports/
+
+# Reference CSVs and signals (large binary/text data, fetched by download_refs.sh)
+reference/csv/
+reference/signals/
+
+# Editor and OS artifacts
+.DS_Store
+*~
+\#*\#
+.#*
+
+# JetBrains / VS Code
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*.log

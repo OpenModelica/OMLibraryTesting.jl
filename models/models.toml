@@ -1,0 +1,404 @@
+[meta]
+msl_version = "MSL:3.2.3"
+description = "OM.jl MSL coverage model registry"
+reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v3.2.3)"
+
+# ==========================================================================
+# Mechanics.MultiBody
+# ==========================================================================
+
+[models.Pendulum]
+name = "Modelica.Mechanics.MultiBody.Examples.Elementary.Pendulum"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "Pendulum"
+[models.Pendulum.signalMapping]
+"rev.phi" = "revolute1_phi"
+"rev.w" = "revolute1_w"
+
+[models.DoublePendulum]
+name = "Modelica.Mechanics.MultiBody.Examples.Elementary.DoublePendulum"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.05
+referenceFile = "DoublePendulum"
+
+[models.Engine1a]
+name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1a"
+domain = "Mechanics.MultiBody"
+stopTime = 0.72
+expected = "simulate"
+reltol = 0.05
+atol = 0.1
+referenceFile = "Engine1a"
+
+[models.ThreeSprings]
+name = "Modelica.Mechanics.MultiBody.Examples.Elementary.ThreeSprings"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "broken"
+issue = "DAE_identifierToString(::DAE.ARRAY) in codegen"
+
+[models.FreeBody]
+name = "Modelica.Mechanics.MultiBody.Examples.Elementary.FreeBody"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "broken"
+issue = "DAE_identifierToString(::DAE.ARRAY) in codegen"
+
+# ==========================================================================
+# Mechanics.Rotational
+# ==========================================================================
+
+[models.Rotational_First]
+name = "Modelica.Mechanics.Rotational.Examples.First"
+domain = "Mechanics.Rotational"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "Rotational_First"
+
+[models.Rotational_Friction]
+name = "Modelica.Mechanics.Rotational.Examples.Friction"
+domain = "Mechanics.Rotational"
+stopTime = 5.0
+expected = "broken"
+issue = "STMT_WHILE code generation (String*Nothing)"
+
+[models.Rotational_CoupledClutches]
+name = "Modelica.Mechanics.Rotational.Examples.CoupledClutches"
+domain = "Mechanics.Rotational"
+stopTime = 1.5
+expected = "broken"
+issue = "ExtraEquationsSystemException (unbalanced system)"
+
+[models.Rotational_ElasticBearing]
+name = "Modelica.Mechanics.Rotational.Examples.ElasticBearing"
+domain = "Mechanics.Rotational"
+stopTime = 1.0
+expected = "simulate"
+
+[models.Rotational_LossyGearDemo1]
+name = "Modelica.Mechanics.Rotational.Examples.LossyGearDemo1"
+domain = "Mechanics.Rotational"
+stopTime = 1.0
+expected = "broken"
+issue = "Unsupported IF_EQUATION condition"
+
+[models.Rotational_HeatLosses]
+name = "Modelica.Mechanics.Rotational.Examples.HeatLosses"
+domain = "Mechanics.Rotational"
+stopTime = 1.0
+expected = "broken"
+issue = "Unsupported condition: initial()"
+
+# ==========================================================================
+# Mechanics.Translational
+# ==========================================================================
+
+[models.SignConvention]
+name = "Modelica.Mechanics.Translational.Examples.SignConvention"
+domain = "Mechanics.Translational"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "SignConvention"
+
+[models.Oscillator]
+name = "Modelica.Mechanics.Translational.Examples.Oscillator"
+domain = "Mechanics.Translational"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "Oscillator"
+
+[models.Translational_InitialConditions]
+name = "Modelica.Mechanics.Translational.Examples.InitialConditions"
+domain = "Mechanics.Translational"
+stopTime = 5.0
+expected = "simulate"
+
+[models.Translational_WhyArrows]
+name = "Modelica.Mechanics.Translational.Examples.WhyArrows"
+domain = "Mechanics.Translational"
+stopTime = 1.0
+expected = "simulate"
+
+[models.Translational_Damper]
+name = "Modelica.Mechanics.Translational.Examples.Damper"
+domain = "Mechanics.Translational"
+stopTime = 1.0
+expected = "simulate"
+
+[models.Translational_Accelerate]
+name = "Modelica.Mechanics.Translational.Examples.Accelerate"
+domain = "Mechanics.Translational"
+stopTime = 1.0
+expected = "simulate"
+
+[models.Translational_Brake]
+name = "Modelica.Mechanics.Translational.Examples.Brake"
+domain = "Mechanics.Translational"
+stopTime = 2.0
+expected = "broken"
+issue = "Unsupported IF_EQUATION condition"
+
+[models.Translational_HeatLosses]
+name = "Modelica.Mechanics.Translational.Examples.HeatLosses"
+domain = "Mechanics.Translational"
+stopTime = 2.0
+expected = "broken"
+issue = "Unsupported IF_EQUATION condition"
+
+[models.Translational_PreLoad]
+name = "Modelica.Mechanics.Translational.Examples.PreLoad"
+domain = "Mechanics.Translational"
+stopTime = 100.0
+expected = "broken"
+issue = "Unsupported IF_EQUATION condition"
+
+# ==========================================================================
+# Electrical.Analog
+# ==========================================================================
+
+[models.ChuaCircuit]
+name = "Modelica.Electrical.Analog.Examples.ChuaCircuit"
+domain = "Electrical.Analog"
+stopTime = 5.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "ChuaCircuit"
+
+[models.ShowVariableResistor]
+name = "Modelica.Electrical.Analog.Examples.ShowVariableResistor"
+domain = "Electrical.Analog"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "ShowVariableResistor"
+
+[models.ShowSaturatingInductor]
+name = "Modelica.Electrical.Analog.Examples.ShowSaturatingInductor"
+domain = "Electrical.Analog"
+stopTime = 6.2832
+expected = "simulate"
+reltol = 0.01
+atol = 0.01
+referenceFile = "ShowSaturatingInductor"
+
+[models.HeatingResistor]
+name = "Modelica.Electrical.Analog.Examples.HeatingResistor"
+domain = "Electrical.Analog"
+stopTime = 5.0
+expected = "simulate"
+
+[models.HeatingRectifier]
+name = "Modelica.Electrical.Analog.Examples.HeatingRectifier"
+domain = "Electrical.Analog"
+stopTime = 5.0
+expected = "simulate"
+
+[models.DifferenceAmplifier]
+name = "Modelica.Electrical.Analog.Examples.DifferenceAmplifier"
+domain = "Electrical.Analog"
+stopTime = 1.0
+expected = "simulate"
+
+[models.CompareTransformers]
+name = "Modelica.Electrical.Analog.Examples.CompareTransformers"
+domain = "Electrical.Analog"
+stopTime = 50.0
+expected = "simulate"
+
+[models.OvervoltageProtection]
+name = "Modelica.Electrical.Analog.Examples.OvervoltageProtection"
+domain = "Electrical.Analog"
+stopTime = 0.4
+expected = "simulate"
+
+[models.CharacteristicIdealDiodes]
+name = "Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes"
+domain = "Electrical.Analog"
+stopTime = 1.0
+expected = "broken"
+issue = "ExtraEquationsSystemException (unbalanced system)"
+
+[models.HeatingMOSInverter]
+name = "Modelica.Electrical.Analog.Examples.HeatingMOSInverter"
+domain = "Electrical.Analog"
+stopTime = 5.0
+expected = "broken"
+issue = "DomainError: complex exponentiation"
+
+[models.HeatingNPN_OrGate]
+name = "Modelica.Electrical.Analog.Examples.HeatingNPN_OrGate"
+domain = "Electrical.Analog"
+stopTime = 5.0
+expected = "broken"
+issue = "Unsupported IF_EQUATION condition: nperiod = 0"
+
+[models.Rectifier]
+name = "Modelica.Electrical.Analog.Examples.Rectifier"
+domain = "Electrical.Analog"
+stopTime = 0.1
+expected = "broken"
+issue = "ExtraEquationsSystemException (unbalanced system)"
+
+[models.SimpleTriacCircuit]
+name = "Modelica.Electrical.Analog.Examples.SimpleTriacCircuit"
+domain = "Electrical.Analog"
+stopTime = 0.001
+expected = "broken"
+issue = "ExtraEquationsSystemException (unbalanced system)"
+
+# ==========================================================================
+# Thermal.HeatTransfer
+# ==========================================================================
+
+[models.TwoMasses]
+name = "Modelica.Thermal.HeatTransfer.Examples.TwoMasses"
+domain = "Thermal.HeatTransfer"
+stopTime = 1.0
+expected = "simulate"
+reltol = 0.01
+atol = 0.1
+referenceFile = "TwoMasses"
+
+[models.Thermal_GenerationOfFMUs]
+name = "Modelica.Thermal.HeatTransfer.Examples.GenerationOfFMUs"
+domain = "Thermal.HeatTransfer"
+stopTime = 1.0
+expected = "simulate"
+
+[models.Thermal_Motor]
+name = "Modelica.Thermal.HeatTransfer.Examples.Motor"
+domain = "Thermal.HeatTransfer"
+stopTime = 25.0
+expected = "broken"
+issue = "DAE.CALL for table functions (getNextTimeEvent) in codegen"
+
+# ==========================================================================
+# Blocks
+# ==========================================================================
+
+[models.InverseModel]
+name = "Modelica.Blocks.Examples.InverseModel"
+domain = "Blocks"
+stopTime = 1.0
+expected = "simulate"
+
+[models.PID_Controller]
+name = "Modelica.Blocks.Examples.PID_Controller"
+domain = "Blocks"
+stopTime = 4.0
+expected = "broken"
+issue = "Frontend lookupName argument order mismatch"
+
+[models.Filter]
+name = "Modelica.Blocks.Examples.Filter"
+domain = "Blocks"
+stopTime = 5.0
+expected = "broken"
+issue = "STMT_NORETCALL not handled in codegen"
+
+[models.Blocks_BooleanNetwork1]
+name = "Modelica.Blocks.Examples.BooleanNetwork1"
+domain = "Blocks"
+stopTime = 10.0
+expected = "broken"
+issue = "DAE.CALL for table functions in codegen"
+
+[models.Blocks_IntegerNetwork1]
+name = "Modelica.Blocks.Examples.IntegerNetwork1"
+domain = "Blocks"
+stopTime = 10.0
+expected = "broken"
+issue = "DAE.CALL for table functions in codegen"
+
+[models.Blocks_RealNetwork1]
+name = "Modelica.Blocks.Examples.RealNetwork1"
+domain = "Blocks"
+stopTime = 2.0
+expected = "broken"
+issue = "DAE.CALL for table functions in codegen"
+
+[models.Blocks_ShowLogicalSources]
+name = "Modelica.Blocks.Examples.ShowLogicalSources"
+domain = "Blocks"
+stopTime = 10.0
+expected = "broken"
+issue = "DAE.CALL for table functions in codegen"
+
+# ==========================================================================
+# StateGraph
+# ==========================================================================
+
+[models.StateGraph_ControlledTanks]
+name = "Modelica.StateGraph.Examples.ControlledTanks"
+domain = "StateGraph"
+stopTime = 100.0
+expected = "broken"
+issue = "Known broken"
+
+[models.StateGraph_ShowExceptions]
+name = "Modelica.StateGraph.Examples.ShowExceptions"
+domain = "StateGraph"
+stopTime = 20.0
+expected = "broken"
+issue = "Known broken"
+
+[models.StateGraph_ShowCompositeStep]
+name = "Modelica.StateGraph.Examples.ShowCompositeStep"
+domain = "StateGraph"
+stopTime = 5.0
+expected = "broken"
+issue = "Known broken"
+
+# ==========================================================================
+# Electrical.Digital
+# ==========================================================================
+
+[models.Translational_ElastoGap]
+name = "Modelica.Mechanics.Translational.Examples.ElastoGap"
+domain = "Mechanics.Translational"
+stopTime = 1.0
+expected = "broken"
+issue = "ExtraEquationsSystemException (unbalanced system)"
+
+[models.Thermal_ControlledTemperature]
+name = "Modelica.Thermal.HeatTransfer.Examples.ControlledTemperature"
+domain = "Thermal.HeatTransfer"
+stopTime = 1.0
+expected = "broken"
+issue = "ExtraEquationsSystemException (unbalanced system)"
+
+[models.Digital_DFF]
+name = "Modelica.Electrical.Digital.Examples.FlipFlops.DFF"
+domain = "Electrical.Digital"
+stopTime = 10.0
+expected = "broken"
+issue = "Frontend: table function codegen"
+
+[models.Digital_MUX4]
+name = "Modelica.Electrical.Digital.Examples.Utilities.MUX4"
+domain = "Electrical.Digital"
+stopTime = 250.0
+expected = "broken"
+issue = "Frontend: table function codegen"
+
+[models.Fluid_HeatExchangerSimulation]
+name = "Modelica.Fluid.Examples.HeatExchanger.HeatExchangerSimulation"
+domain = "Fluid"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: 3k+ equation system hangs in tight loop"
