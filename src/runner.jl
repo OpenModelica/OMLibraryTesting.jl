@@ -112,7 +112,8 @@ function _run_model_phases(model_name::String,
                            reltol::Float64,
                            signal_mapping::Dict{String, String},
                            ref_dir::String,
-                           phase_ints::Vector{Int})
+                           phase_ints::Vector{Int},
+                           check_sim_code::Bool = false)
     results = Tuple{Int, Bool, Float64, Union{Nothing, String}}[]
     highest = 0
     sol = nothing
@@ -133,7 +134,8 @@ function _run_model_phases(model_name::String,
             if phase_int == Int(FRONTEND)
                 OM.flatten(model_name; MSL_Version = msl_version)
             elseif phase_int == Int(BACKEND)
-                OM.translate(model_name; MSL_Version = msl_version)
+                OM.translate(model_name; MSL_Version = msl_version,
+                             checkSimCode = check_sim_code)
             elseif phase_int == Int(SIMULATE)
                 sol = OM.simulate(model_name; stopTime = stop_time)
                 if sol.retcode != ReturnCode.Success
@@ -144,7 +146,8 @@ function _run_model_phases(model_name::String,
                     # Reconstruct a ModelSpec on the worker for validate_against_reference
                     temp_spec = ModelSpec(
                         model_name, "", "", stop_time, UNKNOWN,
-                        reference, atol, reltol, reference_file, signal_mapping, "")
+                        reference, atol, reltol, reference_file, signal_mapping, "",
+                        Set{Phase}())
                     (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir)
                     if !passed
                         failed = filter(c -> !c.passed, comparisons)
@@ -204,21 +207,36 @@ Run all phases for a model on the worker process with an escalating timeout:
 function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                        phases_to_run::Vector{Phase};
                        timeout::Float64 = 1500.0,
-                       grace_period::Float64 = GRACE_PERIOD)::ModelResult
+                       grace_period::Float64 = GRACE_PERIOD,
+                       check_sim_code::Bool = false)::ModelResult
     pid = ensure_worker!(mgr)
     phase_ints = [Int(p) for p in phases_to_run]
 
     future = remotecall(OMLibraryTesting._run_model_phases, pid,
         spec.name, mgr.msl_version, spec.stopTime,
         spec.referenceFile, spec.reference, spec.atol, spec.reltol,
-        spec.signalMapping, mgr.ref_dir, phase_ints)
+        spec.signalMapping, mgr.ref_dir, phase_ints, check_sim_code)
 
     t0 = time()
     interrupted = Ref(false)
     killed = Ref(false)
 
+    # Use try-catch around isready: for Distributed.Future, isready() communicates
+    # with the remote worker and throws if the worker is dead or unreachable.
+    # When the worker is dead (ProcessExitedException), return false to break the
+    # polling loop and let fetch() throw the proper exception for the catch handler.
+    _future_pending() = try
+        !isready(future)
+    catch e
+        if e isa ProcessExitedException
+            false
+        else
+            true
+        end
+    end
+
     timer_interrupt = Timer(timeout) do _t
-        if !isready(future)
+        if _future_pending()
             interrupted[] = true
             @warn "  TIMEOUT after $(round(timeout, digits=0))s, sending interrupt to worker..."
             try; interrupt(pid); catch; end
@@ -226,7 +244,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     end
 
     timer_kill = Timer(timeout + grace_period) do _t
-        if !isready(future) && interrupted[]
+        if _future_pending() && interrupted[]
             killed[] = true
             @warn "  Worker did not respond to interrupt, killing..."
             try; kill_worker!(mgr); catch; end
@@ -234,6 +252,13 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     end
 
     try
+        # Poll instead of blocking on fetch so Ctrl-C can be delivered between iterations.
+        # Also break when killed[] is true: after the worker is force-killed, isready(future)
+        # throws (dead socket), which _future_pending() catches as "still pending". Without
+        # the killed[] check the loop would spin forever.
+        while _future_pending() && !killed[]
+            sleep(0.5)
+        end
         raw = fetch(future)
         elapsed = time() - t0
 
@@ -282,6 +307,10 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
             return ModelResult(spec, phases, BROKEN,
                               Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
+        elseif e isa InterruptException
+            @warn "    INTERRUPTED by user"
+            kill_worker!(mgr)
+            rethrow()
         elseif e isa RemoteException
             # Worker threw a normal exception that escaped _run_model_phases
             msg = sprint(showerror, e; context = :compact => true)
@@ -312,23 +341,40 @@ Each model has a wall-clock timeout (default 25 minutes).
 """
 function run_model(spec::ModelSpec, mgr::WorkerManager;
                     timeout::Float64 = 1500.0,
-                    phases_to_run::Vector{Phase} = PHASE_ORDER)::ModelResult
+                    phases_to_run::Vector{Phase} = PHASE_ORDER,
+                    check_sim_code::Bool = false)::ModelResult
     if spec.expected == BROKEN
         @info "Skipping known-broken model: $(spec.name)" issue=spec.issue
         return ModelResult(spec, PhaseResult[], BROKEN,
                           Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
     end
-    return run_on_worker(mgr, spec, phases_to_run; timeout = timeout)
+    effective_phases = filter(p -> p ∉ spec.skipPhases, phases_to_run)
+    if isempty(effective_phases)
+        @info "Skipping model (all requested phases skipped): $(spec.name)"
+        return ModelResult(spec, PhaseResult[], BROKEN,
+                          Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
+    end
+    return run_on_worker(mgr, spec, effective_phases; timeout = timeout,
+                         check_sim_code = check_sim_code)
 end
 
 """
-    run_coverage(; library, version, domain, model, filter, overrides, timeout, phases) -> Vector{ModelResult}
+    run_coverage(; library, version, domain, model, filter, overrides, timeout,
+                   phases, from_phase, to_phase) -> Vector{ModelResult}
 
 Run the full MSL coverage suite. Models are discovered automatically via omc.
 TOML overrides (reference files, known broken, signal mappings) are merged in.
 Each model runs on an isolated worker process with an enforced timeout.
 
 Optionally filter by `domain` regex, single `model` name, or general `filter` regex.
+
+Use `from_phase` and `to_phase` to restrict which phases are run. For example,
+`from_phase=BACKEND` skips the frontend phase (useful when frontend is 100% pass).
+`to_phase=BACKEND` stops after backend without attempting simulate or validate.
+
+Set `check_sim_code=true` to run SimulationCode.SimCodeCheck on the optimized
+SimCode before MTK codegen during the BACKEND phase. Violations are printed
+to the worker's stderr and do not alter pass/fail of the phase itself.
 """
 function run_coverage(; library::String = "Modelica",
                         version::String = "3.2.3",
@@ -338,10 +384,18 @@ function run_coverage(; library::String = "Modelica",
                         filter::Regex = r"",
                         overrides::String = default_models_path(),
                         timeout::Float64 = 1500.0,
-                        phases::Vector{Phase} = PHASE_ORDER)::Vector{ModelResult}
+                        phases::Vector{Phase} = PHASE_ORDER,
+                        from_phase::Phase = FRONTEND,
+                        to_phase::Phase = VALIDATE,
+                        check_sim_code::Bool = false)::Vector{ModelResult}
     t_start = time()
+    phases = Base.filter(p -> Int(from_phase) <= Int(p) <= Int(to_phase), phases)
+    phase_names = join([PHASE_NAMES[p] for p in phases], ", ")
+    @info "Starting coverage run (phases: $phase_names)"
     specs = discover_experiments(; library = library, version = version, filter = filter)
     specs = merge_overrides!(specs, overrides)
+    ref_dir = joinpath(dirname(overrides), "..", "reference") |> abspath
+    specs = auto_detect_references!(specs, ref_dir)
     if !isempty(model)
         specs = Base.filter(s -> s.name == model, specs)
         if isempty(specs)
@@ -354,20 +408,30 @@ function run_coverage(; library::String = "Modelica",
             error("No models found matching domain: $domain")
         end
     end
+    n_broken = count(s -> s.expected == BROKEN, specs)
+    n_active = length(specs) - n_broken
+    @info "Running $n_active models ($n_broken known broken, $(length(specs)) total), timeout=$(round(Int, timeout))s"
     mgr = WorkerManager(; msl_version = msl_version)
+    results = ModelResult[]
     try
-        results = ModelResult[]
         for (i, spec) in enumerate(specs)
             @info "[$i/$(length(specs))] $(spec.name)"
-            result = run_model(spec, mgr; timeout = timeout, phases_to_run = phases)
+            result = run_model(spec, mgr; timeout = timeout, phases_to_run = phases,
+                               check_sim_code = check_sim_code)
             push!(results, result)
         end
-        total_time = time() - t_start
-        print_summary(results; total_time = total_time)
-        return results
+    catch e
+        if e isa InterruptException
+            @warn "Run interrupted by user after $(length(results))/$(length(specs)) models"
+        else
+            rethrow()
+        end
     finally
         cleanup!(mgr)
     end
+    total_time = time() - t_start
+    print_summary(results; total_time = total_time)
+    return results
 end
 
 function print_summary(results::Vector{ModelResult}; total_time::Float64 = 0.0)

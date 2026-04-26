@@ -302,3 +302,267 @@ function _extract_meta_subcat(err::String)::String
     return first(msg, 60)
 end
 
+# ── HTML Report Parsing ───────────────────────────────────────────────
+
+"""
+    ParsedModel
+
+Lightweight struct holding per-model data extracted from an HTML coverage report.
+"""
+struct ParsedModel
+    name::String
+    domain::String
+    is_broken::Bool
+    phases::Dict{Phase, Symbol}      # Phase => :pass / :fail / :na
+    errors::Dict{Phase, String}      # Phase => tooltip error text (fail only)
+    times::Dict{Phase, Float64}      # Phase => seconds (pass/fail only)
+end
+
+"""
+    parse_report(path::String) -> Vector{ParsedModel}
+    parse_report()              -> Vector{ParsedModel}
+
+Parse an HTML coverage report produced by `generate_report` and return a vector
+of `ParsedModel` structs.  With no arguments, finds the most recent `.html`
+file in the default reports directory.
+
+The HTML we generate has a rigid structure per model row:
+
+    <td class="model-name">NAME</td>
+    <td class="ok">✓ 1.2s</td>          # pass
+    <td class="fail" title="ERR">✗ 0.3s</td>  # fail
+    <td class="na">&mdash;</td>                # not attempted
+
+This function extracts model name, phase status, error tooltips, and timings.
+"""
+function parse_report(path::String)::Vector{ParsedModel}
+    html = read(path, String)
+    _parse_report_html(html)
+end
+
+function parse_report()::Vector{ParsedModel}
+    dir = DEFAULT_REPORTS_DIR
+    if !isdir(dir)
+        error("Reports directory does not exist: $dir")
+    end
+    files = filter(f -> endswith(f, ".html"), readdir(dir; join = true))
+    if isempty(files)
+        error("No HTML reports found in $dir")
+    end
+    latest = sort(files, by = mtime, rev = true)[1]
+    @info "Parsing latest report: $latest"
+    parse_report(latest)
+end
+
+const _PHASE_ORDER_PARSE = [FRONTEND, BACKEND, SIMULATE, VALIDATE]
+
+function _parse_report_html(html::String)::Vector{ParsedModel}
+    results = ParsedModel[]
+    current_domain = ""
+
+    # Walk all <tr> rows linearly; track the current domain from domain headers
+    row_re = r"<tr[^>]*>(.*?)</tr>"s
+    domain_re = r"class=\"domain-header\".*?<strong>(.*?)</strong>"s
+    model_re = r"<td class=\"model-name\">(.*?)</td>(.*)"s
+    # The title attribute may contain newlines, so use [\s\S]*? to match any char
+    cell_re = r"<td class=\"(ok|fail|na)\"([\s\S]*?)>([\s\S]*?)</td>"
+
+    for tr in eachmatch(row_re, html)
+        row_html = tr.captures[1]
+
+        # Check if this is a domain header
+        dm = match(domain_re, row_html)
+        if dm !== nothing
+            current_domain = _html_unescape(dm.captures[1])
+            continue
+        end
+
+        # Check if this is a model row
+        mm = match(model_re, row_html)
+        mm === nothing && continue
+
+        is_broken = occursin("broken-row", tr.match)
+        name = "Modelica." * strip(mm.captures[1])
+        cells_html = mm.captures[2]
+
+        phases = Dict{Phase, Symbol}()
+        errors = Dict{Phase, String}()
+        times = Dict{Phase, Float64}()
+
+        cell_matches = collect(eachmatch(cell_re, cells_html))
+
+        for (i, cm) in enumerate(cell_matches)
+            i > length(_PHASE_ORDER_PARSE) && break
+            phase = _PHASE_ORDER_PARSE[i]
+            cls = cm.captures[1]
+
+            if cls == "ok"
+                phases[phase] = :pass
+                t = _extract_time(cm.captures[3])
+                t !== nothing && (times[phase] = t)
+            elseif cls == "fail"
+                phases[phase] = :fail
+                t = _extract_time(cm.captures[3])
+                t !== nothing && (times[phase] = t)
+                tooltip = match(r"title=\"([\s\S]*?)\"", cm.captures[2])
+                if tooltip !== nothing
+                    errors[phase] = _html_unescape(tooltip.captures[1])
+                end
+            else
+                phases[phase] = :na
+            end
+        end
+
+        push!(results, ParsedModel(name, current_domain, is_broken, phases, errors, times))
+    end
+    return results
+end
+
+function _extract_time(cell_content::AbstractString)::Union{Nothing, Float64}
+    m = match(r"([\d.]+)s", cell_content)
+    m === nothing && return nothing
+    tryparse(Float64, m.captures[1])
+end
+
+function _html_unescape(s::AbstractString)::String
+    s = replace(s, "&amp;" => "&")
+    s = replace(s, "&lt;" => "<")
+    s = replace(s, "&gt;" => ">")
+    s = replace(s, "&quot;" => "\"")
+    s = replace(s, "&#10003;" => "")
+    s = replace(s, "&#10007;" => "")
+    s = replace(s, "&mdash;" => "")
+    strip(s)
+end
+
+# ── Query helpers on parsed reports ────────────────────────────────────
+
+"""
+    failing_models(parsed; phase=nothing) -> Vector{@NamedTuple{name::String, phase::Phase, error::String}}
+
+Return all models that failed at any phase (or a specific `phase`), with
+the phase and error message.
+"""
+function failing_models(parsed::Vector{ParsedModel}; phase::Union{Nothing, Phase} = nothing)
+    result = @NamedTuple{name::String, phase::Phase, error::String}[]
+    for pm in parsed
+        pm.is_broken && continue
+        for (ph, status) in pm.phases
+            status == :fail || continue
+            phase !== nothing && ph != phase && continue
+            err = get(pm.errors, ph, "")
+            push!(result, (name = pm.name, phase = ph, error = err))
+        end
+    end
+    sort!(result, by = x -> (Int(x.phase), x.name))
+    return result
+end
+
+"""
+    passing_models(parsed; up_to::Phase = VALIDATE) -> Vector{String}
+
+Return names of all non-broken models that passed at least up to `up_to` phase.
+"""
+function passing_models(parsed::Vector{ParsedModel}; up_to::Phase = SIMULATE)::Vector{String}
+    result = String[]
+    for pm in parsed
+        pm.is_broken && continue
+        passed = true
+        for ph in _PHASE_ORDER_PARSE
+            Int(ph) > Int(up_to) && break
+            if get(pm.phases, ph, :na) != :pass
+                passed = false
+                break
+            end
+        end
+        passed && push!(result, pm.name)
+    end
+    sort!(result)
+end
+
+"""
+    failing_by_error(parsed; phase=nothing) -> Dict{String, Vector{String}}
+
+Group failing models by error substring pattern (similar to `categorize_results`
+but working from parsed HTML). Returns dict mapping error category to model names.
+"""
+function failing_by_error(parsed::Vector{ParsedModel}; phase::Union{Nothing, Phase} = nothing)
+    categories = Dict{String, Vector{String}}()
+    for pm in parsed
+        pm.is_broken && continue
+        for (ph, status) in pm.phases
+            status == :fail || continue
+            phase !== nothing && ph != phase && continue
+            err = get(pm.errors, ph, "")
+            cat = _categorize_error_string(err)
+            if !haskey(categories, cat)
+                categories[cat] = String[]
+            end
+            push!(categories[cat], pm.name)
+        end
+    end
+    return categories
+end
+
+function _categorize_error_string(err::String)::String
+    isempty(err) && return "UNKNOWN"
+    occursin("STMT_NORETCALL", err) && return "STMT_NORETCALL"
+    occursin("variabilityToDAEConst", err) && return "variabilityToDAEConst"
+    occursin("FLAT_TREE", err) && return "FLAT_TREE"
+    occursin("Values.", err) && return "Values_module"
+    occursin("ExtraEquationsSystemException", err) && return "ExtraEquations"
+    occursin("MetaModelicaGeneralException", err) && return "MetaModelicaException"
+    occursin("MatchFailure", err) && return "MatchFailure"
+    occursin("UndefVarError", err) && begin
+        m = match(r"UndefVarError: `(\w+)`", err)
+        varname = m !== nothing ? m.captures[1] : "unknown"
+        return "UndefVar_$varname"
+    end
+    occursin("FieldError", err) && return "FieldError"
+    occursin("MethodError", err) && return "MethodError"
+    occursin("BoundsError", err) && return "BoundsError"
+    occursin("StackOverflow", err) && return "StackOverflow"
+    occursin("Timeout", err) && return "Timeout"
+    occursin("retcode", err) && return "SimulationFailed"
+    occursin("Validation failed", err) && return "ValidationFailed"
+    return "OTHER: " * first(err, 60)
+end
+
+"""
+    print_report_summary(parsed::Vector{ParsedModel})
+
+Print a summary table from parsed HTML report data.
+"""
+function print_report_summary(parsed::Vector{ParsedModel})
+    active = filter(pm -> !pm.is_broken, parsed)
+    broken = length(parsed) - length(active)
+    n = length(active)
+
+    fe = count(pm -> get(pm.phases, FRONTEND, :na) == :pass, active)
+    be = count(pm -> get(pm.phases, BACKEND, :na) == :pass, active)
+    sim = count(pm -> get(pm.phases, SIMULATE, :na) == :pass, active)
+    val = count(pm -> get(pm.phases, VALIDATE, :na) == :pass, active)
+
+    pct(x) = n > 0 ? "$(round(100 * x / n, digits = 1))%" : "N/A"
+
+    println()
+    println("=" ^ 60)
+    println("Parsed Report Summary ($n active, $broken known broken)")
+    println("=" ^ 60)
+    println("  Frontend:  $fe / $n  ($(pct(fe)))")
+    println("  Backend:   $be / $n  ($(pct(be)))")
+    println("  Simulate:  $sim / $n  ($(pct(sim)))")
+    println("  Validate:  $val / $n  ($(pct(val)))")
+    println("=" ^ 60)
+
+    cats = failing_by_error(parsed)
+    if !isempty(cats)
+        println()
+        println("Error categories:")
+        for (cat, models) in sort(collect(cats), by = x -> length(x[2]), rev = true)
+            println("  $(lpad(length(models), 4))  $cat")
+        end
+    end
+    println()
+end
+

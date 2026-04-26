@@ -68,9 +68,15 @@ function load_models(path::String = default_models_path())::Vector{ModelSpec}
                 ref_dict[var] = Float64(val)
             end
         end
+        skip = Set{Phase}()
+        if haskey(entry, "skipPhases")
+            for s in entry["skipPhases"]
+                push!(skip, phase_from_string(s))
+            end
+        end
         push!(specs, ModelSpec(name, key, domain, stopTime, expected,
                                ref_dict, atol, reltol, referenceFile,
-                               sig_map, issue))
+                               sig_map, issue, skip))
     end
     sort!(specs, by = s -> (s.domain, s.name))
     return specs

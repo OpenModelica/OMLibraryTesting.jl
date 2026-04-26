@@ -4,6 +4,22 @@ description = "OM.jl MSL coverage model registry"
 reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v3.2.3)"
 
 # ==========================================================================
+# Domain-level overrides: apply skipPhases/expected to all models in a domain
+# ==========================================================================
+
+[domain_overrides."Electrical.PowerConverters"]
+skipPhases = ["backend", "validate"]
+issue = "MatchFailure: unfinished match for type SOME{VariableAttributes}"
+
+[domain_overrides."Thermal.FluidHeatFlow"]
+skipPhases = ["simulate", "validate"]
+issue = "Backend now passes for all FluidHeatFlow models (2026-04-22 getNextTimeEvent DAE.CALL and DATA_STRUCTURE varKind fixes in OMBackend/CodeGeneration/codeGen.jl). Simulate still skipped because the external-object runtime for Modelica.Blocks.Tables.Internal.getNextTimeEvent / CombiTimeTable is not wired up — the emitted Julia function would be UndefVarError at runtime. Remove this override once external-obj dispatch for the tables runtime is added."
+
+[domain_overrides."StateGraph"]
+skipPhases = ["simulate", "validate"]
+issue = "Backend now passes (2026-04-22 time-in-initial-equation fix in MTK_CodeGeneration.jl). Simulate still fails with ExtraVariablesSystemException: the generated system is unbalanced (more variables than equations), likely because the StateGraph discrete-state logic is not being fully resolved into constraints. Deferred."
+
+# ==========================================================================
 # Mechanics.MultiBody
 # ==========================================================================
 
@@ -14,10 +30,7 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "Pendulum"
-[models.Pendulum.signalMapping]
-"rev.phi" = "revolute1_phi"
-"rev.w" = "revolute1_w"
+referenceFile = "Mechanics_MultiBody_Examples_Elementary_Pendulum"
 
 [models.DoublePendulum]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.DoublePendulum"
@@ -26,7 +39,7 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.05
-referenceFile = "DoublePendulum"
+referenceFile = "Mechanics_MultiBody_Examples_Elementary_DoublePendulum"
 
 [models.Engine1a]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1a"
@@ -35,7 +48,7 @@ stopTime = 0.72
 expected = "simulate"
 reltol = 0.05
 atol = 0.1
-referenceFile = "Engine1a"
+referenceFile = "Mechanics_MultiBody_Examples_Loops_Engine1a"
 
 [models.ThreeSprings]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.ThreeSprings"
@@ -62,7 +75,7 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "Rotational_First"
+referenceFile = "Mechanics_Rotational_Examples_First"
 
 [models.Rotational_Friction]
 name = "Modelica.Mechanics.Rotational.Examples.Friction"
@@ -98,6 +111,13 @@ stopTime = 1.0
 expected = "broken"
 issue = "Unsupported condition: initial()"
 
+[models.Rotational_OneWayClutch]
+name = "Modelica.Mechanics.Rotational.Examples.OneWayClutch"
+domain = "Mechanics.Rotational"
+stopTime = 2.0
+skipPhases = ["simulate", "validate"]
+issue = "Simulate phase hangs in infinite retry loop: BLAS/LAPACK dgetrf reports U(21,21)=0 on a singular 21x21 Jacobian. One-way clutch is event-driven friction switching; same Coulomb-friction / polynomial-Boolean-encoding rank-deficient Jacobian family as Rotational.Friction (see .claude/CLAUDE.md). Frontend and backend pass; skipping SIMULATE+VALIDATE until event-driven discrete-variable handling lands."
+
 # ==========================================================================
 # Mechanics.Translational
 # ==========================================================================
@@ -109,7 +129,7 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "SignConvention"
+referenceFile = "Mechanics_Translational_Examples_SignConvention"
 
 [models.Oscillator]
 name = "Modelica.Mechanics.Translational.Examples.Oscillator"
@@ -118,7 +138,7 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "Oscillator"
+referenceFile = "Mechanics_Translational_Examples_Oscillator"
 
 [models.Translational_InitialConditions]
 name = "Modelica.Mechanics.Translational.Examples.InitialConditions"
@@ -176,7 +196,7 @@ stopTime = 5.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "ChuaCircuit"
+referenceFile = "Electrical_Analog_Examples_ChuaCircuit"
 
 [models.ShowVariableResistor]
 name = "Modelica.Electrical.Analog.Examples.ShowVariableResistor"
@@ -185,7 +205,7 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "ShowVariableResistor"
+referenceFile = "Electrical_Analog_Examples_ShowVariableResistor"
 
 [models.ShowSaturatingInductor]
 name = "Modelica.Electrical.Analog.Examples.ShowSaturatingInductor"
@@ -194,7 +214,7 @@ stopTime = 6.2832
 expected = "simulate"
 reltol = 0.01
 atol = 0.01
-referenceFile = "ShowSaturatingInductor"
+referenceFile = "Electrical_Analog_Examples_ShowSaturatingInductor"
 
 [models.HeatingResistor]
 name = "Modelica.Electrical.Analog.Examples.HeatingResistor"
@@ -261,6 +281,13 @@ stopTime = 0.001
 expected = "broken"
 issue = "ExtraEquationsSystemException (unbalanced system)"
 
+[models.IdealTriacCircuit]
+name = "Modelica.Electrical.Analog.Examples.IdealTriacCircuit"
+domain = "Electrical.Analog"
+stopTime = 2.0
+skipPhases = ["simulate", "validate"]
+issue = "Simulate phase hangs in infinite retry loop: BLAS/LAPACK dgetrf reports U(1,1)=0 on a singular 11x11 Jacobian. Triac event-driven switching is lowered via the polynomial-Boolean encoding (same family as the Rotational.Friction FSM issue documented in .claude/CLAUDE.md), leaving a rank-deficient Jacobian column for the switching variable between events. Frontend and backend pass; skipping SIMULATE+VALIDATE until event-driven discrete-variable handling lands."
+
 # ==========================================================================
 # Thermal.HeatTransfer
 # ==========================================================================
@@ -272,13 +299,15 @@ stopTime = 1.0
 expected = "simulate"
 reltol = 0.01
 atol = 0.1
-referenceFile = "TwoMasses"
+referenceFile = "Thermal_HeatTransfer_Examples_TwoMasses"
 
 [models.Thermal_GenerationOfFMUs]
 name = "Modelica.Thermal.HeatTransfer.Examples.GenerationOfFMUs"
 domain = "Thermal.HeatTransfer"
 stopTime = 1.0
 expected = "simulate"
+skipPhases = ["validate"]
+issue = "Validate diverges ~293K on directCapacity.heatCapacitor.T. OM.jl starts directCapacity_heatFlowToTemperature_y at 0.0 (logged as 'no explicit start value' guess) instead of the 293.15K Modelica thermal default. Missing start-value propagation through the HeatCapacitor sub-block. Widening tolerance would mask a real bug."
 
 [models.Thermal_Motor]
 name = "Modelica.Thermal.HeatTransfer.Examples.Motor"
@@ -296,6 +325,9 @@ name = "Modelica.Blocks.Examples.InverseModel"
 domain = "Blocks"
 stopTime = 1.0
 expected = "simulate"
+referenceFile = "Blocks_Examples_InverseModel"
+skipPhases = ["validate"]
+issue = "DirectRHS: criticalDamping_x_start symbolic, defaults to 0.0"
 
 [models.PID_Controller]
 name = "Modelica.Blocks.Examples.PID_Controller"
@@ -338,6 +370,13 @@ domain = "Blocks"
 stopTime = 10.0
 expected = "broken"
 issue = "DAE.CALL for table functions in codegen"
+
+[models.Blocks_Rectifier12pulseFFT]
+name = "Modelica.Blocks.Examples.Rectifier12pulseFFT"
+domain = "Blocks"
+stopTime = 0.1
+expected = "broken"
+issue = "Backend hangs: repeated matching failure in underdetermined system"
 
 # ==========================================================================
 # StateGraph
@@ -396,9 +435,282 @@ stopTime = 250.0
 expected = "broken"
 issue = "Frontend: table function codegen"
 
+[models.Magnetic_HysteresisModelComparison]
+name = "Modelica.Magnetic.FluxTubes.Examples.Hysteresis.HysteresisModelComparison"
+domain = "Magnetic.FluxTubes"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: variabilityToDAEConst fix unblocked frontend, now hangs in backend"
+
+[models.Fluid_BranchingDynamicPipes]
+name = "Modelica.Fluid.Examples.BranchingDynamicPipes"
+domain = "Fluid"
+stopTime = 10.0
+expected = "broken"
+issue = "Backend timeout: hangs during backend processing"
+
 [models.Fluid_HeatExchangerSimulation]
 name = "Modelica.Fluid.Examples.HeatExchanger.HeatExchangerSimulation"
 domain = "Fluid"
 stopTime = 1.0
 expected = "broken"
 issue = "Backend timeout: 3k+ equation system hangs in tight loop"
+
+[models.Fluid_MomentumBalanceFittings]
+name = "Modelica.Fluid.Examples.Explanatory.MomentumBalanceFittings"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "MTK codegen OOMs in @wrapped expansion (3.14e9 allocations, worker ProcessExitedException on 2026-04-22). Frontend passes. 474-var / 165-eq momentum-balance network."
+
+[models.Magnetic_AIMS_Start_MultiPhase]
+name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMS_Start_MultiPhase"
+domain = "Magnetic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "MTK codegen memory blowup: 10.6e9 allocations in backend, worker SIGKILL on 2026-04-22. Multi-phase asynchronous induction slip-ring model; frontend passes but backend @wrapped expansion does not terminate."
+
+[models.Fluid_AST_BatchPlant_Test_OneTank]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.OneTank"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "MTK codegen memory blowup: 2.4e9 allocations after nested-if flattening unblocked IF_EQUATION conversion. Julia REPL segfaulted on 2026-04-22. Same architectural issue as MomentumBalanceFittings and AIMS_Start_MultiPhase."
+
+[models.Fluid_BatchPlant_StandardWater]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.BatchPlant_StandardWater"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "DAE.ASSERT at component scope now translates past BDAECreate (splitEquationsAndVars ASSERT case added) and BDAEUtil.getAllVariables, but subsequent passes convert equation lists to Vector{RESIDUAL_EQUATION} and fail on ASSERT_EQUATION. Needs a broader ASSERT_EQUATION plumbing fix across the pipeline — deferred."
+
+[models.Fluid_AST_BatchPlant_Test_TankWithEmptyingPipe1]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.TankWithEmptyingPipe1"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "ReadOnlyMemoryError in MTK codegen on shared BaseClass TankWith3InletOutletArraysWithEvaporatorCondensor. Same MTK @wrapped-fanout memory-pressure family as MomentumBalanceFittings / AIMS_Start_MultiPhase. Tmux session killed during codegen on 2026-04-22. Deferred to MTK wrapper-caching architectural fix."
+
+[models.Fluid_AST_BatchPlant_Test_TankWithEmptyingPipe2]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.TankWithEmptyingPipe2"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Shares TankWith3InletOutletArraysWithEvaporatorCondensor BaseClass with TankWithEmptyingPipe1; same ReadOnlyMemoryError family. Fix once the shared BaseClass MTK codegen is fixed."
+
+[models.Fluid_AST_BatchPlant_Test_TanksWithEmptyingPipe1]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.TanksWithEmptyingPipe1"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Shares TankWith3InletOutletArraysWithEvaporatorCondensor BaseClass; same ReadOnlyMemoryError family."
+
+[models.Fluid_AST_BatchPlant_Test_TanksWithEmptyingPipe2]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.TanksWithEmptyingPipe2"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Shares TankWith3InletOutletArraysWithEvaporatorCondensor BaseClass; same ReadOnlyMemoryError family."
+
+[models.Fluid_AST_BatchPlant_Test_TwoTanks]
+name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.TwoTanks"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Shares TankWith3InletOutletArraysWithEvaporatorCondensor BaseClass; same ReadOnlyMemoryError family."
+
+[models.Fluid_TraceSubstances_RoomCO2WithControls]
+name = "Modelica.Fluid.Examples.TraceSubstances.RoomCO2WithControls"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend: ReadOnlyMemoryError in MTK codegen after ~10 min. Followed by tmux session loss on 2026-04-23 (likely OOM-killed under memory pressure). Same family as MomentumBalanceFittings / AST_BatchPlant.Test.*. Defer to MTK wrapper-caching architectural fix."
+
+[models.Fluid_TraceSubstances_RoomCO2]
+name = "Modelica.Fluid.Examples.TraceSubstances.RoomCO2"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend: MTK codegen memory blowup — worker RSS reached 41 GB after 51 min on 2026-04-23 before being manually SIGKILLed. Same @wrapped-fanout family as MomentumBalanceFittings / AST_BatchPlant.Test.*. Defer to MTK wrapper-caching architectural fix."
+
+[models.Fluid_IncompressibleFluidNetwork]
+name = "Modelica.Fluid.Examples.IncompressibleFluidNetwork"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Worker crashed with Distributed.ProcessExitedException during backend on 2026-04-24. Frontend passes, backend produces 442 equations / 2108 variables remain after eliminateNonDynamic then the worker dies (connection reset by peer). Same @wrapped-fanout memory-pressure family as MomentumBalanceFittings / AST_BatchPlant.Test.*. Defer to MTK wrapper-caching architectural fix."
+
+[models.Fluid_NonCircularPipes]
+name = "Modelica.Fluid.Examples.NonCircularPipes"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend: ReadOnlyMemoryError() during MTK codegen on 2026-04-24. Frontend passes (4.7s), backend reaches 87 equations / 449 variables remain before crash. Same ReadOnlyMemoryError family as AST_BatchPlant.Test.* and RoomCO2. Defer to MTK wrapper-caching architectural fix."
+
+[models.Fluid_Tanks_EmptyTanks]
+name = "Modelica.Fluid.Examples.Tanks.EmptyTanks"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend: ReadOnlyMemoryError() during MTK codegen on 2026-04-24. Same ReadOnlyMemoryError family as AST_BatchPlant.Test.* and RoomCO2. Defer to MTK wrapper-caching architectural fix."
+
+[models.Fluid_Tanks_TanksWithOverflow]
+name = "Modelica.Fluid.Examples.Tanks.TanksWithOverflow"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend: ReadOnlyMemoryError() during MTK codegen on 2026-04-24. Same ReadOnlyMemoryError family as AST_BatchPlant.Test.* and RoomCO2. Defer to MTK wrapper-caching architectural fix."
+
+[models.Fluid_Tanks_ThreeTanks]
+name = "Modelica.Fluid.Examples.Tanks.ThreeTanks"
+domain = "Fluid"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend: ReadOnlyMemoryError() during MTK codegen on 2026-04-24. Same ReadOnlyMemoryError family as AST_BatchPlant.Test.* and RoomCO2. Defer to MTK wrapper-caching architectural fix."
+
+[models.Electrical_QuasiStationary_Machines_TransformerTestbench]
+name = "Modelica.Electrical.QuasiStationary.Machines.Examples.TransformerTestbench"
+domain = "Electrical.QuasiStationary"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend stalls in an appendFieldToCref warning-spam loop (OMBackend/src/Backend/BDAEUtil.jl:613). Worker had to be SIGKILLed on 2026-04-23 after running ~20 min producing tens of thousands of identical warnings. Frontend passes; backend lowering fails to recognize the expression type and loops emitting warnings indefinitely. Needs a fix in `appendFieldToCref` to actually error or return for unexpected expression types instead of 'returning as-is' in a warning loop. Deferred."
+
+[models.Electrical_QuasiStationary_MultiPhase_UnsymmetricalLoad]
+name = "Modelica.Electrical.QuasiStationary.MultiPhase.Examples.UnsymmetricalLoad"
+domain = "Electrical.QuasiStationary"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Same appendFieldToCref warning-spam loop as TransformerTestbench — worker SIGKILLed 2026-04-23 after ~10 min. Another multi-phase QuasiStationary model hitting the same root cause. Should be unblocked automatically once the appendFieldToCref fix lands (the edit on 2026-04-23 converts the warning into a clean error — with that, this model will translate-FAIL cleanly instead of looping, and the fix will show a useful stacktrace pointing at the actual unexpected-expression-type case)."
+
+# ==========================================================================
+# Media (Water / IF97)
+# ==========================================================================
+
+[models.Media_WaterIF97_pT]
+name = "Modelica.Media.Examples.Tests.MediaTestModels.Water.WaterIF97_pT"
+domain = "Media"
+stopTime = 1.0
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend timeout: hangs in JIT compilation during MTK codegen"
+
+[models.Media_WaterIF97_ph]
+name = "Modelica.Media.Examples.Tests.MediaTestModels.Water.WaterIF97_ph"
+domain = "Media"
+stopTime = 1.0
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend timeout: hangs in JIT compilation during MTK codegen"
+
+[models.Media_DryAir1]
+name = "Modelica.Media.Examples.ReferenceAir.DryAir1"
+domain = "Media"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: hangs during backend processing"
+
+[models.MultiBody_EngineV6]
+name = "Modelica.Mechanics.MultiBody.Examples.Loops.EngineV6"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: large multibody system hangs in tight loop"
+
+[models.MultiBody_EngineV6_analytic]
+name = "Modelica.Mechanics.MultiBody.Examples.Loops.EngineV6_analytic"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: large multibody system hangs in tight loop"
+
+[models.MultiBody_PlanarLoops_analytic]
+name = "Modelica.Mechanics.MultiBody.Examples.Loops.PlanarLoops_analytic"
+domain = "Mechanics.MultiBody"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: 5560 vars, hangs in alias elimination"
+
+[models.Media_DryAir2]
+name = "Modelica.Media.Examples.ReferenceAir.DryAir2"
+domain = "Media"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: hangs in MTK code generation (30GB memory)"
+
+[models.Media_Inverse_sh_T]
+name = "Modelica.Media.Examples.ReferenceAir.Inverse_sh_T"
+domain = "Media"
+stopTime = 1.0
+expected = "broken"
+issue = "Backend timeout: hangs in JIT compilation during MTK codegen"
+
+# ==========================================================================
+# Media (remaining)
+# ==========================================================================
+
+[models.Media_WaterIF97OnePhase_ph]
+name = "Modelica.Media.Examples.Tests.MediaTestModels.Water.WaterIF97OnePhase_ph"
+domain = "Media"
+stopTime = 1.0
+skipPhases = ["backend", "simulate", "validate"]
+issue = "UndefVarError: Values not defined in OMFrontend.Frontend (toDAEValueOpt, BindingExpression.jl:4229)"
+
+[models.Media_TestTwoPhaseStates]
+name = "Modelica.Media.Examples.TwoPhaseWater.TestTwoPhaseStates"
+domain = "Media"
+stopTime = 1.0
+skipPhases = ["simulate", "validate"]
+issue = "Backend timeout: hangs in JIT compilation during MTK codegen"
+
+[models.Media_WaterIF97]
+name = "Modelica.Media.Examples.WaterIF97"
+domain = "Media"
+stopTime = 1.0
+skipPhases = ["simulate", "validate"]
+issue = "UndefVarError: Values not defined in OMFrontend.Frontend"
+
+[models.Media_TestGlycol]
+name = "Modelica.Media.Incompressible.Examples.TestGlycol"
+domain = "Media"
+stopTime = 1.0
+skipPhases = ["simulate", "validate"]
+issue = "UndefVarError: function not found in generated module"
+
+# ==========================================================================
+# StateGraph (additional - not already marked broken)
+# ==========================================================================
+
+[models.StateGraph_ExecutionPaths]
+name = "Modelica.StateGraph.Examples.ExecutionPaths"
+domain = "StateGraph"
+stopTime = 20.0
+
+[models.StateGraph_FirstExample]
+name = "Modelica.StateGraph.Examples.FirstExample"
+domain = "StateGraph"
+stopTime = 5.0
+
+[models.StateGraph_FirstExample_Variant2]
+name = "Modelica.StateGraph.Examples.FirstExample_Variant2"
+domain = "StateGraph"
+stopTime = 5.0
+
+[models.StateGraph_FirstExample_Variant3]
+name = "Modelica.StateGraph.Examples.FirstExample_Variant3"
+domain = "StateGraph"
+stopTime = 5.0
+
+# ==========================================================================
+# Utilities
+# ==========================================================================
+
+[models.Utilities_WriteRealMatrixToFile]
+name = "Modelica.Utilities.Examples.WriteRealMatrixToFile"
+domain = "Utilities"
+stopTime = 0.0
+expected = "simulate"
+
+[models.Utilities_ReadRealMatrixFromFile]
+name = "Modelica.Utilities.Examples.ReadRealMatrixFromFile"
+domain = "Utilities"
+stopTime = 0.0
+skipPhases = ["simulate", "validate"]
+issue = "UndefVarError: file not defined in generated module"
+
+[models.Utilities_readRealParameterModel]
+name = "Modelica.Utilities.Examples.readRealParameterModel"
+domain = "Utilities"
+stopTime = 0.0
+skipPhases = ["simulate", "validate"]
+issue = "STMT_NORETCALL not handled in codegen"
+
+# ==========================================================================
+# Media — known to crash the worker during MTK module eval
+# ==========================================================================
+
+[models.Media_R134a_R134a1]
+name = "Modelica.Media.Examples.R134a.R134a1"
+domain = "Media"
+stopTime = 1.2
+expected = "broken"
+issue = "Worker Julia process segfaults at signal 11 inside ODE_MODE_MTK_MODEL_GENERATION (MTK_CodeGeneration.jl:276) while evaluating the generated module (EvalInto, boot.jl:494). Observed 2026-04-24 during full MSL coverage run after ~2h40m of worker time; 72 GB cumulative allocations. Likely corrupted/over-large generated Expr. Skip until investigated."

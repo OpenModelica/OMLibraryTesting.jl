@@ -1,0 +1,86 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+    tags: '*'
+
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            version: '1.12'
+    steps:
+      # 1. Check out the parent OM.jl repo together with all sibling
+      #    submodules (Absyn.jl, DAE.jl, MetaModelica.jl, ...). This
+      #    reproduces the local dev layout that OMLibraryTesting.jl's
+      #    [sources] block in Project.toml assumes: siblings live at
+      #    ../Pkg.jl relative to OMLibraryTesting.jl.
+      - name: Checkout OM.jl with submodules
+        uses: actions/checkout@v4
+        with:
+          repository: OpenModelica/OM.jl
+          path: OM.jl
+          submodules: recursive
+          fetch-depth: 1
+
+      # 2. Overlay the current OMLibraryTesting.jl commit (the PR / push
+      #    that triggered this workflow) on top of the OMLibraryTesting.jl
+      #    submodule directory inside OM.jl. This is what we actually
+      #    want to test, not whatever SHA the submodule was pinned to.
+      - name: Checkout OMLibraryTesting.jl under test
+        uses: actions/checkout@v4
+        with:
+          path: OM.jl/OMLibraryTesting.jl
+          fetch-depth: 1
+
+      - name: Set up Julia ${{ matrix.version }}
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.version }}
+
+      - name: Cache Julia depot
+        uses: julia-actions/cache@v2
+        with:
+          cache-name: omlibrarytesting-${{ runner.os }}-${{ matrix.version }}
+
+      # 3. Instantiate. The [sources] block in OMLibraryTesting.jl's
+      #    Project.toml pins in-tree deps by path. OM.jl has its own
+      #    [sources] for the same siblings, so a single instantiate at
+      #    the parent is enough to resolve everything.
+      - name: Pkg.instantiate (parent OM.jl)
+        working-directory: OM.jl
+        run: julia --project=. --color=yes -e 'import Pkg; Pkg.instantiate()'
+
+      - name: Pkg.instantiate (OMLibraryTesting.jl)
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: julia --project=. --color=yes -e 'import Pkg; Pkg.instantiate()'
+
+      - name: Load smoke test
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: julia --project=. --color=yes -e 'using OMLibraryTesting; println("load OK")'
+
+      # 4. Run the test target if Project.toml declares one. OMLibraryTesting.jl
+      #    does not have a registered test target yet, so this step is
+      #    guarded and soft-fails-fast if no tests are defined.
+      - name: Pkg.test
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: |
+          julia --project=. --color=yes -e '
+            import Pkg;
+            try
+              Pkg.test()
+            catch err
+              if occursin("not have a test", sprint(showerror, err))
+                println("No test target defined; skipping Pkg.test().")
+              else
+                rethrow(err)
+              end
+            end'

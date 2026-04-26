@@ -55,12 +55,19 @@ function html_escape(s::String)
 end
 
 """
-    generate_report(results; format=:html, dir, changelog, msl_version, total_time) -> String
+    generate_report(results; format=:html, dir, changelog, msl_version, total_time,
+                    filename="", name_tag="") -> String
 
 Generate a timestamped coverage report and save it to `dir`.
 
 `format` must be `:html` or `:markdown`.
 `changelog` is an optional string describing changes since the last run.
+
+Filename resolution (first non-empty wins):
+  1. `filename` — absolute override. If it has no extension, the format extension is appended.
+  2. `name_tag` — inserted into the default template: `coverage_{name_tag}_{yyyy-mm-dd_HHMM}.{ext}`.
+  3. default template: `coverage_{yyyy-mm-dd_HHMM}.{ext}`.
+
 Returns the path to the saved report file.
 """
 function generate_report(results::Vector{ModelResult};
@@ -68,14 +75,23 @@ function generate_report(results::Vector{ModelResult};
                          dir::String = DEFAULT_REPORTS_DIR,
                          changelog::String = "",
                          msl_version::String = "3.2.3",
-                         total_time::Float64 = 0.0)
+                         total_time::Float64 = 0.0,
+                         filename::String = "",
+                         name_tag::String = "")
     if format !== :html && format !== :markdown
         error("Invalid format $(repr(format)). Must be :html or :markdown.")
     end
     mkpath(dir)
     ts = Dates.format(Dates.now(), "yyyy-mm-dd_HHMM")
     ext = format === :html ? "html" : "md"
-    filepath = joinpath(dir, "coverage_$(ts).$(ext)")
+    fname = if !isempty(filename)
+        isnothing(findfirst('.', filename)) ? "$(filename).$(ext)" : filename
+    elseif !isempty(name_tag)
+        "coverage_$(name_tag)_$(ts).$(ext)"
+    else
+        "coverage_$(ts).$(ext)"
+    end
+    filepath = joinpath(dir, fname)
 
     total = length(results)
     broken = count(r -> r.spec.expected == BROKEN, results)

@@ -51,11 +51,13 @@ export PhaseResult, ModelSpec, ModelResult
 export ReferenceData, SignalComparison
 export load_models, load_models_by_domain, list_domains, load_registry_meta
 export load_reference_csv, load_comparison_signals, validate_against_reference
-export discover_experiments, merge_overrides!
+export discover_experiments, merge_overrides!, clear_discovery_cache!, auto_detect_references!
 export run_coverage, run_model, WorkerManager
 export generate_report, print_summary
 export categorize_error, categorize_results, print_error_analysis
 export models_with_error, error_for_model, run_frontend_coverage
 export subcategorize_meta_errors
+export ParsedModel, parse_report
+export failing_models, passing_models, failing_by_error, print_report_summary
 
 end

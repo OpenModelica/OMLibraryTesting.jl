@@ -72,6 +72,7 @@ struct ModelSpec
     referenceFile::String
     signalMapping::Dict{String, String}
     issue::String
+    skipPhases::Set{Phase}
 end
 
 struct ModelResult

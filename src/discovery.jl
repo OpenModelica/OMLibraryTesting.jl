@@ -35,10 +35,35 @@
 Use omc to enumerate all experiment models in a Modelica library.
 Returns a ModelSpec for each model with stopTime from the experiment annotation.
 """
+const _DISCOVERY_CACHE = Dict{Tuple{String, String}, Vector{ModelSpec}}()
+
+"""
+    clear_discovery_cache!()
+
+Clear the cached discovery results, forcing the next `discover_experiments` call
+to re-run omc.
+"""
+function clear_discovery_cache!()
+    empty!(_DISCOVERY_CACHE)
+    @info "Discovery cache cleared"
+end
+
 function discover_experiments(; library::String = "Modelica",
                                 version::String = "3.2.3",
                                 omc_path::String = "omc",
-                                filter::Regex = r"")::Vector{ModelSpec}
+                                filter::Regex = r"",
+                                cache::Bool = true)::Vector{ModelSpec}
+    cache_key = (library, version)
+    if cache && haskey(_DISCOVERY_CACHE, cache_key)
+        cached = _DISCOVERY_CACHE[cache_key]
+        specs = if !isempty(filter.pattern)
+            Base.filter(s -> occursin(filter, s.name), cached)
+        else
+            copy(cached)
+        end
+        @info "Using cached discovery: $(length(specs)) experiment models in $library $version"
+        return specs
+    end
     script = """
     loadModel($library, {"$version"});
     names := getClassNames($library, recursive=true, qualified=true);
@@ -49,13 +74,16 @@ function discover_experiments(; library::String = "Modelica",
       end if;
     end for;
     """
+    @info "Discovery: querying omc for experiment models in $library $version..."
     script_path = tempname() * ".mos"
     write(script_path, script)
+    t0 = time()
     output = try
         read(`$omc_path $script_path`, String)
     finally
         rm(script_path, force = true)
     end
+    @info "Discovery: omc query completed in $(round(time() - t0, digits=1))s"
     specs = ModelSpec[]
     for line in split(output, '\n')
         stripped = strip(line)
@@ -64,18 +92,22 @@ function discover_experiments(; library::String = "Modelica",
         parts = split(stripped, '|')
         length(parts) >= 2 || continue
         name = String(parts[1])
-        if !isempty(filter.pattern) && !occursin(filter, name)
-            continue
-        end
         stopTime = parse(Float64, parts[2])
         domain = _extract_domain(name)
         key = _name_to_key(name)
         push!(specs, ModelSpec(name, key, domain, stopTime,
                                UNKNOWN, Dict{String, Float64}(),
-                               0.01, 3e-3, "", Dict{String, String}(), ""))
+                               0.01, 3e-3, "", Dict{String, String}(), "",
+                               Set{Phase}()))
     end
     sort!(specs, by = s -> (s.domain, s.name))
+    if cache
+        _DISCOVERY_CACHE[cache_key] = specs
+    end
     @info "Discovered $(length(specs)) experiment models in $library $version"
+    if !isempty(filter.pattern)
+        specs = Base.filter(s -> occursin(filter, s.name), specs)
+    end
     return specs
 end
 
@@ -125,6 +157,7 @@ function merge_overrides!(specs::Vector{ModelSpec},
     end
     data = TOML.parsefile(overrides_path)
     overrides = get(data, "models", Dict())
+    domain_overrides = get(data, "domain_overrides", Dict())
     # Build a lookup by model name
     override_by_name = Dict{String, Any}()
     for (key, entry) in overrides
@@ -134,33 +167,106 @@ function merge_overrides!(specs::Vector{ModelSpec},
     end
     merged = ModelSpec[]
     for spec in specs
-        if haskey(override_by_name, spec.name)
-            entry = override_by_name[spec.name]
-            expected = phase_from_string(get(entry, "expected", "unknown"))
-            atol = Float64(get(entry, "atol", spec.atol))
-            reltol = Float64(get(entry, "reltol", spec.reltol))
-            referenceFile = get(entry, "referenceFile", "")::String
-            issue = get(entry, "issue", "")::String
-            stopTime = Float64(get(entry, "stopTime", spec.stopTime))
-            sig_map = Dict{String, String}()
-            if haskey(entry, "signalMapping")
-                for (csv_name, omjl_name) in entry["signalMapping"]
-                    sig_map[csv_name] = omjl_name
-                end
-            end
-            ref_dict = Dict{String, Float64}()
-            if haskey(entry, "reference")
-                for (var, val) in entry["reference"]
-                    ref_dict[var] = Float64(val)
-                end
-            end
-            push!(merged, ModelSpec(spec.name, spec.key, spec.domain,
-                                    stopTime, expected, ref_dict,
-                                    atol, reltol, referenceFile,
-                                    sig_map, issue))
-        else
+        # Start with domain-level overrides, then per-model overrides take precedence
+        domain_entry = get(domain_overrides, spec.domain, nothing)
+        entry = get(override_by_name, spec.name, nothing)
+
+        if entry === nothing && domain_entry === nothing
             push!(merged, spec)
+            continue
+        end
+
+        # Merge: domain defaults, then model-specific overrides on top
+        effective = Dict{String, Any}()
+        if domain_entry !== nothing
+            merge!(effective, domain_entry)
+        end
+        if entry !== nothing
+            merge!(effective, entry)
+        end
+
+        expected = phase_from_string(get(effective, "expected", "unknown"))
+        atol = Float64(get(effective, "atol", spec.atol))
+        reltol = Float64(get(effective, "reltol", spec.reltol))
+        referenceFile = get(effective, "referenceFile", "")::String
+        issue = get(effective, "issue", "")::String
+        stopTime = Float64(get(effective, "stopTime", spec.stopTime))
+        sig_map = Dict{String, String}()
+        if haskey(effective, "signalMapping")
+            for (csv_name, omjl_name) in effective["signalMapping"]
+                sig_map[csv_name] = omjl_name
+            end
+        end
+        ref_dict = Dict{String, Float64}()
+        if haskey(effective, "reference")
+            for (var, val) in effective["reference"]
+                ref_dict[var] = Float64(val)
+            end
+        end
+        skip = Set{Phase}()
+        if haskey(effective, "skipPhases")
+            for s in effective["skipPhases"]
+                push!(skip, phase_from_string(s))
+            end
+        end
+        push!(merged, ModelSpec(spec.name, spec.key, spec.domain,
+                                stopTime, expected, ref_dict,
+                                atol, reltol, referenceFile,
+                                sig_map, issue, skip))
+    end
+    n_broken = count(s -> s.expected == BROKEN, merged)
+    n_skipped = count(s -> !isempty(s.skipPhases), merged)
+    n_overridden = count(s -> haskey(override_by_name, s.name), merged)
+    n_domain = length(domain_overrides)
+    @info "Overrides applied: $(n_overridden) per-model, $(n_domain) domain rules, $(n_broken) broken, $(n_skipped) with phase skips"
+    return merged
+end
+
+"""
+    _model_name_to_ref_key(name) -> String
+
+Convert a qualified Modelica name to the reference file key.
+E.g. "Modelica.Blocks.Examples.BusUsage" -> "Blocks_Examples_BusUsage"
+"""
+function _model_name_to_ref_key(name::String)::String
+    # Strip "Modelica." prefix, replace dots with underscores
+    stripped = replace(name, r"^Modelica\." => "")
+    return replace(stripped, "." => "_")
+end
+
+"""
+    auto_detect_references!(specs, ref_dir) -> specs
+
+For models without an explicit referenceFile, check if a matching CSV
+exists in the reference directory using the naming convention.
+"""
+function auto_detect_references!(specs::Vector{ModelSpec},
+                                  ref_dir::String)::Vector{ModelSpec}
+    csv_dir = joinpath(ref_dir, "csv")
+    if !isdir(csv_dir)
+        return specs
+    end
+    n_detected = 0
+    result = ModelSpec[]
+    for spec in specs
+        if !isempty(spec.referenceFile)
+            push!(result, spec)
+            continue
+        end
+        ref_key = _model_name_to_ref_key(spec.name)
+        csv_path = joinpath(csv_dir, ref_key * ".csv")
+        if isfile(csv_path)
+            n_detected += 1
+            push!(result, ModelSpec(spec.name, spec.key, spec.domain,
+                                     spec.stopTime, spec.expected, spec.reference,
+                                     spec.atol, spec.reltol, ref_key,
+                                     spec.signalMapping, spec.issue, spec.skipPhases))
+        else
+            push!(result, spec)
         end
     end
-    return merged
+    if n_detected > 0
+        @info "Auto-detected $n_detected reference files"
+    end
+    return result
 end
