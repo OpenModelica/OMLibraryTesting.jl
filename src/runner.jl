@@ -54,6 +54,14 @@ function WorkerManager(; msl_version::String = "MSL:3.2.3",
 end
 
 """
+Pids spawned by this module (via `ensure_worker!` or `ensure_pool!`).
+Only these pids are reclaimed by `kill_worker!` / `cleanup!(::WorkerPool)`.
+Pids adopted from pre-existing Distributed workers are NOT in this set
+and are left alone at cleanup.
+"""
+const _SPAWNED_PIDS = Set{Int}()
+
+"""
     ensure_worker!(mgr) -> pid
 
 Ensure a live worker process exists with packages loaded. Spawns a new one
@@ -67,6 +75,7 @@ function ensure_worker!(mgr::WorkerManager)::Int
     t0 = time()
     pids = addprocs(1; exeflags = "--project=$(Base.active_project())")
     mgr.pid = pids[1]
+    push!(_SPAWNED_PIDS, mgr.pid)
     @info "Worker spawned (pid=$(mgr.pid)), loading packages..."
     Distributed.remotecall_eval(Main, [mgr.pid],
         :(using OMLibraryTesting, DifferentialEquations; import OM, OMFrontend))
@@ -77,11 +86,12 @@ function ensure_worker!(mgr::WorkerManager)::Int
 end
 
 function kill_worker!(mgr::WorkerManager)
-    if mgr.pid !== nothing && mgr.pid in workers()
+    if mgr.pid !== nothing && mgr.pid in _SPAWNED_PIDS && mgr.pid in workers()
         try
             rmprocs(mgr.pid; waitfor = 5.0)
         catch
         end
+        delete!(_SPAWNED_PIDS, mgr.pid)
     end
     mgr.pid = nothing
     mgr.ready = false
@@ -91,7 +101,186 @@ function cleanup!(mgr::WorkerManager)
     kill_worker!(mgr)
 end
 
+# ── Worker Pool ─────────────────────────────────────────────────────────
+
+"""
+    WorkerPool(n; msl_version, ref_dir)
+
+A pool of `n` WorkerManager instances for parallel model execution. Each
+manager owns a Distributed.jl worker process with independent crash/restart
+state. Up to `n` models run concurrently.
+"""
+mutable struct WorkerPool
+    managers::Vector{WorkerManager}
+end
+
+function WorkerPool(n::Int; msl_version::String = "MSL:3.2.3",
+                    ref_dir::String = joinpath(@__DIR__, "..", "reference"))
+    n >= 1 || throw(ArgumentError("WorkerPool size must be >= 1, got $n"))
+    managers = [WorkerManager(; msl_version = msl_version, ref_dir = ref_dir) for _ in 1:n]
+    WorkerPool(managers)
+end
+
+"""
+    ensure_pool!(pool) -> Vector{Int}
+
+Adopt any pre-added Distributed workers first, then spawn the rest in a
+single `addprocs` call. Adopted workers are not killed at cleanup; only
+workers spawned by this pool (or by per-manager restart) are reclaimed.
+Packages are loaded on every worker (idempotent for adopted ones).
+Returns the pids of all live workers.
+"""
+function ensure_pool!(pool::WorkerPool)::Vector{Int}
+    assigned_pids = Set{Int}(mgr.pid for mgr in pool.managers if mgr.pid !== nothing)
+    available_existing = Int[w for w in workers() if w != myid() && !(w in assigned_pids)]
+
+    n_adopted = 0
+    for mgr in pool.managers
+        if mgr.pid === nothing && !isempty(available_existing)
+            mgr.pid = popfirst!(available_existing)
+            n_adopted += 1
+        end
+    end
+
+    needs_spawn = WorkerManager[]
+    for mgr in pool.managers
+        if mgr.pid === nothing || !(mgr.pid in workers())
+            mgr.pid = nothing
+            push!(needs_spawn, mgr)
+        end
+    end
+
+    new_pids = Int[]
+    if !isempty(needs_spawn)
+        n = length(needs_spawn)
+        @info "Spawning $n worker process(es)..."
+        t0 = time()
+        new_pids = addprocs(n; exeflags = "--project=$(Base.active_project())")
+        for (mgr, pid) in zip(needs_spawn, new_pids)
+            mgr.pid = pid
+            push!(_SPAWNED_PIDS, pid)
+        end
+        @info "Workers spawned (pids=$new_pids)"
+        elapsed = round(time() - t0, digits = 1)
+        @info "Spawn took $(elapsed)s"
+    end
+
+    all_pids = Int[mgr.pid for mgr in pool.managers if mgr.pid !== nothing]
+    if !isempty(all_pids)
+        @info "Pool: $(length(all_pids)) workers ($n_adopted adopted, $(length(new_pids)) spawned), loading packages..."
+        t0 = time()
+        Distributed.remotecall_eval(Main, all_pids,
+            :(using OMLibraryTesting, DifferentialEquations; import OM, OMFrontend))
+        for mgr in pool.managers
+            if mgr.pid !== nothing
+                mgr.ready = true
+            end
+        end
+        elapsed = round(time() - t0, digits = 1)
+        @info "Workers ready ($(elapsed)s)"
+    end
+    return all_pids
+end
+
+function cleanup!(pool::WorkerPool)
+    for mgr in pool.managers
+        kill_worker!(mgr)
+    end
+end
+
 # ── Worker-Side Function ────────────────────────────────────────────────
+
+"""
+    _resolve_init_alg(name::String) -> NamedTuple
+
+Map an initializealg name from the toml to the corresponding init-algorithm
+constructor. Empty name returns the empty tuple (solver default applies).
+Supported: BrownFullBasicInit, ShampineCollocationInit, OverrideInit,
+CheckInit, NoInit, BrownBasicInit.
+"""
+function _resolve_init_alg(name::String)
+    isempty(name) && return NamedTuple()
+    local _try = (path) -> try Base.eval(Main, path) catch; nothing end
+    for sym in (:BrownFullBasicInit, :ShampineCollocationInit, :OverrideInit,
+                :CheckInit, :NoInit, :BrownBasicInit)
+        if name == String(sym)
+            local ctor = _try(Expr(:call, sym))
+            ctor !== nothing && return (; initializealg = ctor)
+        end
+    end
+    @warn "Unknown / unavailable initializealg name in spec, ignoring" initializealg=name
+    return NamedTuple()
+end
+
+"""
+    _resolve_solver(name) -> NamedTuple
+
+Map a solver name string from the toml to the OM.simulate kwargs.
+For IDA we also pin BrownFullBasicInit since the residual-form DAE rejects
+MTK's default CheckInit. Empty/unknown -> empty NamedTuple (default solver).
+"""
+function _resolve_solver(name::String)
+    isempty(name) && return NamedTuple()
+    # Look up solvers and init algorithms via the worker's loaded packages.
+    # The simulate worker has `using OM` which transitively loads OrdinaryDiffEq*, Sundials, DiffEqBase.
+    local _try = (path) -> try Base.eval(Main, path) catch; nothing end
+    if name == "IDA"
+        # Sundials.IDA + Brown's IC algorithm — closest to OMC/Dymola's DASSL behavior
+        local IDA = _try(:(Sundials.IDA))
+        local Brown = _try(:(BrownFullBasicInit))
+        IDA !== nothing && Brown !== nothing &&
+            return (; solver = IDA(), initializealg = Brown())
+    elseif name == "QNDF"
+        local s = _try(:(QNDF));     s !== nothing && return (; solver = s(), dense = false)
+    elseif name == "FBDF"
+        local s = _try(:(FBDF));     s !== nothing && return (; solver = s(), dense = false)
+    elseif name == "TRBDF2"
+        local s = _try(:(TRBDF2));   s !== nothing && return (; solver = s(), dense = false)
+    elseif name == "RadauIIA5"
+        local s = _try(:(RadauIIA5)); s !== nothing && return (; solver = s(), dense = false)
+    elseif name == "Rodas5P"
+        local s = _try(:(Rodas5P));  s !== nothing && return (; solver = s())
+    elseif name == "Rodas5"
+        local s = _try(:(Rodas5));   s !== nothing && return (; solver = s())
+    end
+    @warn "Unknown / unavailable solver name in spec, falling back to default" solver=name
+    return NamedTuple()
+end
+
+# Escape regex metacharacters so signal names containing `.`, `[`, `]`, etc.
+# match literally inside OMBackend's `occursin(Regex(p), name)` filter.
+_escape_regex(s::AbstractString) =
+    replace(s, r"[\\.\[\]\(\)\+\*\?\^\$\|]" => sm -> "\\" * sm)
+
+# Read the reference CSV header and return regex patterns (anchored,
+# underscore-form) for every non-`time` column so OMBackend's observedFilter
+# preserves the alias-map entries the validate phase will look up.
+function _reference_signal_filter(ref_dir::String,
+                                   reference_file::String,
+                                   signal_mapping::Dict{String, String})::Vector{String}
+    isempty(reference_file) && return String[]
+    local csv_path = joinpath(ref_dir, "csv", reference_file * ".csv")
+    isfile(csv_path) || return String[]
+    local header_line = ""
+    try
+        open(csv_path) do io; header_line = readline(io); end
+    catch
+        return String[]
+    end
+    local patterns = String[]
+    local seen = Set{String}()
+    for col in split(header_line, ',')
+        local raw = strip(col, ['"', ' ', '\t', '\r', '\n'])
+        (isempty(raw) || raw == "time") && continue
+        local mapped = get(signal_mapping, String(raw), String(raw))
+        local under = replace(mapped, "." => "_")
+        if !(under in seen)
+            push!(seen, under)
+            push!(patterns, string("^", _escape_regex(under), "\$"))
+        end
+    end
+    return patterns
+end
 
 """
     _run_model_phases(model_name, msl_version, stop_time, reference_file,
@@ -113,7 +302,12 @@ function _run_model_phases(model_name::String,
                            signal_mapping::Dict{String, String},
                            ref_dir::String,
                            phase_ints::Vector{Int},
-                           check_sim_code::Bool = false)
+                           check_sim_code::Bool = false,
+                           solver_name::String = "",
+                           dtmax::Float64 = 0.0,
+                           init_alg::String = "",
+                           solver_atol::Float64 = 0.0,
+                           solver_reltol::Float64 = 0.0)
     results = Tuple{Int, Bool, Float64, Union{Nothing, String}}[]
     highest = 0
     sol = nothing
@@ -137,7 +331,19 @@ function _run_model_phases(model_name::String,
                 OM.translate(model_name; MSL_Version = msl_version,
                              checkSimCode = check_sim_code)
             elseif phase_int == Int(SIMULATE)
-                sol = OM.simulate(model_name; stopTime = stop_time)
+                # Build kwargs: solver + dtmax (if non-zero) + initializealg (if specified).
+                # Per-model initializealg overrides any default from the solver mapping.
+                local _sa = isempty(solver_name) ? NamedTuple() : _resolve_solver(solver_name)
+                local _extra = dtmax > 0.0 ? (; dtmax = dtmax) : NamedTuple()
+                local _ia = isempty(init_alg) ? NamedTuple() : _resolve_init_alg(init_alg)
+                local _tol = NamedTuple()
+                if solver_reltol > 0.0
+                    _tol = (; _tol..., reltol = solver_reltol)
+                end
+                if solver_atol > 0.0
+                    _tol = (; _tol..., abstol = solver_atol)
+                end
+                sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _tol...)
                 if sol.retcode != ReturnCode.Success
                     error("Simulation retcode: $(sol.retcode)")
                 end
@@ -198,6 +404,36 @@ end
 const GRACE_PERIOD = 15.0
 
 """
+    _write_started_marker(model_name) -> String
+
+Write an empty marker file `test_<name>_<yyyy-mm-dd>_<HH-MM-SS>_started` into
+`tempdir()` so an external observer can see which models are currently in
+flight. Returns the path so the caller can remove it on completion. Errors
+during the write are swallowed so a marker failure cannot break the run.
+"""
+function _write_started_marker(model_name::String)::String
+    path = ""
+    try
+        ts = Dates.now()
+        date = Dates.format(ts, "yyyy-mm-dd")
+        clock = Dates.format(ts, "HH-MM-SS")
+        path = joinpath(tempdir(), "test_$(model_name)_$(date)_$(clock)_started")
+        touch(path)
+    catch
+    end
+    return path
+end
+
+function _remove_started_marker(path::String)
+    isempty(path) && return
+    try
+        isfile(path) && rm(path; force = true)
+    catch
+    end
+    return nothing
+end
+
+"""
     run_on_worker(mgr, spec, phases_to_run; timeout, grace_period) -> ModelResult
 
 Run all phases for a model on the worker process with an escalating timeout:
@@ -206,16 +442,19 @@ Run all phases for a model on the worker process with an escalating timeout:
 """
 function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                        phases_to_run::Vector{Phase};
-                       timeout::Float64 = 1500.0,
+                       timeout::Float64 = 1000.0,
                        grace_period::Float64 = GRACE_PERIOD,
                        check_sim_code::Bool = false)::ModelResult
+    marker_path = _write_started_marker(spec.name)
     pid = ensure_worker!(mgr)
     phase_ints = [Int(p) for p in phases_to_run]
 
     future = remotecall(OMLibraryTesting._run_model_phases, pid,
         spec.name, mgr.msl_version, spec.stopTime,
         spec.referenceFile, spec.reference, spec.atol, spec.reltol,
-        spec.signalMapping, mgr.ref_dir, phase_ints, check_sim_code)
+        spec.signalMapping, mgr.ref_dir, phase_ints, check_sim_code,
+        spec.solver, spec.dtmax, spec.initAlg,
+        spec.solverAtol, spec.solverReltol)
 
     t0 = time()
     interrupted = Ref(false)
@@ -328,6 +567,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     finally
         close(timer_interrupt)
         close(timer_kill)
+        _remove_started_marker(marker_path)
     end
 end
 
@@ -337,18 +577,22 @@ end
     run_model(spec, mgr; timeout, phases_to_run) -> ModelResult
 
 Run all applicable phases for a single model on the worker process.
-Each model has a wall-clock timeout (default 25 minutes).
+Each model has a wall-clock timeout (default 1000 seconds ≈ 16.7 minutes).
 """
 function run_model(spec::ModelSpec, mgr::WorkerManager;
-                    timeout::Float64 = 1500.0,
+                    timeout::Float64 = 1000.0,
                     phases_to_run::Vector{Phase} = PHASE_ORDER,
                     check_sim_code::Bool = false)::ModelResult
-    if spec.expected == BROKEN
-        @info "Skipping known-broken model: $(spec.name)" issue=spec.issue
-        return ModelResult(spec, PhaseResult[], BROKEN,
-                          Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
-    end
     effective_phases = filter(p -> p ∉ spec.skipPhases, phases_to_run)
+    if spec.expected == BROKEN
+        effective_phases = filter(p -> p == FRONTEND, effective_phases)
+        if isempty(effective_phases)
+            @info "Skipping known-broken model (frontend not requested): $(spec.name)" issue=spec.issue
+            return ModelResult(spec, PhaseResult[], BROKEN,
+                              Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
+        end
+        @info "Running known-broken model in frontend only: $(spec.name)" issue=spec.issue
+    end
     if isempty(effective_phases)
         @info "Skipping model (all requested phases skipped): $(spec.name)"
         return ModelResult(spec, PhaseResult[], BROKEN,
@@ -360,7 +604,7 @@ end
 
 """
     run_coverage(; library, version, domain, model, filter, overrides, timeout,
-                   phases, from_phase, to_phase) -> Vector{ModelResult}
+                   phases, from_phase, to_phase, n_workers) -> Vector{ModelResult}
 
 Run the full MSL coverage suite. Models are discovered automatically via omc.
 TOML overrides (reference files, known broken, signal mappings) are merged in.
@@ -375,6 +619,12 @@ Use `from_phase` and `to_phase` to restrict which phases are run. For example,
 Set `check_sim_code=true` to run SimulationCode.SimCodeCheck on the optimized
 SimCode before MTK codegen during the BACKEND phase. Violations are printed
 to the worker's stderr and do not alter pass/fail of the phase itself.
+
+Set `n_workers > 1` to run models in parallel. Each worker is a separate
+Distributed.jl process. Memory cost is roughly 1 GB per worker; pick a number
+that fits available RAM. The default is `max(1, nprocs() - 1)`: if you have
+pre-added workers via `addprocs(N)`, the pool adopts them; otherwise the pool
+spawns a single worker and runs serially.
 """
 function run_coverage(; library::String = "Modelica",
                         version::String = "3.2.3",
@@ -383,15 +633,17 @@ function run_coverage(; library::String = "Modelica",
                         model::String = "",
                         filter::Regex = r"",
                         overrides::String = default_models_path(),
-                        timeout::Float64 = 1500.0,
+                        timeout::Float64 = 1000.0,
                         phases::Vector{Phase} = PHASE_ORDER,
                         from_phase::Phase = FRONTEND,
                         to_phase::Phase = VALIDATE,
-                        check_sim_code::Bool = false)::Vector{ModelResult}
+                        check_sim_code::Bool = false,
+                        n_workers::Int = max(1, nprocs() - 1))::Vector{ModelResult}
     t_start = time()
+    n_workers >= 1 || throw(ArgumentError("n_workers must be >= 1, got $n_workers"))
     phases = Base.filter(p -> Int(from_phase) <= Int(p) <= Int(to_phase), phases)
     phase_names = join([PHASE_NAMES[p] for p in phases], ", ")
-    @info "Starting coverage run (phases: $phase_names)"
+    @info "Starting coverage run (phases: $phase_names, n_workers: $n_workers)"
     specs = discover_experiments(; library = library, version = version, filter = filter)
     specs = merge_overrides!(specs, overrides)
     ref_dir = joinpath(dirname(overrides), "..", "reference") |> abspath
@@ -410,25 +662,53 @@ function run_coverage(; library::String = "Modelica",
     end
     n_broken = count(s -> s.expected == BROKEN, specs)
     n_active = length(specs) - n_broken
-    @info "Running $n_active models ($n_broken known broken, $(length(specs)) total), timeout=$(round(Int, timeout))s"
-    mgr = WorkerManager(; msl_version = msl_version)
-    results = ModelResult[]
+    total_models = length(specs)
+    @info "Running $n_active models ($n_broken known broken, $total_models total), timeout=$(round(Int, timeout))s"
+
+    effective_workers = min(n_workers, total_models)
+    pool = WorkerPool(effective_workers; msl_version = msl_version)
+    ensure_pool!(pool)
+
+    indexed_results = Vector{Union{Nothing, ModelResult}}(nothing, total_models)
+    work_chan = Channel{Tuple{Int, ModelSpec}}(total_models)
+    for (i, spec) in enumerate(specs)
+        put!(work_chan, (i, spec))
+    end
+    close(work_chan)
+
+    log_lock = ReentrantLock()
+    started = Threads.Atomic{Int}(0)
+
     try
-        for (i, spec) in enumerate(specs)
-            @info "[$i/$(length(specs))] $(spec.name)"
-            result = run_model(spec, mgr; timeout = timeout, phases_to_run = phases,
-                               check_sim_code = check_sim_code)
-            push!(results, result)
+        @sync for (worker_idx, mgr) in enumerate(pool.managers)
+            @async begin
+                for (i, spec) in work_chan
+                    n = Threads.atomic_add!(started, 1) + 1
+                    lock(log_lock) do
+                        @info "[$n/$total_models] (W$worker_idx) $(spec.name)"
+                    end
+                    result = run_model(spec, mgr; timeout = timeout,
+                                       phases_to_run = phases,
+                                       check_sim_code = check_sim_code)
+                    indexed_results[i] = result
+                end
+            end
         end
     catch e
-        if e isa InterruptException
-            @warn "Run interrupted by user after $(length(results))/$(length(specs)) models"
+        is_interrupt = e isa InterruptException ||
+                       (e isa CompositeException &&
+                        any(ex -> ex isa InterruptException, e.exceptions))
+        if is_interrupt
+            n_done = count(!isnothing, indexed_results)
+            @warn "Run interrupted by user after $n_done/$total_models models"
         else
             rethrow()
         end
     finally
-        cleanup!(mgr)
+        cleanup!(pool)
     end
+
+    results = ModelResult[r for r in indexed_results if r !== nothing]
     total_time = time() - t_start
     print_summary(results; total_time = total_time)
     return results

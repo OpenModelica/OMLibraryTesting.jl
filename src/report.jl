@@ -41,8 +41,12 @@ function phase_cell(results::Vector{PhaseResult}, target::Phase)
     if r.success
         return "<td class=\"ok\">&#10003; $time_str</td>"
     else
-        tooltip = isnothing(r.error) ? "" : " title=\"$(html_escape(r.error))\""
-        return "<td class=\"fail\"$tooltip>&#10007; $time_str</td>"
+        if isnothing(r.error)
+            return "<td class=\"fail\">&#10007; $time_str</td>"
+        else
+            escaped = html_escape(r.error)
+            return "<td class=\"fail\" data-error=\"$escaped\" onclick=\"showError(this)\">&#10007; $time_str</td>"
+        end
     end
 end
 
@@ -192,7 +196,20 @@ function _generate_html(results, filepath, ts, total, broken, tested,
       table.results td { border: 1px solid #ccc; padding: 4px 10px; font-size: 0.9em; }
       .model-name { font-family: monospace; font-size: 0.85em; }
       .ok { background: #d4edda; color: #155724; text-align: center; }
-      .fail { background: #f8d7da; color: #721c24; text-align: center; cursor: help; }
+      .fail { background: #f8d7da; color: #721c24; text-align: center; cursor: pointer; }
+      .fail[data-error]:hover { text-decoration: underline dotted; }
+      #error-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+                     z-index: 1000; align-items: center; justify-content: center; }
+      #error-modal.open { display: flex; }
+      #error-modal-box { background: #fff; border-radius: 6px; padding: 1.5em 2em;
+                         max-width: 70vw; max-height: 80vh; overflow-y: auto;
+                         box-shadow: 0 8px 32px rgba(0,0,0,0.25); position: relative; }
+      #error-modal-close { position: absolute; top: 0.6em; right: 0.8em;
+                           font-size: 1.3em; cursor: pointer; color: #555; border: none;
+                           background: none; }
+      #error-modal-close:hover { color: #000; }
+      #error-modal-text { font-family: monospace; font-size: 0.85em; white-space: pre-wrap;
+                          color: #721c24; margin-top: 0.5em; }
       .na { color: #888; text-align: center; }
       .time { text-align: right; color: #666; font-family: monospace; }
       .broken-row { opacity: 0.5; }
@@ -209,10 +226,10 @@ function _generate_html(results, filepath, ts, total, broken, tested,
 
     <table class="summary-table">
     <tr><th>Stage</th><th>Passed</th><th>Total</th><th>Rate</th></tr>
-    <tr><td>Frontend</td><td>$frontend_pass</td><td>$tested</td><td>$(pct(frontend_pass, tested))</td></tr>
-    <tr><td>Backend</td><td>$backend_pass</td><td>$tested</td><td>$(pct(backend_pass, tested))</td></tr>
-    <tr><td>Simulate</td><td>$simulate_pass</td><td>$tested</td><td>$(pct(simulate_pass, tested))</td></tr>
-    <tr><td>Validate</td><td>$validate_pass</td><td>$has_ref</td><td>$(pct(validate_pass, has_ref))</td></tr>
+    <tr><td>Frontend</td><td>$frontend_pass</td><td>$total</td><td>$(pct(frontend_pass, total))</td></tr>
+    <tr><td>Backend</td><td>$backend_pass</td><td>$total</td><td>$(pct(backend_pass, total))</td></tr>
+    <tr><td>Simulate</td><td>$simulate_pass</td><td>$total</td><td>$(pct(simulate_pass, total))</td></tr>
+    <tr><td>Validate</td><td>$validate_pass</td><td>$total</td><td>$(pct(validate_pass, total))</td></tr>
     </table>
 
     <table class="results">
@@ -230,6 +247,30 @@ function _generate_html(results, filepath, ts, total, broken, tested,
     $(String(take!(rows)))
     </tbody>
     </table>
+    <div id="error-modal">
+      <div id="error-modal-box">
+        <button id="error-modal-close" onclick="closeError()" title="Close">&times;</button>
+        <strong>Error detail</strong>
+        <pre id="error-modal-text"></pre>
+      </div>
+    </div>
+    <script>
+      function showError(td) {
+        var msg = td.getAttribute('data-error');
+        if (!msg) return;
+        document.getElementById('error-modal-text').textContent = msg;
+        document.getElementById('error-modal').classList.add('open');
+      }
+      function closeError() {
+        document.getElementById('error-modal').classList.remove('open');
+      }
+      document.getElementById('error-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeError();
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeError();
+      });
+    </script>
     </body>
     </html>
     """
@@ -256,12 +297,10 @@ function _generate_markdown(results, filepath, ts, total, broken, tested,
     println(io, "")
     println(io, "| Stage | Passed | Total | Rate |")
     println(io, "|-------|--------|-------|------|")
-    println(io, "| Frontend | $frontend_pass | $tested | $(pct(frontend_pass, tested)) |")
-    println(io, "| Backend | $backend_pass | $tested | $(pct(backend_pass, tested)) |")
-    println(io, "| Simulate | $simulate_pass | $tested | $(pct(simulate_pass, tested)) |")
-    if has_ref > 0
-        println(io, "| Validate | $validate_pass | $has_ref | $(pct(validate_pass, has_ref)) |")
-    end
+    println(io, "| Frontend | $frontend_pass | $total | $(pct(frontend_pass, total)) |")
+    println(io, "| Backend | $backend_pass | $total | $(pct(backend_pass, total)) |")
+    println(io, "| Simulate | $simulate_pass | $total | $(pct(simulate_pass, total)) |")
+    println(io, "| Validate | $validate_pass | $total | $(pct(validate_pass, total)) |")
     println(io, "")
     println(io, "Known broken: $broken")
     println(io, "")
@@ -283,6 +322,59 @@ function _generate_markdown(results, filepath, ts, total, broken, tested,
         end
         println(io, "")
     end
+    #= Per-phase failure lists. A model is "stuck at phase X" when it
+       succeeded through phase X but failed at X+1 (or X is the highest it
+       reached). Skip models marked `broken` since those are expected to
+       fail. The error message snippet helps triage clusters without
+       jumping to the full result vector. =#
+    function _failures_stuck_at(phase::Phase)
+        out = ModelResult[]
+        for r in results
+            r.spec.expected == BROKEN && continue
+            local fePhases = Dict(p.phase => p for p in r.phases)
+            local feOk = get(fePhases, FRONTEND, nothing) !== nothing &&
+                         fePhases[FRONTEND].success
+            feOk || continue
+            if r.highest == phase
+                push!(out, r)
+            end
+        end
+        sort!(out; by = r -> r.spec.name)
+        return out
+    end
+    function _print_failure_section(label::String, phase::Phase)
+        local fails = _failures_stuck_at(phase)
+        println(io, "## $label ($(length(fails)))")
+        println(io, "")
+        if isempty(fails)
+            println(io, "_None_")
+            println(io, "")
+            return
+        end
+        for r in fails
+            #= Prefer the runtime error captured by the failed PhaseResult
+               (first phase with success=false); fall back to the static
+               issue annotation from the discovery override file. =#
+            local err = ""
+            for pr in r.phases
+                if !pr.success && pr.error !== nothing && !isempty(pr.error)
+                    err = pr.error
+                    break
+                end
+            end
+            if isempty(err)
+                err = r.spec.issue
+            end
+            local snippet = isempty(err) ? "_no error message_" :
+                            first(replace(err, '\n' => ' '), 200)
+            println(io, "- `$(r.spec.name)` — $snippet")
+        end
+        println(io, "")
+    end
+    _print_failure_section("Backend failures (Frontend✓, Backend✗)", FRONTEND)
+    _print_failure_section("Simulate failures (Backend✓, Simulate✗)", BACKEND)
+    _print_failure_section("Validate failures (Simulate✓, Validate✗)", SIMULATE)
+
     println(io, "## Passing Models ($(frontend_pass))")
     println(io, "")
     passing = sort([r.spec.name for r in results if r.highest >= FRONTEND])
@@ -292,4 +384,44 @@ function _generate_markdown(results, filepath, ts, total, broken, tested,
     println(io, "")
 
     return String(take!(io))
+end
+
+"""
+    run_coverage_and_report(; <run_coverage kwargs...>,
+                              format=:html, dir=DEFAULT_REPORTS_DIR,
+                              changelog="", filename="", name_tag="")
+                            -> Vector{ModelResult}
+
+Runs `run_coverage` with the given arguments, then automatically saves both an
+HTML and a Markdown coverage report via `generate_report`. Returns the results vector.
+"""
+function run_coverage_and_report(; library::String = "Modelica",
+                                   version::String = "3.2.3",
+                                   msl_version::String = "MSL:3.2.3",
+                                   domain::String = "",
+                                   model::String = "",
+                                   filter::Regex = r"",
+                                   overrides::String = default_models_path(),
+                                   timeout::Float64 = 1000.0,
+                                   phases::Vector{Phase} = PHASE_ORDER,
+                                   from_phase::Phase = FRONTEND,
+                                   to_phase::Phase = VALIDATE,
+                                   check_sim_code::Bool = false,
+                                   n_workers::Int = max(1, nprocs() - 1),
+                                   format::Symbol = :html,  # kept for compatibility; both html and md are always written
+                                   dir::String = DEFAULT_REPORTS_DIR,
+                                   changelog::String = "",
+                                   filename::String = "",
+                                   name_tag::String = "")::Vector{ModelResult}
+    t_start = time()
+    results = run_coverage(; library, version, msl_version, domain, model, filter,
+                             overrides, timeout, phases, from_phase, to_phase,
+                             check_sim_code, n_workers)
+    total_time = time() - t_start
+    html_path = generate_report(results; format=:html, dir, changelog, msl_version,
+                                total_time, filename, name_tag)
+    md_path   = generate_report(results; format=:markdown, dir, changelog, msl_version,
+                                total_time, filename, name_tag)
+    @info "Reports saved" html=html_path markdown=md_path
+    return results
 end

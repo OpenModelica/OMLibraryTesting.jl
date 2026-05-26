@@ -79,7 +79,9 @@ function discover_experiments(; library::String = "Modelica",
     write(script_path, script)
     t0 = time()
     output = try
-        read(`$omc_path $script_path`, String)
+        withenv("LD_LIBRARY_PATH" => "") do
+            read(`$omc_path $script_path`, String)
+        end
     finally
         rm(script_path, force = true)
     end
@@ -98,7 +100,7 @@ function discover_experiments(; library::String = "Modelica",
         push!(specs, ModelSpec(name, key, domain, stopTime,
                                UNKNOWN, Dict{String, Float64}(),
                                0.01, 3e-3, "", Dict{String, String}(), "",
-                               Set{Phase}()))
+                               Set{Phase}(), ""))
     end
     sort!(specs, by = s -> (s.domain, s.name))
     if cache
@@ -209,10 +211,16 @@ function merge_overrides!(specs::Vector{ModelSpec},
                 push!(skip, phase_from_string(s))
             end
         end
+        local solverName = haskey(effective, "solver") ? String(effective["solver"]) : ""
+        local dtmaxVal = haskey(effective, "dtmax") ? Float64(effective["dtmax"]) : 0.0
+        local initAlgName = haskey(effective, "initializealg") ? String(effective["initializealg"]) : ""
+        local solverAtolVal   = haskey(effective, "solverAtol")   ? Float64(effective["solverAtol"])   : 0.0
+        local solverReltolVal = haskey(effective, "solverReltol") ? Float64(effective["solverReltol"]) : 0.0
         push!(merged, ModelSpec(spec.name, spec.key, spec.domain,
                                 stopTime, expected, ref_dict,
                                 atol, reltol, referenceFile,
-                                sig_map, issue, skip))
+                                sig_map, issue, skip, solverName, dtmaxVal, initAlgName,
+                                solverAtolVal, solverReltolVal))
     end
     n_broken = count(s -> s.expected == BROKEN, merged)
     n_skipped = count(s -> !isempty(s.skipPhases), merged)
@@ -260,7 +268,8 @@ function auto_detect_references!(specs::Vector{ModelSpec},
             push!(result, ModelSpec(spec.name, spec.key, spec.domain,
                                      spec.stopTime, spec.expected, spec.reference,
                                      spec.atol, spec.reltol, ref_key,
-                                     spec.signalMapping, spec.issue, spec.skipPhases))
+                                     spec.signalMapping, spec.issue, spec.skipPhases,
+                                     spec.solver, spec.dtmax))
         else
             push!(result, spec)
         end

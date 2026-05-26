@@ -73,7 +73,51 @@ struct ModelSpec
     signalMapping::Dict{String, String}
     issue::String
     skipPhases::Set{Phase}
+    solver::String  # empty = use default; otherwise constructor name like "IDA" or "Rodas5"
+    dtmax::Float64  # 0.0 = no upper bound; otherwise hard cap on integrator step size
+    initAlg::String # empty = use solver default; otherwise name like "ShampineCollocationInit"
+    # Solver tolerances passed to OM.simulate. Distinct from atol/reltol above which are
+    # validation tolerances for trajectory comparison. 0.0 = use SciML default.
+    solverAtol::Float64
+    solverReltol::Float64
 end
+
+# Convenience: shorter-arg constructors with empty/default trailing fields. Lets older callsites
+# keep working without long argument lists.
+ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
+          stopTime::Float64, expected::Phase, reference::Dict{String, Float64},
+          atol::Float64, reltol::Float64, referenceFile::AbstractString,
+          signalMapping::Dict{String, String}, issue::AbstractString,
+          skipPhases::Set{Phase}) =
+    ModelSpec(String(name), String(key), String(domain), stopTime, expected,
+              reference, atol, reltol, String(referenceFile), signalMapping,
+              String(issue), skipPhases, "", 0.0, "", 0.0, 0.0)
+ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
+          stopTime::Float64, expected::Phase, reference::Dict{String, Float64},
+          atol::Float64, reltol::Float64, referenceFile::AbstractString,
+          signalMapping::Dict{String, String}, issue::AbstractString,
+          skipPhases::Set{Phase}, solver::AbstractString) =
+    ModelSpec(String(name), String(key), String(domain), stopTime, expected,
+              reference, atol, reltol, String(referenceFile), signalMapping,
+              String(issue), skipPhases, String(solver), 0.0, "", 0.0, 0.0)
+ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
+          stopTime::Float64, expected::Phase, reference::Dict{String, Float64},
+          atol::Float64, reltol::Float64, referenceFile::AbstractString,
+          signalMapping::Dict{String, String}, issue::AbstractString,
+          skipPhases::Set{Phase}, solver::AbstractString, dtmax::Float64) =
+    ModelSpec(String(name), String(key), String(domain), stopTime, expected,
+              reference, atol, reltol, String(referenceFile), signalMapping,
+              String(issue), skipPhases, String(solver), dtmax, "", 0.0, 0.0)
+ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
+          stopTime::Float64, expected::Phase, reference::Dict{String, Float64},
+          atol::Float64, reltol::Float64, referenceFile::AbstractString,
+          signalMapping::Dict{String, String}, issue::AbstractString,
+          skipPhases::Set{Phase}, solver::AbstractString, dtmax::Float64,
+          initAlg::AbstractString) =
+    ModelSpec(String(name), String(key), String(domain), stopTime, expected,
+              reference, atol, reltol, String(referenceFile), signalMapping,
+              String(issue), skipPhases, String(solver), dtmax, String(initAlg),
+              0.0, 0.0)
 
 struct ModelResult
     spec::ModelSpec

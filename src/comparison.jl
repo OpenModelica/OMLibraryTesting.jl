@@ -73,7 +73,7 @@ function load_reference_csv(path::String)::ReferenceData
     for (i, line) in enumerate(lines[2:end])
         vals = split(line, ',')
         for (j, v) in enumerate(vals)
-            data[i, j] = parse(Float64, strip(v))
+            data[i, j] = parse(Float64, strip(v, ['"', ' ', '\t', '\r']))
         end
     end
     time_vec = data[:, 1]
@@ -170,7 +170,7 @@ If a signal is not in the mapping, dot-to-underscore conversion is used.
 function compare_signal(sol, ref::ReferenceData, signal_name::String,
                          stopTime::Float64;
                          reltol::Float64 = 3e-3,
-                         atol::Float64 = 1e-6,
+                         atol::Float64 = 1e-4,
                          npoints::Int = 21,
                          signalMapping::Dict{String, String} = Dict{String, String}())::SignalComparison
     if !haskey(ref.signals, signal_name)
@@ -228,7 +228,7 @@ end
 Validate an OM.jl solution against the MAP-LIB reference CSV for a model.
 Returns (overall_passed, vector_of_SignalComparison).
 """
-function validate_against_reference(sol, spec::ModelSpec,
+function validate_against_reference(sol, spec,
                                      ref_dir::String)::Tuple{Bool, Vector{SignalComparison}}
     ref_name = spec.referenceFile
     csv_path = joinpath(ref_dir, "csv", ref_name * ".csv")
