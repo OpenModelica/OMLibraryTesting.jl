@@ -80,6 +80,10 @@ struct ModelSpec
     # validation tolerances for trajectory comparison. 0.0 = use SciML default.
     solverAtol::Float64
     solverReltol::Float64
+    # OMBackend observedFilter regex patterns. Non-empty: passed to OM.simulate to retain
+    # matching alias/observed variables through structural_simplify so validation can read
+    # them. Empty = OM.simulate default (no explicit retention).
+    observedFilter::Vector{String}
 end
 
 # Convenience: shorter-arg constructors with empty/default trailing fields. Lets older callsites
@@ -118,6 +122,17 @@ ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
               reference, atol, reltol, String(referenceFile), signalMapping,
               String(issue), skipPhases, String(solver), dtmax, String(initAlg),
               0.0, 0.0)
+# Full positional through solverReltol (no observedFilter) -> defaults to empty.
+ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
+          stopTime::Float64, expected::Phase, reference::Dict{String, Float64},
+          atol::Float64, reltol::Float64, referenceFile::AbstractString,
+          signalMapping::Dict{String, String}, issue::AbstractString,
+          skipPhases::Set{Phase}, solver::AbstractString, dtmax::Float64,
+          initAlg::AbstractString, solverAtol::Float64, solverReltol::Float64) =
+    ModelSpec(String(name), String(key), String(domain), stopTime, expected,
+              reference, atol, reltol, String(referenceFile), signalMapping,
+              String(issue), skipPhases, String(solver), dtmax, String(initAlg),
+              solverAtol, solverReltol, String[])
 
 struct ModelResult
     spec::ModelSpec

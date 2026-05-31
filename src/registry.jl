@@ -74,9 +74,17 @@ function load_models(path::String = default_models_path())::Vector{ModelSpec}
                 push!(skip, phase_from_string(s))
             end
         end
+        solverName = haskey(entry, "solver") ? String(entry["solver"]) : ""
+        dtmaxVal = haskey(entry, "dtmax") ? Float64(entry["dtmax"]) : 0.0
+        initAlgName = haskey(entry, "initializealg") ? String(entry["initializealg"]) : ""
+        solverAtolVal = haskey(entry, "solverAtol") ? Float64(entry["solverAtol"]) : 0.0
+        solverReltolVal = haskey(entry, "solverReltol") ? Float64(entry["solverReltol"]) : 0.0
+        observedFilterVal = haskey(entry, "observedFilter") ?
+            String[String(s) for s in entry["observedFilter"]] : String[]
         push!(specs, ModelSpec(name, key, domain, stopTime, expected,
                                ref_dict, atol, reltol, referenceFile,
-                               sig_map, issue, skip))
+                               sig_map, issue, skip, solverName, dtmaxVal,
+                               initAlgName, solverAtolVal, solverReltolVal, observedFilterVal))
     end
     sort!(specs, by = s -> (s.domain, s.name))
     return specs

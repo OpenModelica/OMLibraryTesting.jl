@@ -307,7 +307,8 @@ function _run_model_phases(model_name::String,
                            dtmax::Float64 = 0.0,
                            init_alg::String = "",
                            solver_atol::Float64 = 0.0,
-                           solver_reltol::Float64 = 0.0)
+                           solver_reltol::Float64 = 0.0,
+                           observed_filter::Vector{String} = String[])
     results = Tuple{Int, Bool, Float64, Union{Nothing, String}}[]
     highest = 0
     sol = nothing
@@ -336,6 +337,7 @@ function _run_model_phases(model_name::String,
                 local _sa = isempty(solver_name) ? NamedTuple() : _resolve_solver(solver_name)
                 local _extra = dtmax > 0.0 ? (; dtmax = dtmax) : NamedTuple()
                 local _ia = isempty(init_alg) ? NamedTuple() : _resolve_init_alg(init_alg)
+                local _of = isempty(observed_filter) ? NamedTuple() : (; observedFilter = observed_filter)
                 local _tol = NamedTuple()
                 if solver_reltol > 0.0
                     _tol = (; _tol..., reltol = solver_reltol)
@@ -343,7 +345,7 @@ function _run_model_phases(model_name::String,
                 if solver_atol > 0.0
                     _tol = (; _tol..., abstol = solver_atol)
                 end
-                sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _tol...)
+                sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _tol...)
                 if sol.retcode != ReturnCode.Success
                     error("Simulation retcode: $(sol.retcode)")
                 end
@@ -454,7 +456,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         spec.referenceFile, spec.reference, spec.atol, spec.reltol,
         spec.signalMapping, mgr.ref_dir, phase_ints, check_sim_code,
         spec.solver, spec.dtmax, spec.initAlg,
-        spec.solverAtol, spec.solverReltol)
+        spec.solverAtol, spec.solverReltol, spec.observedFilter)
 
     t0 = time()
     interrupted = Ref(false)

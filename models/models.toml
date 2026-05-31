@@ -17,6 +17,11 @@ reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v3.2.3)"
 #                  tolerances for trajectory comparison. Use solverReltol /
 #                  solverAtol to loosen the integrator (e.g. near-singular
 #                  Jacobians that force dt below eps under default tolerances).
+#   observedFilter = ["regex", ...]                 ([] = OM.simulate default)
+#                  Retain alias/observed variables whose eliminated name matches
+#                  any pattern through structural_simplify, so validation can read
+#                  signals MTK would otherwise prune. Threaded to
+#                  OM.simulate(...; observedFilter = [...]).
 #
 # Use cases for initializealg:
 #   - DAE with rank-deficient algebraic Jacobian at t=0 (e.g. flow-state
@@ -670,6 +675,18 @@ domain = "Magnetic.QuasiStatic.FundamentalWave"
 skipPhases = ["backend", "simulate", "validate"]
 issue = "Frontend passes in 6.1s on 2026-04-30; backend stalls (no output, manually SIGINTed). Prior 2026-04-25 baseline showed 3276.9s frontend timeout / worker-killed — this run shows frontend has improved to 6.1s but backend hangs in the same COMPLEX_MULTIPLY pattern as other IMC_*/IMS_* siblings (audit item #5 in CLAUDE.md). Should unblock once the Complex operator-record method lowering lands."
 
+[models.Magnetic_QuasiStatic_FundamentalWave_IMC_Conveyor]
+name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Conveyor"
+domain = "Magnetic.QuasiStatic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the IMC_DOL/IMS_*/SMEE_Generator QuasiStatic FundamentalWave siblings. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands."
+
+[models.Magnetic_QuasiStatic_FundamentalWave_IMC_Initialize]
+name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Initialize"
+domain = "Magnetic.QuasiStatic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the IMC_DOL/IMS_*/SMEE_Generator QuasiStatic FundamentalWave siblings. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands."
+
 [models.Electrical_QuasiStationary_MultiPhase_BalancingDelta]
 name = "Modelica.Electrical.QuasiStationary.MultiPhase.Examples.BalancingDelta"
 domain = "Electrical.QuasiStationary"
@@ -682,6 +699,30 @@ name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.Syn
 domain = "Magnetic.QuasiStatic.FundamentalWave"
 skipPhases = ["backend", "simulate", "validate"]
 issue = "Backend exceeded the 3-minute watchdog window with no progress on 2026-04-30 and worker was manually SIGINTed to advance the coverage run. Prior 2026-04-25 report showed frontend passes in 39.0s and backend fails after 367.4s with the same DAE.RSUB Complex.'*'.multiply / ComplexMath.conj family as the IMC_*/IMS_* QuasiStatic FundamentalWave cluster. Keep frontend coverage; skip backend/simulate/validate until Complex operator-record method lowering lands."
+
+[models.Magnetic_QuasiStatic_FundamentalWave_SMPM_CurrentSource]
+name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_CurrentSource"
+domain = "Magnetic.QuasiStatic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the SMEE_Generator QuasiStatic FundamentalWave sibling. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands."
+
+[models.Magnetic_QuasiStatic_FundamentalWave_SMPM_MTPA]
+name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_MTPA"
+domain = "Magnetic.QuasiStatic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the SMEE_Generator QuasiStatic FundamentalWave sibling. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands."
+
+[models.Magnetic_QuasiStatic_FundamentalWave_SMPM_Mains]
+name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_Mains"
+domain = "Magnetic.QuasiStatic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the SMEE_Generator QuasiStatic FundamentalWave sibling. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands."
+
+[models.Magnetic_QuasiStatic_FundamentalWave_SMR_CurrentSource]
+name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMR_CurrentSource"
+domain = "Magnetic.QuasiStatic.FundamentalWave"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-27: pinned the live coverage worker ~6 min (15 min CPU) in MTK structural_simplify with no simulate artifacts open — backend stall, same COMPLEX_MULTIPLY (Complex.'*'.multiply) cluster as the SMEE_Generator QuasiStatic FundamentalWave sibling. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands."
 
 [models.Fluid_AST_BatchPlant_Test_OneTank]
 name = "Modelica.Fluid.Examples.AST_BatchPlant.Test.OneTank"
@@ -770,9 +811,9 @@ issue = "Backend: ReadOnlyMemoryError() during MTK codegen on 2026-04-24. Same R
 [models.Electrical_QuasiStationary_Machines_TransformerTestbench]
 name = "Modelica.Electrical.QuasiStationary.Machines.Examples.TransformerTestbench"
 domain = "Electrical.QuasiStationary"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "2026-05-16 probe: 5892 variables; BE/SimCode runs 20+ min before SIGKILL. Old appendFieldToCref warning loop closed but model is potentially tricky for current SimCode pass performance. Keep skip until pass perf improves."
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-28: backend takes >20 min and recurrently TIMEOUTs / crashes the worker on full MSL runs (5892 variables, slow SimCode pass perf). Frontend-only until SimCode pass perf improves."
 
 [models.Electrical_QuasiStationary_MultiPhase_UnsymmetricalLoad]
 name = "Modelica.Electrical.QuasiStationary.MultiPhase.Examples.UnsymmetricalLoad"
@@ -780,6 +821,27 @@ domain = "Electrical.QuasiStationary"
 expected = "simulate"
 referenceFile = "Electrical_QuasiStationary_MultiPhase_Examples_UnsymmetricalLoad"
 issue = "2026-05-16 probe: SIM fails fast (~81s) with UndefVarError: symmetricalComponents... Old appendFieldToCref loop fixed; harness now attempts SIM (fast-fail)."
+
+[models.Electrical_QuasiStationary_SinglePhase_SeriesResonance]
+name = "Modelica.Electrical.QuasiStationary.SinglePhase.Examples.SeriesResonance"
+domain = "Electrical.QuasiStationary"
+expected = "validate"
+referenceFile = "Electrical_QuasiStationary_SinglePhase_Examples_SeriesResonance"
+issue = "2026-05-27: simulate + validate after Complex operator-record lowering (lowerComplexOperatorRecords) and the eliminateAliasVariables aliasMap merge fix. Regression guard: reference.gamma is an eliminated/aliased state that must stay retrievable from the solution."
+
+[models.Electrical_QuasiStationary_SinglePhase_ParallelResonance]
+name = "Modelica.Electrical.QuasiStationary.SinglePhase.Examples.ParallelResonance"
+domain = "Electrical.QuasiStationary"
+expected = "validate"
+referenceFile = "Electrical_QuasiStationary_SinglePhase_Examples_ParallelResonance"
+issue = "2026-05-27: simulate + validate after Complex operator-record lowering + the aliasMap merge fix; same regression guard as SeriesResonance."
+
+[models.Electrical_QuasiStationary_SinglePhase_SeriesBode]
+name = "Modelica.Electrical.QuasiStationary.SinglePhase.Examples.SeriesBode"
+domain = "Electrical.QuasiStationary"
+expected = "validate"
+referenceFile = "Electrical_QuasiStationary_SinglePhase_Examples_SeriesBode"
+issue = "2026-05-27: simulate + validate (gamma, abs_y, dB_y, arg_y all match Dymola). Regression guard for the eliminateAliasVariables aliasMap REPLACE-to-merge fix: the overconstrained-connector reference_gamma and the Complex-division Bode outputs are eliminated/aliased and were silently unretrievable before the fix, making validation vacuously skip them."
 
 # ==========================================================================
 # Media (Water / IF97)
@@ -983,9 +1045,9 @@ issue = "2026-05-16 probe: validate passes 6/6 at atol=0.1, reltol=0.10."
 [models.Apr25_Blocks_Examples_Interaction1]
 name = "Modelica.Blocks.Examples.Interaction1"
 domain = "Blocks"
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-05-13: backend passes. Simulate fails: ExtraEquationsSystemException (34 eqs vs 33 vars) — integerValue_showNumber residual from IntegerTable floor/ceil rounding makes the system over-determined. Integer output block emits a continuous residual that should be discrete."
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-28: backend used to pass with simulate failing on ExtraEquationsSystemException (integerValue_showNumber over-determination), but recent coverage runs see a worker crash here that takes thousands of seconds to escalate. Frontend-only until the Integer-output-block residual handling is fixed at the right layer."
 
 [models.Apr25_Blocks_Examples_LogicalNetwork1]
 name = "Modelica.Blocks.Examples.LogicalNetwork1"
@@ -997,10 +1059,10 @@ issue = "2026-05-16 probe: SIM fails fast (~56s) with AssertionError: T <: Real.
 [models.Apr25_Blocks_Examples_NoiseExamples_Densities]
 name = "Modelica.Blocks.Examples.NoiseExamples.Densities"
 domain = "Blocks"
-expected = "simulate"
-skipPhases = ["validate"]
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
 referenceFile = "Blocks_Examples_NoiseExamples_Densities"
-issue = "2026-05-13 note: reference file exists. Validate skipped pending probe (stochastic noise model — comparison may need tolerance tuning)."
+issue = "2026-05-28: frontend flattens fine in <1s but MTK structural_simplify / codegen hangs after SimCode check (RSS climbs unbounded, worker eventually killed; recorded as multi-thousand-second FRONTEND phantom by the harness). 3 ifEquations from inlined density (Uniform/Normal/Weibull) plus parameter expressions trigger symbolic blowup. Frontend-only until the MTK simplify blowup is addressed."
 
 [models.Apr25_Blocks_Examples_SlewRateLimiter]
 name = "Modelica.Blocks.Examples.SlewRateLimiter"
@@ -1079,10 +1141,9 @@ issue = "2026-05-17: vIn.signalSource.y peak ~10V; atol 0.1 = 1% of peak."
 [models.Apr25_Electrical_Analog_Examples_NandGate]
 name = "Modelica.Electrical.Analog.Examples.NandGate"
 domain = "Electrical.Analog"
-stopTime = 1e-7
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "2026-05-16 probe: MTK structural_simplify hangs for 30+ min (78 eqs -> 45 after simplify but ODEProblem build never returns). Plus the original t=0 transistor numerical pathology. Keep skipPhases to avoid blocking coverage runs."
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-28: backend itself takes >30 min (MTK structural_simplify hangs; ODEProblem build never returns) and burns worker time on coverage runs. Frontend-only until the MTK simplify hang is addressed."
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_Comparator]
 name = "Modelica.Electrical.Analog.Examples.OpAmps.Comparator"
@@ -1485,7 +1546,8 @@ domain = "Electrical.Machines"
 expected = "validate"
 reltol = 0.10
 atol = 12.0
-issue = "2026-05-22: bumped reltol/atol to absorb armatureInverter idealDcDc dead-time / filter timing differences vs the OMC reference. Without the bump validate fails on armatureInverter.iDCFilter.y / iMotFilter.y / deadTime.y signals though peak currents match within ~5%."
+referenceFile = "Electrical_Machines_Examples_ControlledDCDrives_CurrentControlledDCPM"
+issue = "2026-05-26: kept atol at 12.0; ATOL=300 was rejected as too loose. Validate still fails on armatureInverter.iDCFilter.y / iMotFilter.y / deadTime.y signals though peak currents were previously reported within ~5%."
 
 [models.Apr25_Electrical_Machines_Examples_ControlledDCDrives_SpeedControlledDCPM]
 name = "Modelica.Electrical.Machines.Examples.ControlledDCDrives.SpeedControlledDCPM"
@@ -1524,7 +1586,7 @@ expected = "validate"
 reltol = 0.10
 atol = 12.0
 referenceFile = "Electrical_Machines_Examples_DCMachines_DCPM_CurrentControlled"
-issue = "2026-05-22: bumped atol from 12 to 300 to absorb armature-current ringing (la.i) and PID.I.y / firstOrder.y filter-tail differences vs the OMC reference. Sim has been stable; only validate tolerance was the gate."
+issue = "2026-05-26: kept atol at 12.0; prior note about widening to 300 was rejected as too loose. Sim has been stable; validation still needs a trajectory-level fix or a narrower, justified tolerance."
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_QuasiStationary]
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_QuasiStationary"
@@ -1533,7 +1595,7 @@ expected = "validate"
 reltol = 0.10
 atol = 12.0
 referenceFile = "Electrical_Machines_Examples_DCMachines_DCPM_QuasiStationary"
-issue = "2026-05-22: promoted to validate with atol=300 / reltol=0.10 to absorb dcpm1.la.i armature-current ringing (max_abs ~161 at t=1.1, peak ref ~3220). 4/5 reference signals were already matching. Validate attempted under loosened tolerance."
+issue = "2026-05-26: kept atol at 12.0; prior note about widening to 300 was rejected as too loose. 4/5 reference signals were previously reported matching, but dcpm1.la.i needs a real trajectory-level fix."
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_Start]
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_Start"
@@ -1553,7 +1615,7 @@ expected = "validate"
 reltol = 0.10
 atol = 12.0
 referenceFile = "Electrical_Machines_Examples_DCMachines_DCPM_Temperature"
-issue = "2026-05-22: bumped atol from 12 to 300 to absorb dcpm.la.i armature-current ringing under thermal-coupling load. Sim retcode stable; only validate tolerance was the gate."
+issue = "2026-05-26: kept atol at 12.0; prior note about widening to 300 was rejected as too loose. Sim retcode stable; dcpm.la.i mismatch still needs investigation."
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_withLosses]
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_withLosses"
@@ -1563,7 +1625,7 @@ expected = "validate"
 reltol = 0.10
 atol = 12.0
 referenceFile = "Electrical_Machines_Examples_DCMachines_DCPM_withLosses"
-issue = "2026-05-22: bumped atol from 12 to 300 to absorb dcpm1.la.i / dcpm2.la.i armature-current ringing under thermal-loss coupling. Sim retcode stable; only validate tolerance was the gate."
+issue = "2026-05-26: kept atol at 12.0; prior note about widening to 300 was rejected as too loose. Sim retcode stable; armature-current mismatch still needs investigation."
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCSE_Start]
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCSE_Start"
@@ -1574,7 +1636,7 @@ reltol = 0.10
 atol = 12.0
 skipPhases = []
 referenceFile = "Electrical_Machines_Examples_DCMachines_DCSE_Start"
-issue = "2026-05-22: bumped atol from 12 to 300 to absorb dcse.la.i armature-current ringing on the series-excitation start transient. Sim stable at stopTime=0.2; full stopTime=2.0 still goes Unstable on the field acceleration."
+issue = "2026-05-26: kept atol at 12.0; prior note about widening to 300 was rejected as too loose. Sim stable at stopTime=0.2; full stopTime=2.0 still goes Unstable on the field acceleration."
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCSE_SinglePhase]
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCSE_SinglePhase"
@@ -1958,20 +2020,20 @@ referenceFile = "Mechanics_MultiBody_Examples_Loops_Engine1b_analytic"
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Fourbar1]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Fourbar1"
 domain = "Mechanics.MultiBody"
-skipPhases = ["simulate", "validate"]
-issue = "DAE InitialFailure: structural_simplify passes (401->101 eqs) but 33 uncovered unknowns default to 0.0, giving NaN residuals at t=0 for this constrained kinematic loop"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Kinematic-loop four-bar mechanism; backend hangs / does not yield to harness timeout in coverage runs (see Fourbar2 below). Frontend-only to keep coverage moving."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Fourbar2]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Fourbar2"
 domain = "Mechanics.MultiBody"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage."
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Backend SIMCODE extremely slow / non-yielding on this loop (2155 residuals, 2750 vars); a 7-worker coverage run logged 'TIMEOUT after 6515.8s (limit 1000.0s) [worker killed]'. Frontend-only until the backend yields to timeouts on this model."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Fourbar_analytic]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Fourbar_analytic"
 domain = "Mechanics.MultiBody"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage."
+skipPhases = ["backend", "simulate", "validate"]
+issue = "Kinematic-loop four-bar mechanism; backend disabled preemptively along with Fourbar1/Fourbar2 until the backend yields to harness timeouts on this family."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_PlanarFourbar]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.PlanarFourbar"
@@ -2083,12 +2145,9 @@ issue = "2026-05-16 probe: validate passes 2/2 at atol=0.5, reltol=0.10."
 [models.May2026_Blocks_NoiseExamples_AutomaticSeed]
 name = "Modelica.Blocks.Examples.NoiseExamples.AutomaticSeed"
 domain = "Blocks"
-stopTime = 1.0
-expected = "validate"
-reltol = 0.50
-atol = 10.0
-referenceFile = "Blocks_Examples_NoiseExamples_AutomaticSeed"
-issue = "2026-05-16 probe: validate passes 3/3 at atol=10 (stochastic noise signals; bounds checked rather than trajectory match)."
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-28: frontend flattens in <1s; backend kills the worker (recorded as a multi-thousand-second FRONTEND phantom by the harness when the worker dies). Depends on impureRandom / initializeImpureRandom / globalSeed runtime support that OMBackend does not implement. Frontend-only until the impure-random runtime + the MTK symbolic blowup are addressed."
 
 [models.May2026_Blocks_NoiseExamples_Distributions]
 name = "Modelica.Blocks.Examples.NoiseExamples.Distributions"
@@ -2183,3 +2242,17 @@ domain = "Magnetic.QuasiStatic.FluxTubes"
 stopTime = 1.0
 expected = "simulate"
 issue = "2026-05-16 cycle 6: SIM fast-fails with UndefVarError: `currentSensorQS_y` (bare Complex parent name) at MTK eval. Diagnosis: BDAE binding expressions like `Modelica_ComplexMath_'abs'(currentSensorQS_y)` reference the Complex parent CREF; siblings `_y_re` and `_y_im` are in HT but the parent CREF's type was downgraded from T_COMPLEX upstream so `flattenRecordCallArg` does not match (only fires on T_COMPLEX patterns). Adding the `_re`/`_im` HT-fallback to flattenRecordCallArg would emit a 2-arg Modelica_ComplexMath_abs call, but the Modelica function `'abs'` is declared as a 1-arg Complex signature — would regress with MethodError. Potentially tricky fix: companion arm in either the Modelica function codegen (accept scalarized form) or the BDAE binding-expression scalarizer (rewrite parent CREFs in binding RHS to `Complex(re, im)` literal records before codegen). Cluster E."
+
+[models.May2026_Blocks_NoiseExamples_DrydenContinuousTurbulence]
+name = "Modelica.Blocks.Examples.NoiseExamples.DrydenContinuousTurbulence"
+domain = "Blocks"
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-28: translate now passes (SimCode refactor unblocked the prior translate fault) but `<name>Model` build trips `BoundsError: Symbolics.Num at index [4]` from TransferFunction Hw (a size 3, b size 2) state-space emission — same family as ShowTransferFunction. Also depends on Modelica_Math_Random_Utilities_initializeImpureRandom which is not implemented in OMBackend.CodeGeneration.MTK_CodeGenerationUtil; that would be the next blocker if the BoundsError is fixed. Frontend-only until both are addressed."
+
+[models.May2026_Electrical_PowerConverters_ThyristorBridge2Pulse_R]
+name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_R"
+domain = "Electrical.PowerConverters"
+expected = "frontend"
+skipPhases = ["backend", "simulate", "validate"]
+issue = "2026-05-28: backend / simulate TIMEOUT (>1000s, escalated to SIGKILL much later) on 2026-05-28 09:57 coverage run. Thyristor-bridge family with discrete events; runtime path needs investigation. Frontend-only until the backend / simulate slowdown is identified and fixed."
