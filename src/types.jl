@@ -84,6 +84,11 @@ struct ModelSpec
     # matching alias/observed variables through structural_simplify so validation can read
     # them. Empty = OM.simulate default (no explicit retention).
     observedFilter::Vector{String}
+    # Hard cap on integrator iterations, passed to OM.simulate as `maxiters`. 0.0 = use
+    # the SciML default (1e5). A bounded value (e.g. 50000) lets a stiff / chattering
+    # model bail with a clean MaxIters in a few minutes instead of grinding all the way
+    # to the wall-clock watchdog SIGKILL.
+    maxiters::Float64
 end
 
 # Convenience: shorter-arg constructors with empty/default trailing fields. Lets older callsites
@@ -132,7 +137,7 @@ ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
     ModelSpec(String(name), String(key), String(domain), stopTime, expected,
               reference, atol, reltol, String(referenceFile), signalMapping,
               String(issue), skipPhases, String(solver), dtmax, String(initAlg),
-              solverAtol, solverReltol, String[])
+              solverAtol, solverReltol, String[], 0.0)
 
 struct ModelResult
     spec::ModelSpec

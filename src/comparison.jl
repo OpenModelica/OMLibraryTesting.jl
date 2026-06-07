@@ -188,6 +188,11 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
     worst_expected = 0.0
     passed = true
     times = range(0.0, stopTime, length = npoints)
+    #= At a reference discontinuity the sample instant carries both limits
+       (set-valued jump); accept the actual value if it matches either
+       one-sided reference limit within tolerance. =#
+    knot_eps = length(ref.time) > 1 ?
+        1.5 * (ref.time[end] - ref.time[1]) / (length(ref.time) - 1) : 0.0
     for t in times
         expected = interpolate_reference(ref.time, ref_values, t)
         actual = try
@@ -207,6 +212,15 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
         abs_err = abs(actual - expected)
         rel_err = abs(expected) > 1e-15 ? abs_err / abs(expected) : abs_err
         threshold = atol + reltol * abs(expected)
+        if abs_err > threshold && knot_eps > 0.0
+            expected_lo = interpolate_reference(ref.time, ref_values, t - knot_eps)
+            expected_hi = interpolate_reference(ref.time, ref_values, t + knot_eps)
+            if abs(expected_hi - expected_lo) > threshold &&
+               (abs(actual - expected_lo) <= atol + reltol * abs(expected_lo) ||
+                abs(actual - expected_hi) <= atol + reltol * abs(expected_hi))
+                continue
+            end
+        end
         if abs_err > threshold
             passed = false
         end

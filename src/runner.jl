@@ -43,6 +43,11 @@ The worker is reused across models and only restarted if killed or crashed.
 """
 mutable struct WorkerManager
     pid::Union{Nothing, Int}
+    #= OS-level process id of the worker, captured at spawn while the worker is
+       still responsive. Needed because a hung worker (pegged in compiled code)
+       cannot answer `remotecall_fetch(getpid, …)` at kill time, and the
+       Distributed worker id is not the OS pid. =#
+    os_pid::Union{Nothing, Int}
     ready::Bool
     msl_version::String
     ref_dir::String
@@ -50,7 +55,16 @@ end
 
 function WorkerManager(; msl_version::String = "MSL:3.2.3",
                          ref_dir::String = joinpath(@__DIR__, "..", "reference"))
-    WorkerManager(nothing, false, msl_version, abspath(ref_dir))
+    WorkerManager(nothing, nothing, false, msl_version, abspath(ref_dir))
+end
+
+#= Best-effort OS pid of a live, responsive Distributed worker. =#
+function _capture_os_pid(worker_id::Int)::Union{Nothing, Int}
+    try
+        return Distributed.remotecall_fetch(getpid, worker_id)
+    catch
+        return nothing
+    end
 end
 
 """
@@ -79,6 +93,7 @@ function ensure_worker!(mgr::WorkerManager)::Int
     @info "Worker spawned (pid=$(mgr.pid)), loading packages..."
     Distributed.remotecall_eval(Main, [mgr.pid],
         :(using OMLibraryTesting, DifferentialEquations; import OM, OMFrontend))
+    mgr.os_pid = _capture_os_pid(mgr.pid)
     mgr.ready = true
     elapsed = round(time() - t0, digits = 1)
     @info "Worker ready ($(elapsed)s)"
@@ -86,14 +101,30 @@ function ensure_worker!(mgr::WorkerManager)::Int
 end
 
 function kill_worker!(mgr::WorkerManager)
-    if mgr.pid !== nothing && mgr.pid in _SPAWNED_PIDS && mgr.pid in workers()
-        try
-            rmprocs(mgr.pid; waitfor = 5.0)
-        catch
+    if mgr.pid !== nothing && mgr.pid in _SPAWNED_PIDS
+        #= Hard OS-level SIGKILL first. A worker pegged in compiled code
+           (structural_simplify, RGF compilation, a tight simulate event loop)
+           never services Distributed's graceful `rmprocs` request, so rmprocs
+           alone leaves the OS process alive at 100% CPU. SIGKILL cannot be
+           ignored and reclaims the core immediately. =#
+        if mgr.os_pid !== nothing
+            try
+                run(pipeline(`kill -9 $(mgr.os_pid)`; stderr = devnull))
+            catch
+            end
+        end
+        #= Then clear Distributed's bookkeeping; the process is already dead, so
+           rmprocs returns promptly. =#
+        if mgr.pid in workers()
+            try
+                rmprocs(mgr.pid; waitfor = 5.0)
+            catch
+            end
         end
         delete!(_SPAWNED_PIDS, mgr.pid)
     end
     mgr.pid = nothing
+    mgr.os_pid = nothing
     mgr.ready = false
 end
 
@@ -173,6 +204,7 @@ function ensure_pool!(pool::WorkerPool)::Vector{Int}
             :(using OMLibraryTesting, DifferentialEquations; import OM, OMFrontend))
         for mgr in pool.managers
             if mgr.pid !== nothing
+                mgr.os_pid = _capture_os_pid(mgr.pid)
                 mgr.ready = true
             end
         end
@@ -242,6 +274,8 @@ function _resolve_solver(name::String)
         local s = _try(:(Rodas5P));  s !== nothing && return (; solver = s())
     elseif name == "Rodas5"
         local s = _try(:(Rodas5));   s !== nothing && return (; solver = s())
+    elseif name == "Rosenbrock23"
+        local s = _try(:(Rosenbrock23)); s !== nothing && return (; solver = s())
     end
     @warn "Unknown / unavailable solver name in spec, falling back to default" solver=name
     return NamedTuple()
@@ -282,6 +316,36 @@ function _reference_signal_filter(ref_dir::String,
     return patterns
 end
 
+#= Cap the cost of `showerror`. Some exceptions (notably MTK's
+   UnsolvableCallbackError / ExtraEquationsSystemException) render the entire
+   equation / callback system — O(system size) — which can take many minutes to
+   format for a large model. Since the harness truncates the message anyway,
+   stop the render after `cap` bytes through a size-bounded IO. Verified ~0.08s
+   vs 10+ minutes unbounded, with a useful message prefix preserved. =#
+struct _ShowErrorCapped <: Exception end
+mutable struct _CappedIO <: IO
+    n::Int
+    cap::Int
+    buf::IOBuffer
+end
+function Base.write(io::_CappedIO, b::UInt8)
+    io.n >= io.cap && throw(_ShowErrorCapped())
+    io.n += 1
+    return write(io.buf, b)
+end
+function _bounded_showerror(@nospecialize(e), cap::Int = 500)::String
+    local cio = _CappedIO(0, cap, IOBuffer())
+    local capped = false
+    try
+        showerror(IOContext(cio, :compact => true, :limit => true), e)
+    catch ex
+        ex isa _ShowErrorCapped || rethrow()
+        capped = true
+    end
+    local s = String(take!(cio.buf))
+    return capped ? s * "..." : s
+end
+
 """
     _run_model_phases(model_name, msl_version, stop_time, reference_file,
                       reference, atol, reltol, signal_mapping, ref_dir,
@@ -308,7 +372,8 @@ function _run_model_phases(model_name::String,
                            init_alg::String = "",
                            solver_atol::Float64 = 0.0,
                            solver_reltol::Float64 = 0.0,
-                           observed_filter::Vector{String} = String[])
+                           observed_filter::Vector{String} = String[],
+                           maxiters::Float64 = 0.0)
     results = Tuple{Int, Bool, Float64, Union{Nothing, String}}[]
     highest = 0
     sol = nothing
@@ -338,6 +403,7 @@ function _run_model_phases(model_name::String,
                 local _extra = dtmax > 0.0 ? (; dtmax = dtmax) : NamedTuple()
                 local _ia = isempty(init_alg) ? NamedTuple() : _resolve_init_alg(init_alg)
                 local _of = isempty(observed_filter) ? NamedTuple() : (; observedFilter = observed_filter)
+                local _mi = (; maxiters = maxiters > 0.0 ? round(Int, maxiters) : DEFAULT_MAXITERS)
                 local _tol = NamedTuple()
                 if solver_reltol > 0.0
                     _tol = (; _tol..., reltol = solver_reltol)
@@ -345,7 +411,7 @@ function _run_model_phases(model_name::String,
                 if solver_atol > 0.0
                     _tol = (; _tol..., abstol = solver_atol)
                 end
-                sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _tol...)
+                sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _mi..., _tol...)
                 if sol.retcode != ReturnCode.Success
                     error("Simulation retcode: $(sol.retcode)")
                 end
@@ -383,10 +449,7 @@ function _run_model_phases(model_name::String,
             catch
                 ""
             end
-            msg = sprint(showerror, e; context = :compact => true)
-            if length(msg) > 500
-                msg = msg[1:500] * "..."
-            end
+            msg = _bounded_showerror(e, 500)
             if !isempty(compiler_msgs)
                 msg = compiler_msgs * "\n---\n" * msg
                 if length(msg) > 2000
@@ -404,6 +467,13 @@ end
 # ── Worker Execution with Timeout ───────────────────────────────────────
 
 const GRACE_PERIOD = 15.0
+
+#= Default solver iteration cap applied to every model's simulate unless the
+   model overrides `maxiters` in the toml. Bounds runaway / chattering solves
+   so they bail with a clean MaxIters quickly instead of grinding toward the
+   SciML default of 1e5. A model that legitimately needs more steps can raise
+   this via a per-model `maxiters` entry. =#
+const DEFAULT_MAXITERS = 20000
 
 """
     _write_started_marker(model_name) -> String
@@ -456,7 +526,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         spec.referenceFile, spec.reference, spec.atol, spec.reltol,
         spec.signalMapping, mgr.ref_dir, phase_ints, check_sim_code,
         spec.solver, spec.dtmax, spec.initAlg,
-        spec.solverAtol, spec.solverReltol, spec.observedFilter)
+        spec.solverAtol, spec.solverReltol, spec.observedFilter, spec.maxiters)
 
     t0 = time()
     interrupted = Ref(false)
@@ -537,10 +607,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                               Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
         elseif e isa ProcessExitedException ||
                (e isa RemoteException && e.captured.ex isa ProcessExitedException)
-            msg = "Worker process crashed: $(sprint(showerror, e))"
-            if length(msg) > 500
-                msg = msg[1:500] * "..."
-            end
+            msg = "Worker process crashed: $(_bounded_showerror(e, 500))"
             @warn "    CRASH: $msg"
             mgr.pid = nothing
             mgr.ready = false
@@ -554,10 +621,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
             rethrow()
         elseif e isa RemoteException
             # Worker threw a normal exception that escaped _run_model_phases
-            msg = sprint(showerror, e; context = :compact => true)
-            if length(msg) > 500
-                msg = msg[1:500] * "..."
-            end
+            msg = _bounded_showerror(e, 500)
             @info "    FAIL: $msg"
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
@@ -720,10 +784,14 @@ function print_summary(results::Vector{ModelResult}; total_time::Float64 = 0.0)
     total = length(results)
     broken = count(r -> r.spec.expected == BROKEN, results)
     tested = total - broken
+    #= Coverage funnel: the base is the total number of discovered models. Every
+       stage rate is a fraction of this constant base, so each row reads "of all
+       discovered models, what fraction reached stage X". =#
     frontend_pass = count(r -> r.highest >= FRONTEND, results)
     backend_pass = count(r -> r.highest >= BACKEND, results)
     simulate_pass = count(r -> r.highest >= SIMULATE, results)
     validate_pass = count(r -> r.highest >= VALIDATE, results)
+    base = total
     println()
     println("=" ^ 70)
     println("MSL Coverage Summary")
@@ -732,14 +800,11 @@ function print_summary(results::Vector{ModelResult}; total_time::Float64 = 0.0)
     println()
     println("  Stage       Passed   Total    Rate")
     println("  " * "-" ^ 40)
-    if tested > 0
-        println("  Frontend    $(lpad(frontend_pass, 5))   $(lpad(tested, 5))   $(lpad(round(100*frontend_pass/tested, digits=1), 5))%")
-        println("  Backend     $(lpad(backend_pass, 5))   $(lpad(tested, 5))   $(lpad(round(100*backend_pass/tested, digits=1), 5))%")
-        println("  Simulate    $(lpad(simulate_pass, 5))   $(lpad(tested, 5))   $(lpad(round(100*simulate_pass/tested, digits=1), 5))%")
-        has_ref = count(r -> !isempty(r.spec.referenceFile) || !isempty(r.spec.reference), results)
-        if has_ref > 0
-            println("  Validate    $(lpad(validate_pass, 5))   $(lpad(has_ref, 5))   $(lpad(round(100*validate_pass/has_ref, digits=1), 5))%")
-        end
+    if base > 0
+        println("  Frontend    $(lpad(frontend_pass, 5))   $(lpad(base, 5))   $(lpad(round(100*frontend_pass/base, digits=1), 5))%")
+        println("  Backend     $(lpad(backend_pass, 5))   $(lpad(base, 5))   $(lpad(round(100*backend_pass/base, digits=1), 5))%")
+        println("  Simulate    $(lpad(simulate_pass, 5))   $(lpad(base, 5))   $(lpad(round(100*simulate_pass/base, digits=1), 5))%")
+        println("  Validate    $(lpad(validate_pass, 5))   $(lpad(base, 5))   $(lpad(round(100*validate_pass/base, digits=1), 5))%")
     end
     if total_time > 0
         mins = floor(Int, total_time / 60)

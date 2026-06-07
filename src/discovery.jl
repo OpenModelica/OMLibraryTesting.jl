@@ -218,11 +218,13 @@ function merge_overrides!(specs::Vector{ModelSpec},
         local solverReltolVal = haskey(effective, "solverReltol") ? Float64(effective["solverReltol"]) : 0.0
         local observedFilterVal = haskey(effective, "observedFilter") ?
             String[String(s) for s in effective["observedFilter"]] : String[]
+        local maxitersVal = haskey(effective, "maxiters") ? Float64(effective["maxiters"]) : 0.0
         push!(merged, ModelSpec(spec.name, spec.key, spec.domain,
                                 stopTime, expected, ref_dict,
                                 atol, reltol, referenceFile,
                                 sig_map, issue, skip, solverName, dtmaxVal, initAlgName,
-                                solverAtolVal, solverReltolVal, observedFilterVal))
+                                solverAtolVal, solverReltolVal, observedFilterVal,
+                                maxitersVal))
     end
     n_broken = count(s -> s.expected == BROKEN, merged)
     n_skipped = count(s -> !isempty(s.skipPhases), merged)
@@ -272,7 +274,8 @@ function auto_detect_references!(specs::Vector{ModelSpec},
                                      spec.atol, spec.reltol, ref_key,
                                      spec.signalMapping, spec.issue, spec.skipPhases,
                                      spec.solver, spec.dtmax, spec.initAlg,
-                                     spec.solverAtol, spec.solverReltol, spec.observedFilter))
+                                     spec.solverAtol, spec.solverReltol, spec.observedFilter,
+                                     spec.maxiters))
         else
             push!(result, spec)
         end

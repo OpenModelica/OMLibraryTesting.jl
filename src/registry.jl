@@ -81,10 +81,12 @@ function load_models(path::String = default_models_path())::Vector{ModelSpec}
         solverReltolVal = haskey(entry, "solverReltol") ? Float64(entry["solverReltol"]) : 0.0
         observedFilterVal = haskey(entry, "observedFilter") ?
             String[String(s) for s in entry["observedFilter"]] : String[]
+        maxitersVal = haskey(entry, "maxiters") ? Float64(entry["maxiters"]) : 0.0
         push!(specs, ModelSpec(name, key, domain, stopTime, expected,
                                ref_dict, atol, reltol, referenceFile,
                                sig_map, issue, skip, solverName, dtmaxVal,
-                               initAlgName, solverAtolVal, solverReltolVal, observedFilterVal))
+                               initAlgName, solverAtolVal, solverReltolVal, observedFilterVal,
+                               maxitersVal))
     end
     sort!(specs, by = s -> (s.domain, s.name))
     return specs
