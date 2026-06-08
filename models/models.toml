@@ -1165,8 +1165,10 @@ issue = "ExtraEquationsSystemException in structural_simplify; 100 if-equations 
 [models.Apr25_Electrical_Analog_Examples_CharacteristicThyristors]
 name = "Modelica.Electrical.Analog.Examples.CharacteristicThyristors"
 domain = "Electrical.Analog"
-skipPhases = ["simulate", "validate"]
-issue = "UndefVarError: booleanStep1_combiTimeTable_table — Real[:,:] table-data parameter is referenced by the CombiTimeTable DATA_STRUCTURE constructor but never emitted at module top. Same param-emission bucket as TestOpenTank/TestCylinder (combiTimeTable_startTime). Underlying CombiTimeTable C runtime in OMRuntimeExternalC.jl/src/api.jl is in place; the gap is in OMBackend's parameter emission for non-String / non-paramArray DATA_STRUCTURE arguments."
+stopTime = 6.0
+expected = "simulate"
+referenceFile = "Electrical_Analog_Examples_CharacteristicThyristors"
+issue = "2026-06-08: CombiTimeTable Real-array param now emitted, reaches Success over the full 6 s span. Boolean off-signals (IdealThyristor*.off, booleanStep1.y) fail validate at err 1.0 — the discrete-classification step-hold interpolation gap, a separate runtime cluster."
 
 [models.Apr25_Electrical_Analog_Examples_HeatingPNP_NORGate]
 name = "Modelica.Electrical.Analog.Examples.HeatingPNP_NORGate"
