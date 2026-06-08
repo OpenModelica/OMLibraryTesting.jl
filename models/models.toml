@@ -332,9 +332,10 @@ expected = "simulate"
 name = "Modelica.Mechanics.Translational.Examples.Brake"
 domain = "Mechanics.Translational"
 stopTime = 2.0
-expected = "simulate"
+expected = "validate"
+dtmax = 0.02
 referenceFile = "Mechanics_Translational_Examples_Brake"
-issue = "2026-05-21: OMBackend direct RHS reaches retcode=Success through stopTime=2.0 after cyclic discrete demotion, deterministic IF-equation emission, and discrete-algebraic solver fallback."
+issue = "2026-06-07: validates after ifCond-to-cluster event chaining (FSM engages at the step event); dtmax caps FBDF dense-output sampling error on the piecewise-linear deceleration."
 
 [models.Translational_HeatLosses]
 name = "Modelica.Mechanics.Translational.Examples.HeatLosses"
