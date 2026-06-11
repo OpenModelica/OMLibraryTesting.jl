@@ -270,12 +270,16 @@ function _resolve_solver(name::String)
         local s = _try(:(TRBDF2));   s !== nothing && return (; solver = s(), dense = false)
     elseif name == "RadauIIA5"
         local s = _try(:(RadauIIA5)); s !== nothing && return (; solver = s(), dense = false)
+    #= dense = false also for the Rosenbrock family: the dense polynomial is
+       unreliable inside steps cut by parameter-modifying callbacks (endpoints
+       exact, interior swings); validation samples saved steps instead. =#
     elseif name == "Rodas5P"
-        local s = _try(:(Rodas5P));  s !== nothing && return (; solver = s())
+        local s = _try(:(Rodas5P));  s !== nothing && return (; solver = s(), dense = false)
     elseif name == "Rodas5"
-        local s = _try(:(Rodas5));   s !== nothing && return (; solver = s())
+        #= autodiff=false matches OM.simulate's default Rodas5 configuration =#
+        local s = _try(:(Rodas5));   s !== nothing && return (; solver = s(autodiff = false), dense = false)
     elseif name == "Rosenbrock23"
-        local s = _try(:(Rosenbrock23)); s !== nothing && return (; solver = s())
+        local s = _try(:(Rosenbrock23)); s !== nothing && return (; solver = s(), dense = false)
     end
     @warn "Unknown / unavailable solver name in spec, falling back to default" solver=name
     return NamedTuple()
@@ -412,7 +416,9 @@ function _run_model_phases(model_name::String,
                     _tol = (; _tol..., abstol = solver_atol)
                 end
                 sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _mi..., _tol...)
-                if sol.retcode != ReturnCode.Success
+                #= Terminated is a successful end per Modelica semantics: a model
+                   calling terminate() completed its intended scenario. =#
+                if sol.retcode != ReturnCode.Success && sol.retcode != ReturnCode.Terminated
                     error("Simulation retcode: $(sol.retcode)")
                 end
             elseif phase_int == Int(VALIDATE)
@@ -719,6 +725,7 @@ function run_coverage(; library::String = "Modelica",
         if isempty(specs)
             error("Model not found: $model")
         end
+        @info "Single-model coverage run is the cold authoritative gate. For fast iteration use scripts/warm_validate.jl in a warm OM.jl REPL (see .claude/CLAUDE.md, warm-process hard rule)."
     elseif !isempty(domain)
         domain_re = Regex(domain)
         specs = Base.filter(s -> occursin(domain_re, s.domain), specs)

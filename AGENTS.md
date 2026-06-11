@@ -47,3 +47,13 @@ When fixing a failing test suite, work in foundational-first order:
 2. Fix feature tests next (tests for specific features that build on the core).
 3. Fix complex / integration tests last (tests involving multiple subsystems or runtime behavior).
 
+## Hard Rule: Iterate in Warm Processes
+
+Debugging a single model is an edit-rebuild-validate loop; run it inside a
+long-lived (warm) Julia session where code changes are picked up by Revise,
+never by repeatedly spawning cold processes that re-precompile the whole
+stack. Cold full-coverage runs are the final authoritative gate before
+recording results, not the inner loop. The project-local entry point for the
+warm loop is `scripts/warm_validate.jl` (see `.claude/CLAUDE.md` for the
+machine-specific workflow).
+

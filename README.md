@@ -66,6 +66,39 @@ OMLibraryTesting.print_summary(results)
 OMLibraryTesting.print_error_analysis(results)
 ```
 
+## Hot Validation Loop (`scripts/warm_validate.jl`)
+
+`run_coverage` spawns cold worker processes that re-precompile the OM.jl stack after
+every source edit, which costs minutes per cycle. For iterating on a single model from
+a warm Julia REPL (with `using OM` done and Revise active), use the hot variant:
+
+```julia
+include("scripts/warm_validate.jl")
+
+r = warm_validate("Modelica.Mechanics.MultiBody.Examples.Loops.Engine1a";
+                  stopTime = 0.72, atol = 0.1, reltol = 0.05)
+r.npass, r.nfail   # validation score
+r.results          # per-signal table (signal, pass, maxerr, tmax, ours, ref, tol)
+r.sol              # solution object for probing
+```
+
+What it does on each call:
+
+* Forces a true rebuild (clears both the `OMBackend.IMTKGen.BUILT` problem cache and
+  the `OMBackend.COMPILED_MODELS_MTK` generated-module cache, then re-runs
+  `OM.translate`), so Revise-applied edits in any layer, including codegen, take
+  effect. Pass `rebuild = false` to re-validate the cached build when only sampling
+  or tolerances changed.
+* Simulates in-process and samples saved steps (`dense = false`) on the same 21-point
+  grid the harness uses, comparing every reference-CSV signal with the combined
+  tolerance `|err| <= atol + reltol * |ref|`.
+
+Keyword arguments mirror the `models.toml` overrides: `stopTime`, `atol`, `reltol`,
+`npoints`, `referenceFile`, `msl_version`, `solverKwargs`, `quiet`.
+
+The hot loop is for iteration; `run_coverage` remains the authoritative cold gate
+before promoting a model in `models/models.toml`.
+
 ## Model Registry (`models/models.toml`)
 
 The TOML file stores per-model overrides. The model list itself is always auto-discovered from omc. Example entry:

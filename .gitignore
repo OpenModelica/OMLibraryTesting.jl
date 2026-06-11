@@ -28,3 +28,9 @@ reference/signals/
 # Temporary files
 *.tmp
 *.log
+
+# Ignore root-level dotfiles and dot-directories used by local tooling.
+/.*
+!/.gitattributes
+!/.gitignore
+!/.github/
