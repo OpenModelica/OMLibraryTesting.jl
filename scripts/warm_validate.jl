@@ -71,7 +71,12 @@ function warm_validate(modelName::String;
   local grid = range(0.0, stopTime; length = npoints)
   local refAt = function (col::Int, t::Float64)
     local i = clamp(searchsortedlast(tref, t), 1, length(tref) - 1)
-    local w = (t - tref[i]) / (tref[i + 1] - tref[i])
+    #= Dymola writes duplicate timestamps at event instants (and at the
+       terminal time); a zero-width bracket would divide to NaN. Take the
+       value at that instant rather than interpolate across it. =#
+    local dt = tref[i + 1] - tref[i]
+    dt == 0 && return raw[i, col]
+    local w = (t - tref[i]) / dt
     return raw[i, col] * (1 - w) + raw[i + 1, col] * w
   end
   local results = NamedTuple[]

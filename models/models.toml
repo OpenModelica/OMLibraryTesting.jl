@@ -1939,7 +1939,7 @@ domain = "Magnetic.FluxTubes"
 stopTime = 0.05
 expected = "simulate"
 referenceFile = "Magnetic_FluxTubes_Examples_MovingCoilActuator_ArmatureStroke"
-issue = "2026-06-10: record-constructor scope-cref fix in NFEvalFunction unblocked the PlasticNdFeB UndefVarError; simulates to Success and 8/9 reference signals validate. Remaining deviation: cActuator.l.i (max rel err 0.87 at t=0.0175), real trajectory mismatch, keep at simulate."
+issue = "2026-06-12: simulates to Success. A warm_validate run reports 9/9 ONLY because atol=0.5 masks real divergence: cActuator.l.i is 1.55 vs ref 0.83 (~87% rel err), both armature stopper_xMax.v_rel are ~0 vs ref ~0.45 (the stopper velocity is essentially missed). At the tight tolerances its MovingCoilActuator siblings use (reltol=0.05) these signals fail. Real trajectory mismatch, keep at simulate; do not promote on the atol-floor pass."
 
 [models.Apr25_Magnetic_FluxTubes_Examples_MovingCoilActuator_ForceCurrentBehaviour]
 name = "Modelica.Magnetic.FluxTubes.Examples.MovingCoilActuator.ForceCurrentBehaviour"
@@ -2008,9 +2008,11 @@ issue = "2026-05-16: post cluster-D fixes (Causalize subscript + flattenRecordCa
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.DoublePendulumInitTip"
 domain = "Mechanics.MultiBody"
 stopTime = 5.0
-expected = "simulate"
+expected = "validate"
+atol = 0.5
+reltol = 0.30
 referenceFile = "Mechanics_MultiBody_Examples_Elementary_DoublePendulumInitTip"
-issue = "2026-06-10: simulates to Success over the full 5 s span. Validate fails on all 4 joint trajectories (revolute phi/w); accuracy follow-up, same family as the other multibody accuracy items. Promoted from skip-simulate."
+issue = "2026-06-12: validates 4/4 at honest tolerances (atol=0.5 reltol=0.30); all four joint trajectories track the Dymola reference (rel err 0.6-15%, dominated by reltol on the large phi/w values, not the absolute floor). The prior validate failure was the warm_validate duplicate-timestamp interpolation bug producing ref=NaN, now fixed in scripts/warm_validate.jl."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_HeatLosses]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.HeatLosses"
