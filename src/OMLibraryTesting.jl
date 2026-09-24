@@ -46,6 +46,7 @@ include("runner.jl")
 include("analysis.jl")
 include("report.jl")
 include("rerun_failed.jl")
+include("testsuite.jl")
 
 export Phase, BROKEN, FRONTEND, BACKEND, SIMULATE, VALIDATE, UNKNOWN
 export PhaseResult, ModelSpec, ModelResult
@@ -61,5 +62,8 @@ export subcategorize_meta_errors
 export ParsedModel, parse_report
 export failing_models, passing_models, failing_by_error, print_report_summary
 export run_failed_from_report, run_failed_and_report, failing_names_from_report, latest_html_report
+export TestsuiteCase, RtestResult
+export fetch_testsuite, scaffold_rtest_home!, discover_testsuite_cases, parse_mos_file
+export testsuite_specs, run_testsuite, run_rtest, run_testsuite_omjl, print_rtest_summary
 
 end
