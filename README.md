@@ -27,7 +27,8 @@ OMLibraryTesting.jl/
 │   ├── runner.jl             # WorkerManager and run_coverage orchestration
 │   ├── comparison.jl         # CSV trajectory comparison
 │   ├── analysis.jl           # Error categorization and analysis utilities
-│   └── report.jl             # HTML report generation
+│   ├── report.jl             # HTML report generation
+│   └── testsuite.jl          # Fetch + run the upstream OpenModelica testsuite (rtest / OM.jl modes)
 ├── models/
 │   └── models.toml           # Per-model overrides (atol, reltol, expected phase, signal mapping)
 ├── reference/
@@ -65,6 +66,93 @@ OMLibraryTesting.print_summary(results)
 # Analyse failures
 OMLibraryTesting.print_error_analysis(results)
 ```
+
+## Hot Validation Loop (`scripts/warm_validate.jl`)
+
+`run_coverage` spawns cold worker processes that re-precompile the OM.jl stack after
+every source edit, which costs minutes per cycle. For iterating on a single model from
+a warm Julia REPL (with `using OM` done and Revise active), use the hot variant:
+
+```julia
+include("scripts/warm_validate.jl")
+
+r = warm_validate("Modelica.Mechanics.MultiBody.Examples.Loops.Engine1a";
+                  stopTime = 0.72, atol = 0.1, reltol = 0.05)
+r.npass, r.nfail   # validation score
+r.results          # per-signal table (signal, pass, maxerr, tmax, ours, ref, tol)
+r.sol              # solution object for probing
+```
+
+What it does on each call:
+
+* Forces a true rebuild (clears both the `OMBackend.IMTKGen.BUILT` problem cache and
+  the `OMBackend.COMPILED_MODELS_MTK` generated-module cache, then re-runs
+  `OM.translate`), so Revise-applied edits in any layer, including codegen, take
+  effect. Pass `rebuild = false` to re-validate the cached build when only sampling
+  or tolerances changed.
+* Simulates in-process and samples saved steps (`dense = false`) on the same 21-point
+  grid the harness uses, comparing every reference-CSV signal with the combined
+  tolerance `|err| <= atol + reltol * |ref|`.
+
+Keyword arguments mirror the `models.toml` overrides: `stopTime`, `atol`, `reltol`,
+`npoints`, `referenceFile`, `msl_version`, `solverKwargs`, `quiet`.
+
+The hot loop is for iteration; `run_coverage` remains the authoritative cold gate
+before promoting a model in `models/models.toml`.
+
+## OpenModelica `testsuite/` Regression Suite (`src/testsuite.jl`)
+
+In addition to MSL coverage, the harness can fetch and run the upstream
+[OpenModelica `testsuite/`](https://github.com/OpenModelica/OpenModelica/tree/master/testsuite)
+regression tests (the `.mos` cases the `rtest` Perl harness drives). The first call
+sparse-clones only the `testsuite/` directory (partial, cone-mode checkout) into
+`.testsuite_cache/`; later calls reuse it.
+
+Two run modes share one fetch + discovery front-end:
+
+| Mode      | What it tests | Returns |
+|-----------|---------------|---------|
+| `:omjl`   | Each test's model target through the OM.jl `FRONTEND -> BACKEND -> SIMULATE` pipeline (reuses `run_model` / the worker pool). | `Vector{ModelResult}` |
+| `:rtest`  | The upstream Perl `rtest` harness against the system `omc` (tests the C compiler). | `Vector{RtestResult}` |
+
+```julia
+import OMLibraryTesting
+
+# OM.jl pipeline over a testsuite subdirectory (default mode)
+results = OMLibraryTesting.run_testsuite(; mode = :omjl,
+                                           subdir = "simulation/modelica/equations",
+                                           limit = 20)
+OMLibraryTesting.print_summary(results)
+
+# Upstream rtest harness against system omc
+rs = OMLibraryTesting.run_testsuite(; mode = :rtest,
+                                      subdir = "flattening/modelica/scodeinst",
+                                      status = "correct", limit = 20)
+OMLibraryTesting.print_rtest_summary(rs)
+```
+
+Selected keywords (`run_testsuite`):
+
+* `fetch` (true) sparse-clone / update the testsuite first; `ref` ("master") git ref;
+  `dest` cache dir. Pass `fetch = false` to skip the network and reuse the cache.
+* `subdir` restrict discovery to a testsuite subdirectory; `filter` regex over the
+  repo-relative `.mos` path; `status` (default `"correct"`) `// status:` header filter;
+  `limit` cap the number of cases.
+* `:omjl` forwards `msl_version, stopTime, from_phase, to_phase, timeout, n_workers,
+  check_sim_code`; `:rtest` forwards `omcflags, verbose`.
+
+Notes and limitations:
+
+* `:omjl` mode only runs cases that load a **bundled** MSL version (3.2.x or 4.0.0)
+  and target a `Modelica.*` class. Cases using MSL 4.1.0/trunk, third-party libraries,
+  or inline-defined models are reported as skipped with a reason. It stops at
+  `SIMULATE` by default because the testsuite ships no validation CSVs in this harness.
+* `:rtest` mode needs `omc-diff` in the scaffolded OPENMODELICAHOME. `fetch_testsuite`
+  builds it from `testsuite/difftool` when possible; that build requires `flex` plus a
+  C compiler. If `flex` is missing, install it (e.g. `sudo apt-get install flex`) and
+  re-run `fetch_testsuite`, otherwise `run_rtest` raises with a clear message.
+
+A convenience wrapper lives in `scripts/run_testsuite.jl`.
 
 ## Model Registry (`models/models.toml`)
 

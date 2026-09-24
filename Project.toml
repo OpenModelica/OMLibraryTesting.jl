@@ -1,6 +1,6 @@
 name = "OMLibraryTesting"
 uuid = "4866894a-ca78-4bef-9a5c-0d35f2f81ce1"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["John Tinnerholm <john.tinnerholm@liu.se>"]
 
 [deps]
