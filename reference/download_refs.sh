@@ -3,7 +3,8 @@
 # These are the official Modelica Association reference results for MSL 3.2.3.
 # Source: https://github.com/modelica/MAP-LIB_ReferenceResults (branch v3.2.3)
 #
-# Usage: cd OMLibraryTesting.jl/reference && bash download_refs.sh
+# Usage: cd OMLibraryTesting.jl/reference && bash download_refs.sh [SHORT_NAME...]
+#   With names (e.g. Blocks_Examples_InverseModel), download only those models.
 
 set -euo pipefail
 
@@ -433,18 +434,38 @@ MODELS=(
   "Utilities_Examples_readRealParameterModel|Modelica/Utilities/Examples/readRealParameterModel/readRealParameterModel"
 )
 
+# Only the models named on the command line, if any.
+if [ $# -gt 0 ]; then
+  selected=()
+  for want in "$@"; do
+    found=""
+    for entry in "${MODELS[@]}"; do
+      if [ "${entry%%|*}" = "$want" ]; then selected+=("$entry"); found=1; break; fi
+    done
+    [ -n "$found" ] || { echo "Unknown model: $want" >&2; exit 1; }
+  done
+  MODELS=("${selected[@]}")
+fi
+
+fetch() { curl -fsSL --retry 3 --retry-delay 2 "$1" -o "$2" 2>/dev/null; }
+
 downloaded=0
 failed=0
 for entry in "${MODELS[@]}"; do
   IFS='|' read -r name path <<< "$entry"
 
   # CSV reference file
-  if curl -fsSL "$BASE_URL/${path}.csv" -o "$CSV_DIR/${name}.csv" 2>/dev/null; then
-    # Comparison signals list
+  if fetch "$BASE_URL/${path}.csv" "$CSV_DIR/${name}.csv"; then
+    # Comparison signals list (without it a comparison uses every signal)
     dir=$(dirname "$path")
-    curl -fsSL "$BASE_URL/${dir}/comparisonSignals.txt" -o "$SIGNALS_DIR/${name}.txt" 2>/dev/null || true
+    if ! fetch "$BASE_URL/${dir}/comparisonSignals.txt" "$SIGNALS_DIR/${name}.txt" && [ $# -gt 0 ]; then
+      echo "Failed to download the comparison signals of $name" >&2
+      failed=$((failed + 1))
+      continue
+    fi
     downloaded=$((downloaded + 1))
   else
+    [ $# -gt 0 ] && echo "Failed to download the reference result of $name" >&2
     failed=$((failed + 1))
   fi
 done
@@ -452,3 +473,5 @@ done
 echo ""
 echo "Downloaded ${downloaded} CSV files (${failed} failed)."
 echo "Signal lists: $(ls "$SIGNALS_DIR"/*.txt 2>/dev/null | wc -l)"
+# Models asked for by name must all be there.
+[ $# -eq 0 ] || [ "$failed" -eq 0 ]
