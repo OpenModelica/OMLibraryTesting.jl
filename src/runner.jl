@@ -516,7 +516,7 @@ end
 
 Run all phases for a model on the worker process with an escalating timeout:
 1. After `timeout` seconds: send SIGINT via `interrupt(pid)`
-2. After `timeout + grace_period` seconds: kill the worker via `rmprocs`
+2. After `timeout + grace_period` seconds: kill the worker (`kill_worker!`: SIGKILL, then `rmprocs`)
 """
 function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                        phases_to_run::Vector{Phase};
@@ -534,23 +534,23 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         spec.solver, spec.dtmax, spec.initAlg,
         spec.solverAtol, spec.solverReltol, spec.observedFilter, spec.maxiters)
 
+    #= Wait for the result in a local task and poll that task. isready(future) asks
+       the worker, and a worker running code that never yields (a pegged solve or
+       structural_simplify) answers only when that code finishes: polling isready
+       blocked this loop and the timeout timers with it, so such a model was never
+       interrupted. The task returns an exception instead of failing, so the handlers
+       below see the original ProcessExitedException / RemoteException. =#
+    fetcher = @async try
+        fetch(future)
+    catch e
+        e
+    end
+
     t0 = time()
     interrupted = Ref(false)
     killed = Ref(false)
 
-    # Use try-catch around isready: for Distributed.Future, isready() communicates
-    # with the remote worker and throws if the worker is dead or unreachable.
-    # When the worker is dead (ProcessExitedException), return false to break the
-    # polling loop and let fetch() throw the proper exception for the catch handler.
-    _future_pending() = try
-        !isready(future)
-    catch e
-        if e isa ProcessExitedException
-            false
-        else
-            true
-        end
-    end
+    _future_pending() = !istaskdone(fetcher)
 
     timer_interrupt = Timer(timeout) do _t
         if _future_pending()
@@ -570,13 +570,13 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
 
     try
         # Poll instead of blocking on fetch so Ctrl-C can be delivered between iterations.
-        # Also break when killed[] is true: after the worker is force-killed, isready(future)
-        # throws (dead socket), which _future_pending() catches as "still pending". Without
-        # the killed[] check the loop would spin forever.
+        # Stop waiting once the worker is killed: kill_worker! only kills workers this
+        # module spawned, so the fetcher of an adopted worker may never finish.
         while _future_pending() && !killed[]
             sleep(0.5)
         end
-        raw = fetch(future)
+        raw = killed[] && _future_pending() ? ProcessExitedException(pid) : fetch(fetcher)
+        raw isa Exception && throw(raw)
         elapsed = time() - t0
 
         phase_results = PhaseResult[
@@ -599,7 +599,12 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     catch e
         elapsed = time() - t0
 
-        if interrupted[] || killed[]
+        # A Ctrl-C of the run itself; the timeout's interrupt of the worker arrives as a RemoteException.
+        if e isa InterruptException
+            @warn "    INTERRUPTED by user"
+            kill_worker!(mgr)
+            rethrow()
+        elseif interrupted[] || killed[]
             msg = "Timeout after $(round(elapsed, digits=1))s (limit: $(round(timeout, digits=0))s)"
             if killed[]
                 msg *= " [worker killed]"
@@ -621,10 +626,6 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
             return ModelResult(spec, phases, BROKEN,
                               Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
-        elseif e isa InterruptException
-            @warn "    INTERRUPTED by user"
-            kill_worker!(mgr)
-            rethrow()
         elseif e isa RemoteException
             # Worker threw a normal exception that escaped _run_model_phases
             msg = _bounded_showerror(e, 500)
