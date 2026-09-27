@@ -13,9 +13,11 @@ Environment variables:
     OMJL_COVERAGE_MODEL     Optional single model name.
     OMJL_COVERAGE_FROMPHASE Optional from_phase (frontend|backend|simulate|validate).
     OMJL_COVERAGE_TOPHASE   Optional to_phase.
+    OMJL_COVERAGE_WORKERS   Worker processes, models run in parallel (default: nprocs() - 1, at least 1).
 =#
 
 using Dates
+using Distributed: nprocs
 using Serialization
 
 import OMLibraryTesting
@@ -28,6 +30,7 @@ const DOMAIN    = get(ENV, "OMJL_COVERAGE_DOMAIN", "")
 const MODEL     = get(ENV, "OMJL_COVERAGE_MODEL",  "")
 const FROMPHASE = phase_from_string(get(ENV, "OMJL_COVERAGE_FROMPHASE", "frontend"))
 const TOPHASE   = phase_from_string(get(ENV, "OMJL_COVERAGE_TOPHASE",   "validate"))
+const WORKERS   = parse(Int, get(ENV, "OMJL_COVERAGE_WORKERS", string(max(1, nprocs() - 1))))
 
 const RUN_START    = Dates.now()
 const RUN_TS       = Dates.format(RUN_START, "yyyy-mm-dd_HHMM")
@@ -38,7 +41,7 @@ const PARTIAL_PATH = joinpath(LOG_DIR, "partial_$(TAG)_$(RUN_TS).jls")
 mkpath(REPORT_DIR)
 mkpath(LOG_DIR)
 
-@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE
+@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS
 @info "Report directory: $REPORT_DIR"
 @info "Partial-results snapshot: $PARTIAL_PATH"
 
@@ -50,7 +53,8 @@ results = try
         domain      = DOMAIN,
         model       = MODEL,
         from_phase  = FROMPHASE,
-        to_phase    = TOPHASE)
+        to_phase    = TOPHASE,
+        n_workers   = WORKERS)
 catch e
     @error "run_coverage threw" exception=(e, catch_backtrace())
     OMLibraryTesting.ModelResult[]
