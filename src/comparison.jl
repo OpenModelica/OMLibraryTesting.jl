@@ -121,6 +121,19 @@ function interpolate_reference(ref_time::Vector{Float64},
 end
 
 """
+    _event_limits(ref_time, ref_values, t) -> Union{Nothing, Tuple{Float64, Float64}}
+
+The values before and after an event the reference recorded at `t` (a time
+that appears more than once: a result file stores both), else `nothing`.
+"""
+function _event_limits(ref_time::Vector{Float64}, ref_values::Vector{Float64}, t::Float64)
+    first_row = searchsortedfirst(ref_time, t)
+    last_row = searchsortedlast(ref_time, t)
+    last_row > first_row || return nothing
+    return (ref_values[first_row], ref_values[last_row])
+end
+
+"""
     modelica_to_omjl_name(name) -> String
 
 Convert Modelica dot-notation signal name to OM.jl underscore convention.
@@ -212,6 +225,13 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
         abs_err = abs(actual - expected)
         rel_err = abs(expected) > 1e-15 ? abs_err / abs(expected) : abs_err
         threshold = atol + reltol * abs(expected)
+        #= An event the reference recorded at t (its time repeated): the
+           values before and after it are its own one-sided limits. =#
+        limits = _event_limits(ref.time, ref_values, t)
+        if abs_err > threshold && limits !== nothing &&
+           any(v -> abs(actual - v) <= atol + reltol * abs(v), limits)
+            continue
+        end
         if abs_err > threshold && knot_eps > 0.0
             expected_lo = interpolate_reference(ref.time, ref_values, t - knot_eps)
             expected_hi = interpolate_reference(ref.time, ref_values, t + knot_eps)

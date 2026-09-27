@@ -11,9 +11,6 @@ harness itself, not a unit test.
 using Test
 
 @testset "OMLibraryTesting" begin
-    # Placeholder — see comparisonTests.jl note. Until OMBackend emits
-    # step-hold values for discrete signals, the comparison layer here
-    # has nothing useful to regression-test independently.
-    @test true
+    include("comparisonTests.jl")
     include("runnerTests.jl")
 end

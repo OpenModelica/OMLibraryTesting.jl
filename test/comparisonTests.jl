@@ -1,5 +1,5 @@
 #=
-Placeholder for OMLibraryTesting comparison tests.
+OMLibraryTesting comparison tests.
 
 2026-04-23: An earlier attempt in this file added `step_hold_interpolate`
 and `is_discrete_reference` helpers to `src/comparison.jl` and auto-routed
@@ -28,7 +28,31 @@ The fix belongs in OMBackend:
     piecewise-constant and Linear interpolation of (t0, v) to (t0+ε, v)
     is just v).
 
-So no comparison-side change, and this test file is intentionally empty
-until someone adds OMBackend-side tests that produce correct digital
-solutions.
+2026-09-27: a sample instant on an event the reference recorded (its
+time repeated: the values before and after) accepts either value. A
+solution evaluated at the event returns its left limit (SciML's default
+continuity), the reference interpolation the right one.
 =#
+
+import OMLibraryTesting as OLT
+
+#= A solution stand-in: `sol(t; idxs)` of one signal. =#
+struct SignalOf{F}
+    f::F
+end
+(s::SignalOf)(t; idxs = nothing) = s.f(t)
+
+@testset "comparison: an event at a sample instant" begin
+    #= A sawtooth reset at t = 0.5, as a Mean block's integrator: the
+       reference stores the value before and after the reset at 0.5. =#
+    local ref = OLT.ReferenceData([0.0, 0.25, 0.5, 0.5, 0.75, 1.0],
+                                  Dict("x" => [0.0, 0.25, 0.5, 0.0, 0.25, 0.5]))
+    @test OLT._event_limits(ref.time, ref.signals["x"], 0.5) == (0.5, 0.0)
+    @test OLT._event_limits(ref.time, ref.signals["x"], 0.25) === nothing
+    local sawtooth(t) = t <= 0.5 ? t : t - 0.5          # the left limit at the reset
+    local cmp = OLT.compare_signal(SignalOf(sawtooth), ref, "x", 1.0; npoints = 5)
+    @test cmp.passed
+    #= Neither limit: a reset that did not happen. =#
+    local noReset = OLT.compare_signal(SignalOf(t -> t <= 0.5 ? t : t + 0.1), ref, "x", 1.0; npoints = 5)
+    @test !noReset.passed
+end
