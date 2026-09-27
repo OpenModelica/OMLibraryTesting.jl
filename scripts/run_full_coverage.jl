@@ -31,6 +31,7 @@ const MODEL     = get(ENV, "OMJL_COVERAGE_MODEL",  "")
 const FROMPHASE = phase_from_string(get(ENV, "OMJL_COVERAGE_FROMPHASE", "frontend"))
 const TOPHASE   = phase_from_string(get(ENV, "OMJL_COVERAGE_TOPHASE",   "validate"))
 const WORKERS   = parse(Int, get(ENV, "OMJL_COVERAGE_WORKERS", string(max(1, nprocs() - 1))))
+WORKERS >= 1 || error("OMJL_COVERAGE_WORKERS must be >= 1, got $WORKERS")
 
 const RUN_START    = Dates.now()
 const RUN_TS       = Dates.format(RUN_START, "yyyy-mm-dd_HHMM")
