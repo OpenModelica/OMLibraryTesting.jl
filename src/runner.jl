@@ -527,7 +527,20 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                        grace_period::Float64 = GRACE_PERIOD,
                        check_sim_code::Bool = false)::ModelResult
     marker_path = _write_started_marker(spec.name)
-    pid = ensure_worker!(mgr)
+    #= A worker that cannot start (a precompile of changed sources failed) fails this
+       model, not the run: the error left run_coverage, and every result was lost. =#
+    pid = try
+        ensure_worker!(mgr)
+    catch e
+        e isa InterruptException && rethrow()
+        _remove_started_marker(marker_path)
+        msg = "Worker spawn failed: $(_bounded_showerror(e, 500))"
+        @warn "    CRASH: $msg"
+        kill_worker!(mgr)     # a worker that started but did not load the packages
+        phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
+        return ModelResult(spec, PhaseResult[PhaseResult(phase, false, 0.0, msg)], BROKEN,
+                           Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
+    end
     phase_ints = [Int(p) for p in phases_to_run]
 
     future = remotecall(OMLibraryTesting._run_model_phases, pid,

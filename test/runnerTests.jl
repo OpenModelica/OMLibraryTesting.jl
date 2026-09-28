@@ -51,3 +51,24 @@ end
         OLT.cleanup!(mgr)
     end
 end
+
+#= A worker that cannot load the packages (a precompile of changed sources failed) must fail
+   its model, not the run: the error left run_coverage, and every result of the run was lost.
+   Here the worker starts in an empty project, where `using OMLibraryTesting` fails. =#
+@testset "run_on_worker fails a model whose worker cannot start" begin
+    spec = OLT.ModelSpec("Spawn.Model", "Spawn_Model", "Spawn", 1.0, OLT.SIMULATE,
+                         Dict{String, Float64}(), 0.0, 0.0, "", Dict{String, String}(), "",
+                         Set{OLT.Phase}())
+    mgr = OLT.WorkerManager()
+    project = Base.active_project()
+    try
+        Base.ACTIVE_PROJECT[] = mktempdir()
+        r = OLT.run_on_worker(mgr, spec, [OLT.SIMULATE]; timeout = 120.0)
+        @test r.highest == OLT.BROKEN
+        @test startswith(something(r.phases[1].error, ""), "Worker spawn failed")
+        @test mgr.pid === nothing   # the half-started worker is gone
+    finally
+        Base.ACTIVE_PROJECT[] = project
+        OLT.cleanup!(mgr)
+    end
+end
