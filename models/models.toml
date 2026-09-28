@@ -259,9 +259,9 @@ issue = "2026-05-20: re-probed, simulate + validate now succeed (2/2 signals mat
 name = "Modelica.Mechanics.Rotational.Examples.OneWayClutch"
 domain = "Mechanics.Rotational"
 stopTime = 2.0
-expected = "simulate"
+expected = "validate"
 referenceFile = "Mechanics_Rotational_Examples_OneWayClutch"
-issue = "2026-06-10: simulate passes; validate attempted but not yet confirmed. Previously skipped due to MaxIters under default solver."
+issue = "2026-06-10: simulate passes; validate attempted but not yet confirmed. Previously skipped due to MaxIters under default solver. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Rotational_OneWayClutchDisengaged]
 name = "Modelica.Mechanics.Rotational.Examples.OneWayClutchDisengaged"
@@ -280,25 +280,25 @@ issue = "2026-06-07: validates at solverReltol=1e-8 (all 4 signals max err ~3e-5
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.Rectifier1Pulse.Thyristor1Pulse_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "2026-06-02: SIM hits MaxIters (solver non-convergence). Skip simulate+validate until resolved."
+expected = "validate"
+skipPhases = []
+issue = "2026-06-02: SIM hits MaxIters (solver non-convergence). Skip simulate+validate until resolved. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.PowerConverters_ACDC_RectifierBridge2Pulse_DiodeBridge2Pulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.DiodeBridge2Pulse"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "2026-06-02: SIM hits MaxIters (solver non-convergence). Skip simulate+validate until resolved."
+expected = "validate"
+skipPhases = []
+issue = "2026-06-02: SIM hits MaxIters (solver non-convergence). Skip simulate+validate until resolved. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.PowerConverters_ACDC_RectifierCenterTap2Pulse_DiodeCenterTap2Pulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.DiodeCenterTap2Pulse"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "2026-06-02: SIM hits MaxIters (solver non-convergence). Skip simulate+validate until resolved."
+expected = "validate"
+skipPhases = []
+issue = "2026-06-02: SIM hits MaxIters (solver non-convergence). Skip simulate+validate until resolved. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Rotational_SimpleGearShift]
 name = "Modelica.Mechanics.Rotational.Examples.SimpleGearShift"
@@ -378,18 +378,18 @@ issue = "2026-06-07: validates after ifCond-to-cluster event chaining (FSM engag
 name = "Modelica.Mechanics.Translational.Examples.HeatLosses"
 domain = "Mechanics.Translational"
 stopTime = 2.0
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Unsupported IF_EQUATION condition. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Unsupported IF_EQUATION condition. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Translational_PreLoad]
 name = "Modelica.Mechanics.Translational.Examples.PreLoad"
 domain = "Mechanics.Translational"
 stopTime = 100.0
-expected = "simulate"
+expected = "validate"
 solver = "IDA"
 referenceFile = "Mechanics_Translational_Examples_PreLoad"
-issue = "2026-05-16: 6 ODE solvers stall 30s-1300s before MaxIters; IDA fast-fails in 4s with retcode=Unstable. Coulomb-friction polynomial-Boolean rank-deficient-Jacobian family. Harness now attempts SIM with IDA (fast-fail) instead of skipping."
+issue = "2026-05-16: 6 ODE solvers stall 30s-1300s before MaxIters; IDA fast-fails in 4s with retcode=Unstable. Coulomb-friction polynomial-Boolean rank-deficient-Jacobian family. Harness now attempts SIM with IDA (fast-fail) instead of skipping. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 # ==========================================================================
 # Electrical.Analog
@@ -505,9 +505,9 @@ issue = "2026-05-17 probe: SIM at default stopTime=200 now Unstable at t~5 (regr
 name = "Modelica.Electrical.Analog.Examples.Rectifier"
 domain = "Electrical.Analog"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "ExtraEquationsSystemException (unbalanced system). 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "ExtraEquationsSystemException (unbalanced system). 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.SimpleTriacCircuit]
 name = "Modelica.Electrical.Analog.Examples.SimpleTriacCircuit"
@@ -626,9 +626,9 @@ issue = "2026-05-13: backend passes. Simulate fails: UndefVarError: multiSwitch_
 name = "Modelica.Blocks.Examples.ShowLogicalSources"
 domain = "Blocks"
 stopTime = 10.0
-expected = "simulate"
+expected = "validate"
 referenceFile = "Blocks_Examples_ShowLogicalSources"
-issue = "2026-05-16 probe: SIM fails fast (~3s) with InvalidSystemException (structurally singular). Old CombiTimeTable BE block resolved; harness now attempts all phases."
+issue = "2026-05-16 probe: SIM fails fast (~3s) with InvalidSystemException (structurally singular). Old CombiTimeTable BE block resolved; harness now attempts all phases. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Blocks_Rectifier12pulseFFT]
 name = "Modelica.Blocks.Examples.Rectifier12pulseFFT"
@@ -653,15 +653,17 @@ issue = "Known broken. 2026-09-27: reaches backend without the registry's skips 
 name = "Modelica.StateGraph.Examples.ShowExceptions"
 domain = "StateGraph"
 stopTime = 20.0
-expected = "backend"
-issue = "Known broken. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Known broken. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.StateGraph_ShowCompositeStep]
 name = "Modelica.StateGraph.Examples.ShowCompositeStep"
 domain = "StateGraph"
 stopTime = 5.0
-expected = "backend"
-issue = "Known broken. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Known broken. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 # ==========================================================================
 # Electrical.Digital
@@ -748,9 +750,9 @@ issue = "Backend stalls >12 min in MTK structural_simplify on an 1811-equation u
 [models.Magnetic_QuasiStatic_FundamentalWave_IMC_Transformer]
 name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Transformer"
 domain = "Magnetic.QuasiStatic.FundamentalWave"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Backend stalls >3 min in MTK structural_simplify with no progress, similar pattern to IMC_DOL. Frontend passes. Worker manually SIGINTed on 2026-04-30 to free the coverage run. Same COMPLEX_MULTIPLY family as audit item #5 in CLAUDE.md — should unblock once the Complex operator-record method lowering lands. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Backend stalls >3 min in MTK structural_simplify with no progress, similar pattern to IMC_DOL. Frontend passes. Worker manually SIGINTed on 2026-04-30 to free the coverage run. Same COMPLEX_MULTIPLY family as audit item #5 in CLAUDE.md — should unblock once the Complex operator-record method lowering lands. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Magnetic_QuasiStatic_FundamentalWave_IMC_YD]
 name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_YD"
@@ -1082,16 +1084,17 @@ issue = "UndefVarError: function not found in generated module. 2026-09-27: reac
 name = "Modelica.StateGraph.Examples.ExecutionPaths"
 domain = "StateGraph"
 stopTime = 20.0
-expected = "backend"
-issue = "2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.StateGraph_FirstExample]
 name = "Modelica.StateGraph.Examples.FirstExample"
 domain = "StateGraph"
 stopTime = 5.0
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.StateGraph_FirstExample_Variant2]
 name = "Modelica.StateGraph.Examples.FirstExample_Variant2"
@@ -1198,9 +1201,9 @@ issue = "2026-05-28: backend used to pass with simulate failing on ExtraEquation
 [models.Apr25_Blocks_Examples_LogicalNetwork1]
 name = "Modelica.Blocks.Examples.LogicalNetwork1"
 domain = "Blocks"
-expected = "simulate"
+expected = "validate"
 referenceFile = "Blocks_Examples_LogicalNetwork1"
-issue = "2026-05-16 probe: SIM fails fast (~56s) with AssertionError: T <: Real. Harness attempts SIM."
+issue = "2026-05-16 probe: SIM fails fast (~56s) with AssertionError: T <: Real. Harness attempts SIM. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Blocks_Examples_NoiseExamples_Densities]
 name = "Modelica.Blocks.Examples.NoiseExamples.Densities"
@@ -1251,16 +1254,16 @@ issue = "2026-05-16 probe: SIM fails fast (~3s) with MethodError: no method matc
 [models.Apr25_Electrical_Analog_Examples_AmplifierWithOpAmpDetailed]
 name = "Modelica.Electrical.Analog.Examples.AmplifierWithOpAmpDetailed"
 domain = "Electrical.Analog"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "InitialFailure: Float64(::Symbolics.Num) MethodError during IC evaluation; persists with IDA solver. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "InitialFailure: Float64(::Symbolics.Num) MethodError during IC evaluation; persists with IDA solver. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Analog_Examples_CauerLowPassSC]
 name = "Modelica.Electrical.Analog.Examples.CauerLowPassSC"
 domain = "Electrical.Analog"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "ExtraEquationsSystemException in structural_simplify; 100 if-equations from IdealCommutingSwitch discrete state lowering. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "ExtraEquationsSystemException in structural_simplify; 100 if-equations from IdealCommutingSwitch discrete state lowering. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Analog_Examples_CharacteristicThyristors]
 name = "Modelica.Electrical.Analog.Examples.CharacteristicThyristors"
@@ -1292,9 +1295,9 @@ issue = "2026-06-07: validates again (OpAmps-family initial_affect fix, see OpAm
 [models.Apr25_Electrical_Analog_Examples_NandGate]
 name = "Modelica.Electrical.Analog.Examples.NandGate"
 domain = "Electrical.Analog"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "2026-05-28: backend itself takes >30 min (MTK structural_simplify hangs; ODEProblem build never returns) and burns worker time on coverage runs. Frontend-only until the MTK simplify hang is addressed. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-05-28: backend itself takes >30 min (MTK structural_simplify hangs; ODEProblem build never returns) and burns worker time on coverage runs. Frontend-only until the MTK simplify hang is addressed. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_Comparator]
 name = "Modelica.Electrical.Analog.Examples.OpAmps.Comparator"
@@ -1452,9 +1455,9 @@ issue = "2026-05-21: bumped atol 2.0->8.0. 9-value logic output worst-case offse
 [models.Apr25_Electrical_Digital_Examples_Counter]
 name = "Modelica.Electrical.Digital.Examples.Counter"
 domain = "Electrical.Digital"
-expected = "simulate"
+expected = "validate"
 referenceFile = "Electrical_Digital_Examples_Counter"
-issue = "2026-06-07: the Int64(NaN) crash class is fixed (table-cluster imperative lowering, see FlipFlop); now MaxIters at stopTime=100 from event chatter in the 4-bit ripple chain. Needs the chatter localized before promotion."
+issue = "2026-06-07: the Int64(NaN) crash class is fixed (table-cluster imperative lowering, see FlipFlop); now MaxIters at stopTime=100 from event chatter in the 4-bit ripple chain. Needs the chatter localized before promotion. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Digital_Examples_Counter3]
 name = "Modelica.Electrical.Digital.Examples.Counter3"
@@ -1651,58 +1654,58 @@ issue = "2026-05-20: re-probed at stopTime=1.0, simulate succeeds and validate p
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Conveyor]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Conveyor"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_DOL]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_DOL"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Initialize]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Initialize"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Inverter]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Inverter"
 domain = "Electrical.Machines"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_InverterDrive]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_InverterDrive"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Steinmetz]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Steinmetz"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Transformer]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Transformer"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_YD]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_YD"
 domain = "Electrical.Machines"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_withLosses]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_withLosses"
@@ -1714,9 +1717,9 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMS_Start]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMS_Start"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_ControlledDCDrives_CurrentControlledDCPM]
 name = "Modelica.Electrical.Machines.Examples.ControlledDCDrives.CurrentControlledDCPM"
@@ -1752,9 +1755,9 @@ issue = "2026-05-16 probe: validate passes 2/2 at atol=12, reltol=0.05 (harness 
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_Cooling"
 domain = "Electrical.Machines"
 stopTime = 25.0
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "2026-05-13 probe: simulate passes after prob.ps fix (initial algorithm param setter). Reference has stopTime=25. Validate skipped: thermal signals armature.T/core.T stay near ambient (294K) vs reference 354K/329K — thermal coupling not functioning."
+expected = "validate"
+skipPhases = []
+issue = "2026-05-13 probe: simulate passes after prob.ps fix (initial algorithm param setter). Reference has stopTime=25. Validate skipped: thermal signals armature.T/core.T stay near ambient (294K) vs reference 354K/329K — thermal coupling not functioning. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_CurrentControlled]
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_CurrentControlled"
@@ -1875,16 +1878,16 @@ issue = "2026-05-21: bumped atol 1.0->10.0, reltol 0.1->0.5. constantSpeed.phi w
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_VoltageSource]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMPM_VoltageSource"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMR_DOL]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMR_DOL"
 domain = "Electrical.Machines"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMR_Inverter]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMR_Inverter"
@@ -1896,9 +1899,9 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Machines_Examples_Transformers_AIMC_Transformer]
 name = "Modelica.Electrical.Machines.Examples.Transformers.AIMC_Transformer"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Electrical_Machines_Examples_Transformers_AsymmetricalLoad]
 name = "Modelica.Electrical.Machines.Examples.Transformers.AsymmetricalLoad"
@@ -2153,9 +2156,9 @@ issue = "2026-05-20: validate now passes 18/18 (body{1,2}.r_0/v_0 translation si
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.PointGravityWithPointMasses"
 domain = "Mechanics.MultiBody"
 stopTime = 2.0
-expected = "simulate"
+expected = "validate"
 referenceFile = "Mechanics_MultiBody_Examples_Elementary_PointGravityWithPointMasses"
-issue = "2026-06-07: simulates to Success after relay-temp guess seeding (guarded denominators no longer start the DAE init at 0/0). Coverage validate fails on body3/body4 trajectories (signals alias-eliminated from the solution; harness resolves them via fallback). Accuracy follow-up."
+issue = "2026-06-07: simulates to Success after relay-temp guess seeding (guarded denominators no longer start the DAE init at 0/0). Coverage validate fails on body3/body4 trajectories (signals alias-eliminated from the solution; harness resolves them via fallback). Accuracy follow-up. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_PointGravityWithPointMasses2]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.PointGravityWithPointMasses2"
@@ -2330,9 +2333,9 @@ issue = "2026-06-10: simulate passes; validate attempted but not yet confirmed. 
 [models.Apr25_Mechanics_Rotational_Examples_LossyGearDemo3]
 name = "Modelica.Mechanics.Rotational.Examples.LossyGearDemo3"
 domain = "Mechanics.Rotational"
-expected = "simulate"
+expected = "validate"
 referenceFile = "Mechanics_Rotational_Examples_LossyGearDemo3"
-issue = "2026-06-10: simulate passes; validate attempted but not yet confirmed. Previously skipped Apr25."
+issue = "2026-06-10: simulate passes; validate attempted but not yet confirmed. Previously skipped Apr25. 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 # ==========================================================================
 # May2026: validate-confirmed entries added/upgraded after .^/Cons/edge/WILD/
@@ -2497,9 +2500,9 @@ issue = "2026-05-28: translate now passes (SimCode refactor unblocked the prior 
 [models.May2026_Electrical_PowerConverters_ThyristorBridge2Pulse_R]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_R"
 domain = "Electrical.PowerConverters"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "2026-05-28: backend / simulate TIMEOUT (>1000s, escalated to SIGKILL much later) on 2026-05-28 09:57 coverage run. Thyristor-bridge family with discrete events; runtime path needs investigation. Frontend-only until the backend / simulate slowdown is identified and fixed. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-05-28: backend / simulate TIMEOUT (>1000s, escalated to SIGKILL much later) on 2026-05-28 09:57 coverage run. Thyristor-bridge family with discrete events; runtime path needs investigation. Frontend-only until the backend / simulate slowdown is identified and fixed. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Jun2026_Media_MediaTestModels_Water_ConstantPropertyLiquidWater]
 name = "Modelica.Media.Examples.Tests.MediaTestModels.Water.ConstantPropertyLiquidWater"
@@ -2532,8 +2535,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Blocks.Examples.Rectifier6pulseFFT"
 domain = "Blocks"
 stopTime = 2.5
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "simulate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_Analog_Examples_CauerLowPassOPV]
 name = "Modelica.Electrical.Analog.Examples.CauerLowPassOPV"
@@ -2546,8 +2549,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc"
 domain = "Electrical.Analog"
 stopTime = 6.0
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "simulate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_Analog_Examples_SwitchWithArc]
 name = "Modelica.Electrical.Analog.Examples.SwitchWithArc"
@@ -2588,8 +2591,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.Machines.Examples.Transformers.Rectifier6pulse"
 domain = "Electrical.Machines"
 stopTime = 0.1
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "simulate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_MultiPhase_Examples_Rectifier]
 name = "Modelica.Electrical.MultiPhase.Examples.Rectifier"
@@ -2602,177 +2605,177 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.Rectifier1Pulse.Thyristor1Pulse_R_Characteristic"
 domain = "Electrical.PowerConverters"
 stopTime = 10.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2Pulse_HalfControlledBridge2Pulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.HalfControlledBridge2Pulse"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2Pulse_ThyristorBridge2Pulse_DC_Drive]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_DC_Drive"
 domain = "Electrical.PowerConverters"
 stopTime = 15.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2Pulse_ThyristorBridge2Pulse_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2Pulse_ThyristorBridge2Pulse_RLV]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_RLV"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2Pulse_ThyristorBridge2Pulse_RLV_Characteristic]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_RLV_Characteristic"
 domain = "Electrical.PowerConverters"
 stopTime = 10.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_DiodeBridge2mPulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.DiodeBridge2mPulse"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
+expected = "simulate"
 skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_HalfControlledBridge2mPulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.HalfControlledBridge2mPulse"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_ThyristorBridge2mPulse_DC_Drive]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_DC_Drive"
 domain = "Electrical.PowerConverters"
 stopTime = 15.0
-expected = "backend"
+expected = "simulate"
 skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_ThyristorBridge2mPulse_R]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_ThyristorBridge2mPulse_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_ThyristorBridge2mPulse_RLV]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_RLV"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierBridge2mPulse_ThyristorBridge2mPulse_RLV_Characteristic]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_RLV_Characteristic"
 domain = "Electrical.PowerConverters"
 stopTime = 10.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2Pulse_ThyristorCenterTap2Pulse_R]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2Pulse_ThyristorCenterTap2Pulse_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2Pulse_ThyristorCenterTap2Pulse_RLV]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_RLV"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2Pulse_ThyristorCenterTap2Pulse_RLV_Characteristic]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_RLV_Characteristic"
 domain = "Electrical.PowerConverters"
 stopTime = 10.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2mPulse_DiodeCenterTap2mPulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.DiodeCenterTap2mPulse"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
+expected = "simulate"
 skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2mPulse_ThyristorCenterTap2mPulse_R]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2mPulse_ThyristorCenterTap2mPulse_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2mPulse_ThyristorCenterTap2mPulse_RLV]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_RLV"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTap2mPulse_ThyristorCenterTap2mPulse_RLV_Characteristic]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_RLV_Characteristic"
 domain = "Electrical.PowerConverters"
 stopTime = 10.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTapmPulse_DiodeCenterTapmPulse]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.DiodeCenterTapmPulse"
@@ -2786,33 +2789,33 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTapmPulse_ThyristorCenterTapmPulse_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTapmPulse_ThyristorCenterTapmPulse_RLV]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_RLV"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_ACDC_RectifierCenterTapmPulse_ThyristorCenterTapmPulse_RLV_Characteristic]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_RLV_Characteristic"
 domain = "Electrical.PowerConverters"
 stopTime = 10.0
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+skipPhases = []
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Electrical_PowerConverters_Examples_DCAC_MultiPhaseTwoLevel_MultiPhaseTwoLevel_R]
 name = "Modelica.Electrical.PowerConverters.Examples.DCAC.MultiPhaseTwoLevel.MultiPhaseTwoLevel_R"
@@ -3018,8 +3021,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_DOL"
 domain = "Magnetic.FundamentalWave"
 stopTime = 1.5
-expected = "simulate"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_AIMC_DOL_MultiPhase]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_DOL_MultiPhase"
@@ -3046,8 +3049,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_Steinmetz"
 domain = "Magnetic.FundamentalWave"
 stopTime = 1.0
-expected = "simulate"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_AIMC_Transformer]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_Transformer"
@@ -3074,15 +3077,15 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMS_Start"
 domain = "Magnetic.FundamentalWave"
 stopTime = 1.5
-expected = "simulate"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_SMEE_DOL]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMEE_DOL"
 domain = "Magnetic.FundamentalWave"
 stopTime = 3.0
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_SMEE_Generator]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMEE_Generator"
@@ -3109,8 +3112,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMEE_Rectifier"
 domain = "Magnetic.FundamentalWave"
 stopTime = 1.1
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "simulate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_SMPM_Braking]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMPM_Braking"
@@ -3298,8 +3301,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Mechanics.Translational.Examples.Friction"
 domain = "Mechanics.Translational"
 stopTime = 5.0
-expected = "simulate"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack). 2026-09-28: reaches validate without the registry's skips (coverage run on the 1.13 stack)."
 
 [models.Mechanics_Translational_Examples_GenerationOfFMUs]
 name = "Modelica.Mechanics.Translational.Examples.GenerationOfFMUs"
