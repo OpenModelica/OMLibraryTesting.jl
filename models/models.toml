@@ -1100,17 +1100,17 @@ issue = "2026-09-27: reaches simulate without the registry's skips (coverage run
 name = "Modelica.StateGraph.Examples.FirstExample_Variant2"
 domain = "StateGraph"
 stopTime = 5.0
-expected = "simulate"
+expected = "validate"
 skipPhases = ["validate"]
-issue = "2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+issue = "2026-09-29: validates (OMBackend da548d7: a when's value reaches the same event iteration; snapshot noskip-da94a82). (Before: 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.StateGraph_FirstExample_Variant3]
 name = "Modelica.StateGraph.Examples.FirstExample_Variant3"
 domain = "StateGraph"
 stopTime = 5.0
-expected = "simulate"
+expected = "validate"
 skipPhases = ["validate"]
-issue = "2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+issue = "2026-09-29: validates (OMBackend da548d7: a when's value reaches the same event iteration; snapshot noskip-da94a82). (Before: 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 # ==========================================================================
 # Utilities
@@ -1429,11 +1429,11 @@ issue = "2026-09-29: validates. stopTime 0.01 -> 0.0002, the MSL StopTime where 
 name = "Modelica.Electrical.Digital.Examples.Adder4"
 domain = "Electrical.Digital"
 stopTime = 5.0
-expected = "simulate"
+expected = "validate"
 reltol = 0.05
 atol = 0.5
 referenceFile = "Electrical_Digital_Examples_Adder4"
-issue = "2026-09-29: stopTime 20 -> 5 (the reference ends at the MSL StopTime 5) and atol 4 -> 0.5: an atol of 4 on logic values 1-9 cannot tell '0' (3) from '1' (4). Fails on the XOR/AND gates' G2.x/y, as FullAdder: an OM.jl digital bug. (2026-06-03: passed 32/32 at atol 4 after the when-callback constant-cref lookup fix.)"
+issue = "2026-09-29: validates at atol 0.5 (OMBackend 37d32ee: two large constant tables indexed alike were one equation; harness check). (Before: 2026-09-29: stopTime 20 -> 5 (the reference ends at the MSL StopTime 5) and atol 4 -> 0.5: an atol of 4 on logic values 1-9 cannot tell '0' (3) from '1' (4). Fails on the XOR/AND gates' G2.x/y, as FullAdder: an OM.jl digital bug. (2026-06-03: passed 32/32 at atol 4 after the when-callback constant-c)"
 
 [models.Apr25_Electrical_Digital_Examples_BUF3S]
 name = "Modelica.Electrical.Digital.Examples.BUF3S"
@@ -1556,9 +1556,9 @@ domain = "Electrical.Digital"
 [models.Apr25_Electrical_Digital_Examples_FullAdder]
 name = "Modelica.Electrical.Digital.Examples.FullAdder"
 domain = "Electrical.Digital"
-expected = "simulate"
+expected = "validate"
 referenceFile = "Electrical_Digital_Examples_FullAdder"
-issue = "2026-06-07: simulates to Success (table-cluster imperative lowering + Newton-FD re-init, see FlipFlop). Validate still fails on inner gate signals (Adder1.Adder1.AND.G2.x/y, XO*); trajectory drift after events, under investigation."
+issue = "2026-09-29: validates (OMBackend 37d32ee: two large constant tables indexed alike were one equation, the XOR gate's output the AND gate's; harness check). (Before: 2026-06-07: simulates to Success (table-cluster imperative lowering + Newton-FD re-init, see FlipFlop). Validate still fails on inner gate signals (Adder1.Adder1.AND.G2.x/y, XO*); trajectory drift after events, under investigation.)"
 
 [models.Apr25_Electrical_Digital_Examples_HalfAdder]
 name = "Modelica.Electrical.Digital.Examples.HalfAdder"
@@ -2116,9 +2116,9 @@ issue = "2026-06-10: structural singularity cleared (der-solve fix) and all eigh
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_InitSpringConstant]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.InitSpringConstant"
 domain = "Mechanics.MultiBody"
-expected = "simulate"
+expected = "validate"
 referenceFile = "Mechanics_MultiBody_Examples_Elementary_InitSpringConstant"
-issue = "2026-06-10: simulate passes; validate attempted but not yet confirmed. Previously skipped Apr25."
+issue = "2026-09-29: validates (OMBackend 56a380c: fixed = false parameters solved in the initialization; harness check). (Before: 2026-06-10: simulate passes; validate attempted but not yet confirmed. Previously skipped Apr25.)"
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_LineForceWithTwoMasses]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.LineForceWithTwoMasses"
@@ -2181,16 +2181,16 @@ issue = "2026-05-19: validates 2/2 (prismatic.s max_abs=2.98e-6, prismatic.v max
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.RollingWheelSetDriving"
 domain = "Mechanics.MultiBody"
 stopTime = 3.0
-expected = "simulate"
+expected = "validate"
 referenceFile = "Mechanics_MultiBody_Examples_Elementary_RollingWheelSetDriving"
-issue = "2026-06-07: simulates to Success after relay-temp guess seeding. Validate fails on wheel angle trajectories (errs 1.5-3.5); accuracy follow-up."
+issue = "2026-09-29: validates (OMBackend 36b978a: an alias's fixed start goes with its fixed; snapshot noskip-da94a82). (Before: 2026-06-07: simulates to Success after relay-temp guess seeding. Validate fails on wheel angle trajectories (errs 1.5-3.5); accuracy follow-up.)"
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_RollingWheelSetPulling]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.RollingWheelSetPulling"
 domain = "Mechanics.MultiBody"
-expected = "simulate"
+expected = "validate"
 skipPhases = ["validate"]
-issue = "2026-06-10 re-probe: ExtraVariablesSystemException, 228 highest order derivative variables vs 227 equations (-1 unbalance). Unaffected by the der-solve fix; separate root cause. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+issue = "2026-09-29: validates (OMBackend 36b978a: an alias's fixed start goes with its fixed; snapshot noskip-da94a82). (Before: 2026-06-10 re-probe: ExtraVariablesSystemException, 228 highest order derivative variables vs 227 equations (-1 unbalance). Unaffected by the der-solve fix; separate root cause. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_SpringDamperSystem]
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.SpringDamperSystem"
@@ -2267,9 +2267,9 @@ issue = "Backend SIMCODE extremely slow / non-yielding on this loop (2155 residu
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Fourbar_analytic]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Fourbar_analytic"
 domain = "Mechanics.MultiBody"
-expected = "simulate"
+expected = "validate"
 skipPhases = ["validate"]
-issue = "Kinematic-loop four-bar mechanism; backend disabled preemptively along with Fourbar1/Fourbar2 until the backend yields to harness timeouts on this family. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+issue = "2026-09-29: validates (OMBackend 3d895b6: parameters an initial equation defines are assigned; snapshot noskip-da94a82). (Before: Kinematic-loop four-bar mechanism; backend disabled preemptively along with Fourbar1/Fourbar2 until the backend yields to harness timeouts on this family. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_PlanarFourbar]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.PlanarFourbar"
@@ -2387,9 +2387,9 @@ issue = "2026-05-16 probe: validate passes 2/2 at atol=0.5, reltol=0.10."
 [models.May2026_Blocks_NoiseExamples_AutomaticSeed]
 name = "Modelica.Blocks.Examples.NoiseExamples.AutomaticSeed"
 domain = "Blocks"
-expected = "simulate"
+expected = "validate"
 skipPhases = ["validate"]
-issue = "2026-05-28: frontend flattens in <1s; backend kills the worker (recorded as a multi-thousand-second FRONTEND phantom by the harness when the worker dies). Depends on impureRandom / initializeImpureRandom / globalSeed runtime support that OMBackend does not implement. Frontend-only until the impure-random runtime + the MTK symbolic blowup are addressed. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+issue = "2026-09-29: validates (OMBackend 9403a15: sample(start, interval) ticks from start and under a guard; harness check). (Before: 2026-05-28: frontend flattens in <1s; backend kills the worker (recorded as a multi-thousand-second FRONTEND phantom by the harness when the worker dies). Depends on impureRandom / initializeImpureRandom / globalSeed runtime support that OMBackend does not implement. Frontend-only until the impure-r)"
 
 [models.May2026_Blocks_NoiseExamples_Distributions]
 name = "Modelica.Blocks.Examples.NoiseExamples.Distributions"
