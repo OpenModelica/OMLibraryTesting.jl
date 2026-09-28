@@ -12,5 +12,6 @@ using Test
 
 @testset "OMLibraryTesting" begin
     include("comparisonTests.jl")
+    include("registryTests.jl")
     include("runnerTests.jl")
 end

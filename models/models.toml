@@ -202,10 +202,10 @@ referenceFile = "Mechanics_Rotational_Examples_First"
 [models.Rotational_Friction]
 name = "Modelica.Mechanics.Rotational.Examples.Friction"
 domain = "Mechanics.Rotational"
-stopTime = 5.0
-expected = "simulate"
+stopTime = 3.0
+expected = "validate"
 referenceFile = "Mechanics_Rotational_Examples_Friction"
-issue = "2026-06-07: simulates to Success under worker conditions via the mode-FSM imperative lowering auto-trigger (matches the env-gated path bit for bit, all 6 OMC-accuracy checks). Validate vs the Dymola CSV still fails (inertia3.w max err 4.4 mid-run; clutch/spring trajectories drift after FSM transitions even though sampled mode signals match). Accuracy gap is pre-existing, tracked separately."
+issue = "2026-09-29: validates. stopTime 5.0 -> 3.0: 5.0 was Translational Friction's StopTime; the reference ends at this model's StopTime 3.0, and past it the harness compared with the reference's last value (the June failure, inertia3.w err 4.4)."
 
 [models.Rotational_CoupledClutches]
 name = "Modelica.Mechanics.Rotational.Examples.CoupledClutches"
@@ -1083,7 +1083,7 @@ issue = "UndefVarError: function not found in generated module. 2026-09-27: reac
 [models.StateGraph_ExecutionPaths]
 name = "Modelica.StateGraph.Examples.ExecutionPaths"
 domain = "StateGraph"
-stopTime = 20.0
+stopTime = 15.0
 expected = "simulate"
 skipPhases = ["validate"]
 issue = "2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
@@ -1116,12 +1116,6 @@ issue = "2026-09-27: reaches simulate without the registry's skips (coverage run
 # Utilities
 # ==========================================================================
 
-[models.Utilities_WriteRealMatrixToFile]
-name = "Modelica.Utilities.Examples.WriteRealMatrixToFile"
-domain = "Utilities"
-stopTime = 0.0
-expected = "simulate"
-
 [models.Utilities_ReadRealMatrixFromFile]
 name = "Modelica.Utilities.Examples.ReadRealMatrixFromFile"
 domain = "Utilities"
@@ -1145,7 +1139,7 @@ issue = "STMT_NORETCALL not handled in codegen (Modelica_Utilities_Streams_close
 [models.Media_R134a_R134a1]
 name = "Modelica.Media.Examples.R134a.R134a1"
 domain = "Media"
-stopTime = 1.2
+stopTime = 1.01
 expected = "frontend"
 skipPhases = ["backend", "simulate", "validate"]
 issue = "Worker Julia process segfaults at signal 11 inside ODE_MODE_MTK_MODEL_GENERATION (MTK_CodeGeneration.jl:276) while evaluating the generated module (EvalInto, boot.jl:494). Observed 2026-04-24 during full MSL coverage run after ~2h40m of worker time; 72 GB cumulative allocations. Likely corrupted/over-large generated Expr. Skip until investigated. 2026-09-27: reaches frontend without the registry's skips (coverage run on the 1.13 stack)."
@@ -1358,12 +1352,12 @@ issue = "2026-06-07: simulates and validates (OpAmps-family initial_affect fix, 
 [models.May2026_Electrical_Analog_Examples_OpAmps_LCOscillator]
 name = "Modelica.Electrical.Analog.Examples.OpAmps.LCOscillator"
 domain = "Electrical.Analog"
-stopTime = 0.02
+stopTime = 0.01
 expected = "validate"
 reltol = 0.05
 atol = 0.05
 referenceFile = "Electrical_Analog_Examples_OpAmps_LCOscillator"
-issue = "May2026: experiment annotation StopTime=0.01 plus default 21-point comparison samples at 0.5ms gives mid-period (anti-phase) sampling that aliases against 1ms LC period (Dymola reference is sampled at 2ms). stopTime=0.02 puts comparison points at integer-period multiples; c.v err=0.030 within 0.05 atol+reltol*|expected|."
+issue = "2026-09-29: stopTime 0.02 -> 0.01, the MSL StopTime where the reference (sampled every 5 us) ends; past it the harness compared with the reference's last value. Validates at 0.01. (May2026: 0.02 had put the samples on whole 1 ms periods.)"
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_LowPass]
 name = "Modelica.Electrical.Analog.Examples.OpAmps.LowPass"
@@ -1427,20 +1421,19 @@ issue = "2026-05-17: opAmp.out.i — failing signal is current in mA scale; relt
 [models.Apr25_Electrical_Analog_Examples_ThyristorBehaviourTest]
 name = "Modelica.Electrical.Analog.Examples.ThyristorBehaviourTest"
 domain = "Electrical.Analog"
-stopTime = 0.01
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Simulate: Unstable at t≈0.0017s — dt forced below Float64 epsilon (step error ~8e9); thyristor switching produces stiff event-driven spikes that the continuous integrator cannot resolve. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+stopTime = 0.0002
+expected = "validate"
+issue = "2026-09-29: validates. stopTime 0.01 -> 0.0002, the MSL StopTime where the reference ends (the old Unstable at t=0.0017 was past it)."
 
 [models.Apr25_Electrical_Digital_Examples_Adder4]
 name = "Modelica.Electrical.Digital.Examples.Adder4"
 domain = "Electrical.Digital"
-stopTime = 20.0
-expected = "validate"
+stopTime = 5.0
+expected = "simulate"
 reltol = 0.05
-atol = 4.0
+atol = 0.5
 referenceFile = "Electrical_Digital_Examples_Adder4"
-issue = "2026-06-03: validate passes 32/32 after the when-callback constant-cref lookup fix (codeGen.jl _whenLookupBindings skips constant-array element crefs absent from the simvar table). Promoted from simulate."
+issue = "2026-09-29: stopTime 20 -> 5 (the reference ends at the MSL StopTime 5) and atol 4 -> 0.5: an atol of 4 on logic values 1-9 cannot tell '0' (3) from '1' (4). Fails on the XOR/AND gates' G2.x/y, as FullAdder: an OM.jl digital bug. (2026-06-03: passed 32/32 at atol 4 after the when-callback constant-cref lookup fix.)"
 
 [models.Apr25_Electrical_Digital_Examples_BUF3S]
 name = "Modelica.Electrical.Digital.Examples.BUF3S"
@@ -1868,12 +1861,12 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_NoLoad]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMPM_NoLoad"
 domain = "Electrical.Machines"
-stopTime = 0.1
+stopTime = 0.04
 expected = "validate"
-reltol = 0.5
-atol = 10.0
+reltol = 0.1
+atol = 1.0
 referenceFile = "Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_NoLoad"
-issue = "2026-05-21: bumped atol 1.0->10.0, reltol 0.1->0.5. constantSpeed.phi worst-case 15.708 rad vs reference 7.854 (~2x; suspected pole-pair count off). threshold 10 + 0.5*7.854 = 13.93 covers 7.854 abs_err comfortably."
+issue = "2026-09-29: stopTime 0.1 -> 0.04 (the reference ends at the MSL StopTime 0.04) and atol/reltol back to 1.0/0.1. The 2026-05-21 bump to 10/0.5 absorbed 15.708 vs 7.854: the reference clamped at its value at 0.04, not a pole-pair error."
 
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_VoltageSource]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMPM_VoltageSource"
@@ -2240,20 +2233,22 @@ issue = "2026-05-16 probe: validate passes (sim 78.9s, val 0.91s). Promoted from
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Engine1b]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1b"
 domain = "Mechanics.MultiBody"
-stopTime = 0.72
+stopTime = 0.5
 expected = "validate"
 reltol = 0.05
 atol = 0.1
 referenceFile = "Mechanics_MultiBody_Examples_Loops_Engine1b"
+issue = "2026-09-29: stopTime 0.72 -> 0.5, the MSL StopTime where the reference ends (0.72 was Engine1a's)."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Engine1b_analytic]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1b_analytic"
 domain = "Mechanics.MultiBody"
-stopTime = 0.72
+stopTime = 0.5
 expected = "validate"
 reltol = 0.05
 atol = 0.1
 referenceFile = "Mechanics_MultiBody_Examples_Loops_Engine1b_analytic"
+issue = "2026-09-29: stopTime 0.72 -> 0.5, the MSL StopTime where the reference ends (0.72 was Engine1a's)."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Fourbar1]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Fourbar1"
@@ -2459,12 +2454,12 @@ issue = "2026-05-16 probe: validate passes 23/23 at atol=0.5 (FFT output)."
 [models.May2026_Utilities_WriteRealMatrixToFile]
 name = "Modelica.Utilities.Examples.WriteRealMatrixToFile"
 domain = "Utilities"
-stopTime = 1.0
-expected = "validate"
+stopTime = 0.1
+expected = "simulate"
 reltol = 0.05
 atol = 0.1
 referenceFile = "Utilities_Examples_WriteRealMatrixToFile"
-issue = "2026-05-16 probe: validate passes 4/4 at atol=0.1."
+issue = "2026-09-29: stopTime 1.0 -> 0.1 (the reference's end). Validate fails on success1..4 (set once at initial(); the reference holds 1): an OM.jl bug. The 2026-05-16 pass at 1.0 was against the reference's value clamped past its end."
 
 [models.May2026_Math_Random_GenerateRandomNumbers]
 name = "Modelica.Math.Random.Examples.GenerateRandomNumbers"
@@ -2479,16 +2474,16 @@ issue = "2026-05-16 probe: validate passes 3/3 at atol=5.0 (stochastic random nu
 [models.May2026_Magnetic_QuasiStatic_FluxTubes_LinearInductor]
 name = "Modelica.Magnetic.QuasiStatic.FluxTubes.Examples.LinearInductor"
 domain = "Magnetic.QuasiStatic.FluxTubes"
-stopTime = 1.0
-expected = "simulate"
-issue = "2026-05-16: post cluster A (getIrreductableVars haskey) + cluster C (Complex _re/_im rescue) BE green and structural_simplify completes 83->16. SIM retcode=InitialFailure at t=0 with DAE init residual NaN. Rosenbrock23+reltol=1e-2+ShampineCollocationInit does not help (17s same failure). NaN residual implies u0 contains NaN — likely Complex steady-state init coupling. Potentially tricky fix in OMBackend init-equation lowering for Magnetic.QuasiStatic."
+stopTime = 0.2
+expected = "validate"
+issue = "2026-09-29: validates. stopTime 1.0 -> 0.2, the MSL StopTime where the reference ends."
 
 [models.May2026_Magnetic_QuasiStatic_FluxTubes_NonLinearInductor]
 name = "Modelica.Magnetic.QuasiStatic.FluxTubes.Examples.NonLinearInductor"
 domain = "Magnetic.QuasiStatic.FluxTubes"
-stopTime = 1.0
+stopTime = 0.2
 expected = "simulate"
-issue = "2026-05-16 cycle 6: SIM fast-fails with UndefVarError: `currentSensorQS_y` (bare Complex parent name) at MTK eval. Diagnosis: BDAE binding expressions like `Modelica_ComplexMath_'abs'(currentSensorQS_y)` reference the Complex parent CREF; siblings `_y_re` and `_y_im` are in HT but the parent CREF's type was downgraded from T_COMPLEX upstream so `flattenRecordCallArg` does not match (only fires on T_COMPLEX patterns). Adding the `_re`/`_im` HT-fallback to flattenRecordCallArg would emit a 2-arg Modelica_ComplexMath_abs call, but the Modelica function `'abs'` is declared as a 1-arg Complex signature — would regress with MethodError. Potentially tricky fix: companion arm in either the Modelica function codegen (accept scalarized form) or the BDAE binding-expression scalarizer (rewrite parent CREFs in binding RHS to `Complex(re, im)` literal records before codegen). Cluster E."
+issue = "2026-09-29: stopTime 1.0 -> 0.2 (the reference's end, the MSL StopTime). Simulate: retcode Unstable. (2026-05-16: UndefVarError currentSensorQS_y at MTK eval, since fixed.)"
 
 [models.May2026_Blocks_NoiseExamples_DrydenContinuousTurbulence]
 name = "Modelica.Blocks.Examples.NoiseExamples.DrydenContinuousTurbulence"

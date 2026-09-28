@@ -56,3 +56,23 @@ end
     local noReset = OLT.compare_signal(SignalOf(t -> t <= 0.5 ? t : t + 0.1), ref, "x", 1.0; npoints = 5)
     @test !noReset.passed
 end
+
+@testset "comparison: a stopTime past the reference's end" begin
+    #= The reference covers the experiment, [0, StopTime]: a sample past its
+       end would be compared with its last value, frozen (2026-09-29: Engine1b
+       at 0.72 s against a reference that ends at its StopTime 0.5 s). =#
+    mktempdir() do dir
+        mkpath(joinpath(dir, "csv"))
+        mkpath(joinpath(dir, "signals"))
+        write(joinpath(dir, "csv", "M.csv"), "time,x\n0.0,0.0\n0.5,1.0\n")
+        write(joinpath(dir, "signals", "M.txt"), "x\n")
+        local spec(stop) = OLT.ModelSpec("M", "M", "Test", stop, OLT.VALIDATE, Dict{String, Float64}(),
+                                         1e-4, 3e-3, "M", Dict{String, String}(), "", Set{OLT.Phase}())
+        @test first(OLT.validate_against_reference(SignalOf(t -> 2t), spec(0.5), dir))
+        @test_throws ErrorException OLT.validate_against_reference(SignalOf(t -> 2t), spec(0.72), dir)
+    end
+    #= Relative: a Spice3 reference spans 1e-7 s. =#
+    @test OLT.stoptime_within_reference(1e-7, 1e-7)
+    @test !OLT.stoptime_within_reference(1.01e-7, 1e-7)
+    @test OLT.stoptime_within_reference(0.0, 0.0)
+end

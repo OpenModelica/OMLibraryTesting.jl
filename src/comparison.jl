@@ -84,6 +84,11 @@ function load_reference_csv(path::String)::ReferenceData
     return ReferenceData(time_vec, signals)
 end
 
+#= Whether a stopTime lies within a reference that ends at `ref_end`, up to
+   rounding (relative: some references span 1e-11 s). =#
+stoptime_within_reference(stopTime::Real, ref_end::Real)::Bool =
+    stopTime <= ref_end + 1e-9 * abs(ref_end)
+
 """
     load_comparison_signals(path) -> Vector{String}
 
@@ -271,6 +276,11 @@ function validate_against_reference(sol, spec,
         error("Reference CSV not found: $csv_path")
     end
     ref = load_reference_csv(csv_path)
+    #= The reference covers the experiment, [0, StopTime]: a sample past its
+       end would be compared with its last value, frozen (interpolate_reference
+       clamps). A registry stopTime past it is an error in the registry. =#
+    stoptime_within_reference(spec.stopTime, ref.time[end]) ||
+        error("stopTime $(spec.stopTime) is past the end of reference $ref_name ($(ref.time[end]))")
     signal_names = if isfile(signals_path)
         load_comparison_signals(signals_path)
     else
