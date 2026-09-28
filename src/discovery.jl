@@ -95,12 +95,15 @@ function discover_experiments(; library::String = "Modelica",
         length(parts) >= 2 || continue
         name = String(parts[1])
         stopTime = parse(Float64, parts[2])
+        #= The experiment's Tolerance is the solver's relative tolerance, as
+           in the tools that produced the references (default 1e-6). =#
+        tolerance = length(parts) >= 3 ? something(tryparse(Float64, parts[3]), 0.0) : 0.0
         domain = _extract_domain(name)
         key = _name_to_key(name)
         push!(specs, ModelSpec(name, key, domain, stopTime,
                                UNKNOWN, Dict{String, Float64}(),
                                0.01, 3e-3, "", Dict{String, String}(), "",
-                               Set{Phase}(), ""))
+                               Set{Phase}(), "", 0.0, "", 0.0, tolerance))
     end
     sort!(specs, by = s -> (s.domain, s.name))
     if cache
@@ -215,7 +218,7 @@ function merge_overrides!(specs::Vector{ModelSpec},
         local dtmaxVal = haskey(effective, "dtmax") ? Float64(effective["dtmax"]) : 0.0
         local initAlgName = haskey(effective, "initializealg") ? String(effective["initializealg"]) : ""
         local solverAtolVal   = haskey(effective, "solverAtol")   ? Float64(effective["solverAtol"])   : 0.0
-        local solverReltolVal = haskey(effective, "solverReltol") ? Float64(effective["solverReltol"]) : 0.0
+        local solverReltolVal = haskey(effective, "solverReltol") ? Float64(effective["solverReltol"]) : spec.solverReltol
         local observedFilterVal = haskey(effective, "observedFilter") ?
             String[String(s) for s in effective["observedFilter"]] : String[]
         local maxitersVal = haskey(effective, "maxiters") ? Float64(effective["maxiters"]) : 0.0

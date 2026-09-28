@@ -11,7 +11,7 @@ reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v3.2.3)"
 #   initializealg  = "BrownFullBasicInit" | "ShampineCollocationInit"
 #                  | "OverrideInit" | "CheckInit" | "NoInit" | "BrownBasicInit"
 #                                                  (default = solver default)
-#   solverReltol   = <float>                       (0.0 = SciML default ~1e-3)
+#   solverReltol   = <float>                       (default: the experiment's Tolerance)
 #   solverAtol     = <float>                       (0.0 = SciML default ~1e-6)
 #                  Note: distinct from atol/reltol above which are validation
 #                  tolerances for trajectory comparison. Use solverReltol /
