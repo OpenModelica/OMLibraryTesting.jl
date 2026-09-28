@@ -475,11 +475,14 @@ end
 const GRACE_PERIOD = 15.0
 
 #= Default solver iteration cap applied to every model's simulate unless the
-   model overrides `maxiters` in the toml. Bounds runaway / chattering solves
-   so they bail with a clean MaxIters quickly instead of grinding toward the
-   SciML default of 1e5. A model that legitimately needs more steps can raise
-   this via a per-model `maxiters` entry. =#
-const DEFAULT_MAXITERS = 20000
+   model overrides `maxiters` in the toml. It bounds runaway / chattering
+   solves; the per-model timeout bounds the time. At the experiment's
+   Tolerance (1e-6, as the references) a machine example takes 5-15 times
+   the steps it took at SciML's 1e-3 (AIMC_DOL 7709 -> 112238), and the
+   former cap of 20000 stopped 17 of them with MaxIters. A model that
+   legitimately needs more steps can raise this via a per-model `maxiters`
+   entry. =#
+const DEFAULT_MAXITERS = 1_000_000
 
 """
     _write_started_marker(model_name) -> String
