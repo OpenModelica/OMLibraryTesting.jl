@@ -1928,9 +1928,9 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Spice3_Examples_CascodeCircuit]
 name = "Modelica.Electrical.Spice3.Examples.CascodeCircuit"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "2026-09-29: simulates (OMBackend 2f86aa9 and 7962562; InitialFailure before; snapshot noskip-d453d6a); validation fails on J2.D.v. (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Spice3_Examples_CoupledInductors]
 name = "Modelica.Electrical.Spice3.Examples.CoupledInductors"
@@ -1945,9 +1945,9 @@ issue = "2026-05-16 probe: validate passes 3/3 at atol=0.2, reltol=0.05. Promote
 [models.Apr25_Electrical_Spice3_Examples_FourInverters]
 name = "Modelica.Electrical.Spice3.Examples.FourInverters"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "simulate"
+skipPhases = ["validate"]
+issue = "2026-09-29: simulates (OMBackend 2f86aa9 and 7962562; InitialFailure before; snapshot noskip-d453d6a); validation fails on mp4.S.v. (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Spice3_Examples_Inverter]
 name = "Modelica.Electrical.Spice3.Examples.Inverter"
@@ -1959,16 +1959,14 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Spice3_Examples_InvertersApartRecord]
 name = "Modelica.Electrical.Spice3.Examples.InvertersApartRecord"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 2f86aa9 and 7962562: MOSFET capacitances partially evaluated to 0 (evalFunc), event hysteresis from the time span; InitialFailure before; snapshot noskip-d453d6a). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Spice3_Examples_InvertersExtendedModel]
 name = "Modelica.Electrical.Spice3.Examples.InvertersExtendedModel"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 2f86aa9 and 7962562: MOSFET capacitances partially evaluated to 0 (evalFunc), event hysteresis from the time span; InitialFailure before; snapshot noskip-d453d6a). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Spice3_Examples_Nand]
 name = "Modelica.Electrical.Spice3.Examples.Nand"
@@ -1987,9 +1985,8 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Spice3_Examples_Oscillator]
 name = "Modelica.Electrical.Spice3.Examples.Oscillator"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 2f86aa9: MOSFET capacitances partially evaluated to 0 (evalFunc); InitialFailure before; snapshot noskip-d453d6a). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Spice3_Examples_Spice3BenchmarkDifferentialPair]
 name = "Modelica.Electrical.Spice3.Examples.Spice3BenchmarkDifferentialPair"
@@ -2001,16 +1998,14 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Spice3_Examples_Spice3BenchmarkMosfetCharacterization]
 name = "Modelica.Electrical.Spice3.Examples.Spice3BenchmarkMosfetCharacterization"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 2f86aa9 and 7962562: MOSFET capacitances partially evaluated to 0 (evalFunc), event hysteresis from the time span; InitialFailure before; snapshot noskip-d453d6a). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Spice3_Examples_Spice3BenchmarkRtlInverter]
 name = "Modelica.Electrical.Spice3.Examples.Spice3BenchmarkRtlInverter"
 domain = "Electrical.Spice3"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 2f86aa9: MOSFET capacitances partially evaluated to 0 (evalFunc); InitialFailure before; snapshot noskip-d453d6a). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Fluid_Examples_ControlledTankSystem_ControlledTanks]
 name = "Modelica.Fluid.Examples.ControlledTankSystem.ControlledTanks"
