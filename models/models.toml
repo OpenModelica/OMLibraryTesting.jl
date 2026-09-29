@@ -792,9 +792,8 @@ issue = "2026-05-27: surviving _started marker (began, never completed) in the d
 [models.Magnetic_QuasiStatic_FundamentalWave_IMC_Initialize]
 name = "Modelica.Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Initialize"
 domain = "Magnetic.QuasiStatic.FundamentalWave"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the IMC_DOL/IMS_*/SMEE_Generator QuasiStatic FundamentalWave siblings. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend cbc0731: derivative initial equations on algebraic and observed variables; harness check). (Before: 2026-05-27: surviving _started marker (began, never completed) in the dead coverage run — same COMPLEX_MULTIPLY (Complex.'*'.multiply) backend-stall cluster as the IMC_DOL/IMS_*/SMEE_Generator QuasiStatic FundamentalWave siblings. Frontend passes; skip backend/simulate/validate until Complex operator-record method lowering lands. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Electrical_QuasiStationary_MultiPhase_BalancingDelta]
 name = "Modelica.Electrical.QuasiStationary.MultiPhase.Examples.BalancingDelta"
@@ -2578,8 +2577,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.Machines.Examples.Transformers.Rectifier12pulse"
 domain = "Electrical.Machines"
 stopTime = 0.1
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 22b4551: the ideal diodes start at off = true and the mixed system is iterated, as OpenModelica; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_Machines_Examples_Transformers_Rectifier6pulse]
 name = "Modelica.Electrical.Machines.Examples.Transformers.Rectifier6pulse"
@@ -2592,8 +2591,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.MultiPhase.Examples.Rectifier"
 domain = "Electrical.MultiPhase"
 stopTime = 0.1
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 22b4551: every diode conducting at the entry reached another fixpoint (5.8e6 V); now from off = true as OpenModelica; 3c4b667: the init Newton converges at its round-off floor; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_ACDC_Rectifier1Pulse_Thyristor1Pulse_R_Characteristic]
 name = "Modelica.Electrical.PowerConverters.Examples.ACDC.Rectifier1Pulse.Thyristor1Pulse_R_Characteristic"
@@ -2845,9 +2844,8 @@ issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (
 name = "Modelica.Electrical.PowerConverters.Examples.DCAC.SinglePhaseTwoLevel.SinglePhaseTwoLevel_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend c8b71f7/22b4551: the switches start at their start values; the init no longer frees the fixed inductor current; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_DCDC_ChopperStepDown_ChopperStepDown_R]
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.ChopperStepDown.ChopperStepDown_R"
@@ -2890,9 +2888,8 @@ issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend c8b71f7/22b4551: the switches start at their start values; the init no longer frees the fixed inductor current (340 kA); harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_QuasiStationary_MultiPhase_Examples_BalancingStar]
 name = "Modelica.Electrical.QuasiStationary.MultiPhase.Examples.BalancingStar"
@@ -3045,8 +3042,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_Transformer"
 domain = "Magnetic.FundamentalWave"
 stopTime = 2.5
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend e1fd41a/c8b71f7 (snapshot noskip-ef47fa8); harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_AIMC_YD]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_YD"
