@@ -1661,9 +1661,8 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Initialize]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Initialize"
 domain = "Electrical.Machines"
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend cbc0731: der(aimc.idq_sr) = zeros(2) on currents index reduction left algebraic was dropped at initialization; harness check). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Machines_Examples_AsynchronousInductionMachines_AIMC_Inverter]
 name = "Modelica.Electrical.Machines.Examples.AsynchronousInductionMachines.AIMC_Inverter"
@@ -2816,9 +2815,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.PowerConverters.Examples.DCAC.MultiPhaseTwoLevel.MultiPhaseTwoLevel_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (when {sampleTrigger, initial()}, sampleTrigger = sample(...)) never sampled and its discrete cluster could not read ySample; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_DCAC_MultiPhaseTwoLevel_MultiPhaseTwoLevel_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.DCAC.MultiPhaseTwoLevel.MultiPhaseTwoLevel_RL"
@@ -2840,9 +2838,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.PowerConverters.Examples.DCAC.SinglePhaseTwoLevel.SinglePhaseTwoLevel_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (when {sampleTrigger, initial()}, sampleTrigger = sample(...)) never sampled and its discrete cluster could not read ySample; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_DCAC_SinglePhaseTwoLevel_SinglePhaseTwoLevel_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.DCAC.SinglePhaseTwoLevel.SinglePhaseTwoLevel_RL"
@@ -2856,17 +2853,15 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.ChopperStepDown.ChopperStepDown_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (when {sampleTrigger, initial()}, sampleTrigger = sample(...)) never sampled and its discrete cluster could not read ySample; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_DCDC_ChopperStepDown_ChopperStepDown_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.ChopperStepDown.ChopperStepDown_RL"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (when {sampleTrigger, initial()}, sampleTrigger = sample(...)) never sampled and its discrete cluster could not read ySample; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_DCDC_ChopperStepUp_ChopperStepUp_R]
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.ChopperStepUp.ChopperStepUp_R"
@@ -2888,9 +2883,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_R"
 domain = "Electrical.PowerConverters"
 stopTime = 0.1
-expected = "backend"
-skipPhases = ["validate"]
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend e1fd41a: the SignalPWM ZeroOrderHold (when {sampleTrigger, initial()}, sampleTrigger = sample(...)) never sampled and its discrete cluster could not read ySample; harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Electrical_PowerConverters_Examples_DCDC_HBridge_HBridge_RL]
 name = "Modelica.Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_RL"
@@ -3030,8 +3024,8 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_Initialize"
 domain = "Magnetic.FundamentalWave"
 stopTime = 1.5
-expected = "simulate"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend cbc0731: the derivative initial equations on the observed air-gap potentials were dropped (and der of an expression crashed); harness check). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_AIMC_Inverter]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.AIMC_Inverter"
