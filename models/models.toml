@@ -1008,8 +1008,8 @@ issue = "Backend timeout: large multibody system hangs in tight loop"
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.EngineV6_analytic"
 domain = "Mechanics.MultiBody"
 stopTime = 1.0
-expected = "broken"
-issue = "Backend timeout: large multibody system hangs in tight loop"
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 898cbda: the symbolic Jacobian on the DAG, 1.3 s instead of 48 s / 15 GB; 91faaf2: the gas-force relations settled at initialization, the steady-state filter starts at 238; harness check). (Before: Backend timeout: large multibody system hangs in tight loop)"
 
 [models.MultiBody_PlanarLoops_analytic]
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.PlanarLoops_analytic"
@@ -1263,9 +1263,9 @@ issue = "ExtraEquationsSystemException in structural_simplify; 100 if-equations 
 name = "Modelica.Electrical.Analog.Examples.CharacteristicThyristors"
 domain = "Electrical.Analog"
 stopTime = 6.0
-expected = "simulate"
+expected = "validate"
 referenceFile = "Electrical_Analog_Examples_CharacteristicThyristors"
-issue = "2026-06-08: CombiTimeTable Real-array param now emitted, reaches Success over the full 6 s span. Boolean off-signals (IdealThyristor*.off, booleanStep1.y) fail validate at err 1.0 — the discrete-classification step-hold interpolation gap, a separate runtime cluster."
+issue = "2026-09-29: validates (snapshot noskip-6da8cf9 and the harness check). (Before: 2026-06-08: CombiTimeTable Real-array param now emitted, reaches Success over the full 6 s span. Boolean off-signals (IdealThyristor*.off, booleanStep1.y) fail validate at err 1.0 — the discrete-classification step-hold interpolation gap, a separate runtime cluster.)"
 
 [models.Apr25_Electrical_Analog_Examples_HeatingPNP_NORGate]
 name = "Modelica.Electrical.Analog.Examples.HeatingPNP_NORGate"
@@ -2455,11 +2455,11 @@ issue = "2026-05-16 probe: validate passes 23/23 at atol=0.5 (FFT output)."
 name = "Modelica.Utilities.Examples.WriteRealMatrixToFile"
 domain = "Utilities"
 stopTime = 0.1
-expected = "simulate"
+expected = "validate"
 reltol = 0.05
 atol = 0.1
 referenceFile = "Utilities_Examples_WriteRealMatrixToFile"
-issue = "2026-09-29: stopTime 1.0 -> 0.1 (the reference's end). Validate fails on success1..4 (set once at initial(); the reference holds 1): an OM.jl bug. The 2026-05-16 pass at 1.0 was against the reference's value clamped past its end."
+issue = "2026-09-29: validates (OMBackend 53acd32: the early initial algorithm called writeRealMatrix unqualified in the model's module and dropped the results; harness check). (Before: 2026-09-29: stopTime 1.0 -> 0.1 (the reference's end). Validate fails on success1..4 (set once at initial(); the reference holds 1): an OM.jl bug. The 2026-05-16 pass at 1.0 was against the reference's value clamped past its end.)"
 
 [models.May2026_Math_Random_GenerateRandomNumbers]
 name = "Modelica.Math.Random.Examples.GenerateRandomNumbers"
