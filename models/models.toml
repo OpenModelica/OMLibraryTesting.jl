@@ -653,9 +653,8 @@ issue = "Known broken. 2026-09-27: reaches backend without the registry's skips 
 name = "Modelica.StateGraph.Examples.ShowExceptions"
 domain = "StateGraph"
 stopTime = 20.0
-expected = "simulate"
-skipPhases = ["validate"]
-issue = "Known broken. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (snapshot noskip-a3a51e5; snapshot noskip-a3a51e5). (Before: Known broken. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack). 2026-09-28: reaches simulate without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.StateGraph_ShowCompositeStep]
 name = "Modelica.StateGraph.Examples.ShowCompositeStep"
@@ -1824,16 +1823,14 @@ issue = "2026-05-13 verified: all 3 signals match reference at t=2 (dcse.la.i=-7
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMEE_DOL]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMEE_DOL"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 7ad1cd2: the exact time derivative; before, Rodas5P's finite difference in t set an error floor the algebraic step control chased until maxiters; snapshot noskip-a3a51e5). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMEE_Generator]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMEE_Generator"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 7ad1cd2: the exact time derivative (maxiters before); snapshot noskip-a3a51e5). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_Braking]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMPM_Braking"
@@ -3077,15 +3074,15 @@ issue = "2026-09-27: added from a coverage run without the registry's skips (1.1
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMEE_Generator"
 domain = "Magnetic.FundamentalWave"
 stopTime = 30.0
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 7ad1cd2: the exact time derivative (maxiters before); snapshot noskip-a3a51e5). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_SMEE_Generator_MultiPhase]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMEE_Generator_MultiPhase"
 domain = "Magnetic.FundamentalWave"
 stopTime = 30.0
-expected = "backend"
-issue = "2026-09-27: added from a coverage run without the registry's skips (1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 7ad1cd2: the exact time derivative (maxiters before); snapshot noskip-a3a51e5). (Before: 2026-09-27: added from a coverage run without the registry's skips (1.13 stack).)"
 
 [models.Magnetic_FundamentalWave_Examples_BasicMachines_SMEE_LoadDump]
 name = "Modelica.Magnetic.FundamentalWave.Examples.BasicMachines.SMEE_LoadDump"
