@@ -54,21 +54,26 @@ end
 
 #= A worker that cannot load the packages (a precompile of changed sources failed) must fail
    its model, not the run: the error left run_coverage, and every result of the run was lost.
-   Here the worker starts in an empty project, where `using OMLibraryTesting` fails. =#
+   Here the worker starts in an empty project with a load path of only that project and the
+   stdlib, where `using OMLibraryTesting` fails. addprocs hands the worker this process's
+   LOAD_PATH, which under Pkg.test holds the test environment (with the package). =#
 @testset "run_on_worker fails a model whose worker cannot start" begin
     spec = OLT.ModelSpec("Spawn.Model", "Spawn_Model", "Spawn", 1.0, OLT.SIMULATE,
                          Dict{String, Float64}(), 0.0, 0.0, "", Dict{String, String}(), "",
                          Set{OLT.Phase}())
     mgr = OLT.WorkerManager()
     project = Base.active_project()
+    loadPath = copy(LOAD_PATH)
     try
         Base.ACTIVE_PROJECT[] = mktempdir()
+        copy!(LOAD_PATH, ["@", "@stdlib"])
         r = OLT.run_on_worker(mgr, spec, [OLT.SIMULATE]; timeout = 120.0)
         @test r.highest == OLT.BROKEN
         @test startswith(something(r.phases[1].error, ""), "Worker spawn failed")
         @test mgr.pid === nothing   # the half-started worker is gone
     finally
         Base.ACTIVE_PROJECT[] = project
+        copy!(LOAD_PATH, loadPath)
         OLT.cleanup!(mgr)
     end
 end
