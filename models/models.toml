@@ -1835,9 +1835,8 @@ issue = "2026-09-29: validates (OMBackend 7ad1cd2: the exact time derivative (ma
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_Braking]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMPM_Braking"
 domain = "Electrical.Machines"
-expected = "backend"
-skipPhases = ["simulate", "validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack)."
+expected = "validate"
+issue = "2026-09-29: validates (OMBackend 7ad1cd2 exact time derivative and 6ecb2c9 step control without error-floor caps; maxiters at 0.45 s before; snapshot noskip-e5c15fa). (Before: Apr25 full MSL run: backend passed; downstream phase failed (simulate=fail, validate=na). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches backend without the registry's skips (coverage run on the 1.13 stack).)"
 
 [models.Apr25_Electrical_Machines_Examples_SynchronousInductionMachines_SMPM_CurrentSource]
 name = "Modelica.Electrical.Machines.Examples.SynchronousInductionMachines.SMPM_CurrentSource"
