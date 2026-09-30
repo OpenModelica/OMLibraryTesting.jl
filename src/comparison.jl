@@ -305,5 +305,11 @@ function validate_against_reference(sol, spec,
     if n_skipped > 0
         @info "Validation: $n_skipped/$(length(signal_names)) signals not found in solution (skipped)"
     end
+    #= A validation that compared no signal is not one (it passed until 2026-09-30:
+       GenerateRandomNumbers, whose outputs are not in the solution). =#
+    if !isempty(signal_names) && n_skipped == length(signal_names)
+        @warn "Validation: none of the $(length(signal_names)) reference signals is in the solution"
+        all_passed = false
+    end
     return (all_passed, comparisons)
 end

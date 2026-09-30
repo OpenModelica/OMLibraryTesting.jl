@@ -76,3 +76,21 @@ end
     @test !OLT.stoptime_within_reference(1.01e-7, 1e-7)
     @test OLT.stoptime_within_reference(0.0, 0.0)
 end
+
+@testset "comparison: no reference signal in the solution" begin
+    #= Every signal skipped (not in the solution): nothing was compared, so the
+       model does not validate. One signal found is compared as usual. =#
+    mktempdir() do dir
+        mkpath(joinpath(dir, "csv"))
+        mkpath(joinpath(dir, "signals"))
+        write(joinpath(dir, "csv", "M.csv"), "time,x,y\n0.0,0.0,0.0\n0.5,1.0,1.0\n")
+        write(joinpath(dir, "signals", "M.txt"), "x\ny\n")
+        local spec = OLT.ModelSpec("M", "M", "Test", 0.5, OLT.VALIDATE, Dict{String, Float64}(),
+                                   1e-4, 3e-3, "M", Dict{String, String}(), "", Set{OLT.Phase}())
+        local absent = SignalOf(t -> error("not in the solution"))
+        @test !first(OLT.validate_against_reference(absent, spec, dir))
+        #= x found and right, y missing: validated on x. =#
+        local onlyX = (t; idxs = nothing) -> idxs === :x ? 2t : error("not in the solution")
+        @test first(OLT.validate_against_reference(onlyX, spec, dir))
+    end
+end
