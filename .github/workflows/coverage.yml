@@ -1,0 +1,171 @@
+name: MSL coverage
+
+# The coverage of the Modelica Standard Library examples through OM.jl
+# (flatten, translate, simulate, validate against the reference results),
+# published as documentation: docs/COVERAGE.md and the "Latest coverage"
+# section of README.md (scripts/publish_coverage.jl).
+#
+# The run is a no-skip run (OMJL_COVERAGE_NOSKIP=1): the registry's
+# skipPhases and broken marks are removed, so every model goes through every
+# phase and the documentation shows what really stops each one.
+#
+# OM.jl and the sibling packages are checked out at the branch this workflow
+# runs on (or `line`), as in OM.jl's omjl-ci.yml. The models' experiment
+# settings come from models/experiments_Modelica_3.2.3.txt (there is no omc
+# on the runner; record_experiments() refreshes the file).
+#
+# Manual runs (Actions > MSL coverage > Run workflow) commit the documentation
+# back when `commit` is set; the weekly run always does. A schedule only fires
+# from the default branch, so it measures that branch's line.
+
+on:
+  workflow_dispatch:
+    inputs:
+      line:
+        description: OM.jl line to measure (empty for the branch the workflow runs on)
+        required: false
+        default: ""
+      julia:
+        description: Julia version
+        required: false
+        default: "1.13"
+      workers:
+        description: Worker processes (models run in parallel)
+        required: false
+        default: "2"
+      timeout:
+        description: Seconds per model
+        required: false
+        default: "600"
+      commit:
+        description: Commit docs/COVERAGE.md and README.md back to the branch
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    - cron: "0 2 * * 0"  # Sundays 02:00 UTC
+
+permissions:
+  contents: write  # the documentation commit
+  actions: write   # julia-actions/cache deletes the caches it replaces
+
+concurrency:
+  group: coverage-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  coverage:
+    name: MSL coverage, Julia ${{ inputs.julia || '1.13' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      JULIA_PKG_PRECOMPILE_AUTO: "0"
+      LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
+    steps:
+      - name: Check out OM.jl
+        uses: JKRT/OM.jl/.github/actions/checkout-siblings@master
+        with:
+          packages: OM
+          path: .
+          line: ${{ inputs.line }}
+
+      - name: Check out OMLibraryTesting
+        uses: actions/checkout@v4
+        with:
+          path: OM.jl/OMLibraryTesting.jl
+
+      - name: Check out the other packages
+        uses: JKRT/OM.jl/.github/actions/checkout-siblings@master
+        with:
+          path: OM.jl
+          exclude: OMLibraryTesting
+          line: ${{ inputs.line }}
+
+      - uses: actions/setup-java@v4  # ANTLR, if the parser is built from source
+        with:
+          distribution: zulu
+          java-version: "21"
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ inputs.julia || '1.13' }}
+
+      - uses: julia-actions/cache@v2
+
+      - name: OMParser library
+        env:
+          PACKAGE: OMLibraryTesting
+        run: OM.jl/ci/build-parser.sh
+
+      - name: Set up OM.jl
+        run: julia --color=yes --project=OM.jl OM.jl/ci/setup.jl
+
+      - name: Set up OMLibraryTesting
+        run: julia --color=yes --project=OM.jl/OMLibraryTesting.jl -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+
+      # The MAP-LIB reference results (1.3 GB) change with download_refs.sh only.
+      - name: Cache the reference results
+        id: refs
+        uses: actions/cache@v4
+        with:
+          path: |
+            OM.jl/OMLibraryTesting.jl/reference/csv
+            OM.jl/OMLibraryTesting.jl/reference/signals
+          key: msl-refs-3.2.3-${{ hashFiles('OM.jl/OMLibraryTesting.jl/reference/download_refs.sh') }}
+
+      - name: Download the reference results
+        if: steps.refs.outputs.cache-hit != 'true'
+        working-directory: OM.jl/OMLibraryTesting.jl/reference
+        run: bash download_refs.sh
+
+      - name: Commits measured
+        run: |
+          for d in OM.jl OM.jl/*.jl; do
+            if [ -d "$d/.git" ]; then echo "$(basename "$d") $(git -C "$d" rev-parse --short HEAD)"; fi
+          done | tee commits.txt
+
+      - name: Coverage
+        working-directory: OM.jl/OMLibraryTesting.jl
+        env:
+          OMJL_COVERAGE_TAG: ci
+          OMJL_COVERAGE_NOSKIP: "1"
+          OMJL_COVERAGE_WORKERS: ${{ inputs.workers || '2' }}
+          OMJL_COVERAGE_TIMEOUT: ${{ inputs.timeout || '600' }}
+          # One thread per worker: OMLibraryTesting runs no parallel workloads.
+          JULIA_NUM_THREADS: "1"
+        run: julia --color=yes --project=. scripts/run_full_coverage.jl
+
+      - name: Publish
+        id: publish
+        working-directory: OM.jl/OMLibraryTesting.jl
+        env:
+          NOTE: >-
+            No-skip run on GitHub Actions (ubuntu-latest, Julia ${{ inputs.julia || '1.13' }}),
+            ${{ inputs.workers || '2' }} workers, ${{ inputs.timeout || '600' }} s per model
+        run: |
+          results=$(ls -t logs/partial_ci_*.jls | head -1)
+          julia --color=yes --project=. scripts/publish_coverage.jl "$results" "$GITHUB_WORKSPACE/commits.txt" "$NOTE"
+          cat docs/COVERAGE.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: msl-coverage
+          path: |
+            commits.txt
+            OM.jl/OMLibraryTesting.jl/reports/
+            OM.jl/OMLibraryTesting.jl/logs/partial_ci_*.jls
+            OM.jl/OMLibraryTesting.jl/docs/COVERAGE.md
+          if-no-files-found: warn
+
+      - name: Commit the documentation
+        if: steps.publish.outcome == 'success' && (github.event_name == 'schedule' || inputs.commit)
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md docs/COVERAGE.md
+          if git diff --cached --quiet; then echo "Coverage unchanged"; exit 0; fi
+          git commit -m "Coverage of $(date -u +%Y-%m-%d) [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

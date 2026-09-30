@@ -14,11 +14,14 @@ Environment variables:
     OMJL_COVERAGE_FROMPHASE Optional from_phase (frontend|backend|simulate|validate).
     OMJL_COVERAGE_TOPHASE   Optional to_phase.
     OMJL_COVERAGE_WORKERS   Worker processes, models run in parallel (default: nprocs() - 1, at least 1).
+    OMJL_COVERAGE_NOSKIP    "1": the registry's skipPhases and expected = "broken" marks removed, so every
+                            model goes through every phase (what really stops each one; as docs/COVERAGE.md).
 =#
 
 using Dates
 using Distributed: nprocs
 using Serialization
+using TOML
 
 import OMLibraryTesting
 using OMLibraryTesting: FRONTEND, BACKEND, SIMULATE, VALIDATE, phase_from_string
@@ -32,6 +35,7 @@ const FROMPHASE = phase_from_string(get(ENV, "OMJL_COVERAGE_FROMPHASE", "fronten
 const TOPHASE   = phase_from_string(get(ENV, "OMJL_COVERAGE_TOPHASE",   "validate"))
 const WORKERS   = parse(Int, get(ENV, "OMJL_COVERAGE_WORKERS", string(max(1, nprocs() - 1))))
 WORKERS >= 1 || error("OMJL_COVERAGE_WORKERS must be >= 1, got $WORKERS")
+const NOSKIP    = lowercase(get(ENV, "OMJL_COVERAGE_NOSKIP", "")) in ("1", "true", "yes")
 
 const RUN_START    = Dates.now()
 const RUN_TS       = Dates.format(RUN_START, "yyyy-mm-dd_HHMM")
@@ -42,7 +46,25 @@ const PARTIAL_PATH = joinpath(LOG_DIR, "partial_$(TAG)_$(RUN_TS).jls")
 mkpath(REPORT_DIR)
 mkpath(LOG_DIR)
 
-@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS
+#= A copy of the registry without skips and broken marks, next to a link to the reference data
+   (run_coverage reads the reference beside the registry it is given). =#
+function noskip_registry()::String
+    local reg = TOML.parsefile(OMLibraryTesting.default_models_path())
+    for table in (get(reg, "models", Dict()), get(reg, "domain_overrides", Dict())), (_, e) in table
+        delete!(e, "skipPhases")
+        get(e, "expected", "") == "broken" && delete!(e, "expected")
+    end
+    local dir = joinpath(LOG_DIR, "noskip_$(RUN_TS)")
+    mkpath(joinpath(dir, "models"))
+    local ref = joinpath(dir, "reference")
+    islink(ref) || symlink(joinpath(@__DIR__, "..", "reference") |> abspath, ref)
+    local path = joinpath(dir, "models", "models.toml")
+    open(io -> TOML.print(io, reg), path, "w")
+    return path
+end
+const OVERRIDES = NOSKIP ? noskip_registry() : OMLibraryTesting.default_models_path()
+
+@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS noskip=NOSKIP
 @info "Report directory: $REPORT_DIR"
 @info "Partial-results snapshot: $PARTIAL_PATH"
 
@@ -55,6 +77,7 @@ results = try
         model       = MODEL,
         from_phase  = FROMPHASE,
         to_phase    = TOPHASE,
+        overrides   = OVERRIDES,
         n_workers   = WORKERS)
 catch e
     @error "run_coverage threw" exception=(e, catch_backtrace())
@@ -82,6 +105,7 @@ else
         "Start: ", Dates.format(RUN_START, "yyyy-mm-dd HH:MM:SS"), ". ",
         "End: ", Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS"), ". ",
         "Timeout per model: ", Int(round(TIMEOUT)), "s. ",
+        NOSKIP ? "Registry skips and broken marks removed. " : "",
         "Total wall-clock: ", string(floor(Int, total_time ÷ 60)), "m ",
         string(round(Int, total_time % 60)), "s.")
     @info "Generating HTML report" filename=fname

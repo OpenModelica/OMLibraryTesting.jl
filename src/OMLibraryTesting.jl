@@ -53,7 +53,7 @@ export PhaseResult, ModelSpec, ModelResult
 export ReferenceData, SignalComparison
 export load_models, load_models_by_domain, list_domains, load_registry_meta
 export load_reference_csv, load_comparison_signals, validate_against_reference
-export discover_experiments, merge_overrides!, clear_discovery_cache!, auto_detect_references!
+export discover_experiments, record_experiments, merge_overrides!, clear_discovery_cache!, auto_detect_references!
 export run_coverage, run_coverage_and_report, run_model, WorkerManager, WorkerPool, ensure_pool!
 export generate_report, print_summary
 export categorize_error, categorize_results, print_error_analysis

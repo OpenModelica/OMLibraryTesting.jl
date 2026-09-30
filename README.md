@@ -15,6 +15,12 @@ Each model is tested through up to four pipeline phases:
 
 Results are compared against Dymola-generated reference trajectories from the MAP-LIB reference results repository.
 
+## Latest coverage
+
+<!-- coverage:begin (scripts/publish_coverage.jl) -->
+Measured 2026-09-30 on 425 MSL example models: frontend 414 (97.4 %), backend 370 (87.1 %), simulate 316 (74.4 %), validate 295 (69.4 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
+<!-- coverage:end -->
+
 ## Directory Structure
 
 ```
@@ -36,6 +42,8 @@ OMLibraryTesting.jl/
 │   ├── signals/              # Per-model comparisonSignals.txt files
 │   ├── download_refs.sh      # Script to fetch/refresh reference files from GitHub
 │   └── generate_refs.mos     # OpenModelica script to generate reference results
+├── docs/
+│   └── COVERAGE.md           # The latest published coverage (scripts/publish_coverage.jl)
 ├── results/                  # Runtime output (ignored by git)
 └── reports/                  # Generated coverage reports (ignored by git)
 ```
@@ -65,6 +73,16 @@ OMLibraryTesting.print_summary(results)
 
 # Analyse failures
 OMLibraryTesting.print_error_analysis(results)
+```
+
+The "Latest coverage" section above and docs/COVERAGE.md are published by the `MSL coverage` workflow
+(.github/workflows/coverage.yml: weekly, or by hand from the Actions tab with `commit` set). It runs
+`scripts/run_full_coverage.jl` with `OMJL_COVERAGE_NOSKIP=1` (every model through every phase) and passes the
+serialized results to the publisher. The same by hand:
+
+```bash
+OMJL_COVERAGE_NOSKIP=1 julia --project=. scripts/run_full_coverage.jl
+julia --project=. scripts/publish_coverage.jl logs/partial_full_msl_<timestamp>.jls [commits.txt] ["how the run was made"]
 ```
 
 ## Hot Validation Loop (`scripts/warm_validate.jl`)

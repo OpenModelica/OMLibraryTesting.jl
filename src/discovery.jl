@@ -34,6 +34,8 @@
 
 Use omc to enumerate all experiment models in a Modelica library.
 Returns a ModelSpec for each model with stopTime from the experiment annotation.
+Without omc on the path (a CI runner), the list recorded from omc in `models/`
+(`record_experiments`) is used instead.
 """
 const _DISCOVERY_CACHE = Dict{Tuple{String, String}, Vector{ModelSpec}}()
 
@@ -64,28 +66,13 @@ function discover_experiments(; library::String = "Modelica",
         @info "Using cached discovery: $(length(specs)) experiment models in $library $version"
         return specs
     end
-    script = """
-    loadModel($library, {"$version"});
-    names := getClassNames($library, recursive=true, qualified=true);
-    for n in names loop
-      if isExperiment(n) then
-        (startTime, stopTime, tolerance, numberOfIntervals, interval) := getSimulationOptions(n);
-        print(typeNameString(n) + "|" + String(stopTime) + "|" + String(tolerance) + "\\n");
-      end if;
-    end for;
-    """
-    @info "Discovery: querying omc for experiment models in $library $version..."
-    script_path = tempname() * ".mos"
-    write(script_path, script)
-    t0 = time()
-    output = try
-        withenv("LD_LIBRARY_PATH" => "") do
-            read(`$omc_path $script_path`, String)
-        end
-    finally
-        rm(script_path, force = true)
+    recorded = recorded_experiments_path(library, version)
+    output = if Sys.which(omc_path) === nothing && isfile(recorded)
+        @info "Discovery: $omc_path not found; using the experiment list recorded from omc" recorded
+        read(recorded, String)
+    else
+        _omc_experiments(library, version, omc_path)
     end
-    @info "Discovery: omc query completed in $(round(time() - t0, digits=1))s"
     specs = ModelSpec[]
     for line in split(output, '\n')
         stripped = strip(line)
@@ -114,6 +101,57 @@ function discover_experiments(; library::String = "Modelica",
         specs = Base.filter(s -> occursin(filter, s.name), specs)
     end
     return specs
+end
+
+#= The experiment models of a library as omc lists them: one `name|stopTime|tolerance` line each. =#
+function _omc_experiments(library::String, version::String, omc_path::String)::String
+    script = """
+    loadModel($library, {"$version"});
+    names := getClassNames($library, recursive=true, qualified=true);
+    for n in names loop
+      if isExperiment(n) then
+        (startTime, stopTime, tolerance, numberOfIntervals, interval) := getSimulationOptions(n);
+        print(typeNameString(n) + "|" + String(stopTime) + "|" + String(tolerance) + "\\n");
+      end if;
+    end for;
+    """
+    @info "Discovery: querying omc for experiment models in $library $version..."
+    script_path = tempname() * ".mos"
+    write(script_path, script)
+    t0 = time()
+    output = try
+        withenv("LD_LIBRARY_PATH" => "") do
+            read(`$omc_path $script_path`, String)
+        end
+    finally
+        rm(script_path, force = true)
+    end
+    @info "Discovery: omc query completed in $(round(time() - t0, digits=1))s"
+    return output
+end
+
+"""
+    recorded_experiments_path(library, version) -> String
+
+Where `record_experiments` keeps a library's experiment list: `models/experiments_<library>_<version>.txt`.
+"""
+recorded_experiments_path(library::String, version::String)::String =
+    joinpath(@__DIR__, "..", "models", "experiments_$(library)_$(version).txt") |> abspath
+
+"""
+    record_experiments(; library = "Modelica", version = "3.2.3", omc_path = "omc") -> path
+
+Query omc for the library's experiment models and keep the list in `models/`, for
+`discover_experiments` where omc is not installed (CI). Rerun when the library changes.
+"""
+function record_experiments(; library::String = "Modelica", version::String = "3.2.3", omc_path::String = "omc")::String
+    local lines = [String(strip(l)) for l in split(_omc_experiments(library, version, omc_path), '\n')
+                   if startswith(strip(l), library * ".")]
+    isempty(lines) && error("omc listed no experiment models in $library $version")
+    local path = recorded_experiments_path(library, version)
+    write(path, join(sort(lines), "\n") * "\n")
+    @info "Recorded $(length(lines)) experiment models" path
+    return path
 end
 
 """
