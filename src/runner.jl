@@ -431,6 +431,8 @@ function _run_model_phases(model_name::String,
                     (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir)
                     if !passed
                         failed = filter(c -> !c.passed, comparisons)
+                        isempty(failed) &&
+                            error("Validation compared no signal: none of the $(length(comparisons)) reference signals is in the solution")
                         names = join([c.name for c in failed], ", ")
                         error("Validation failed for signals: $names")
                     end
