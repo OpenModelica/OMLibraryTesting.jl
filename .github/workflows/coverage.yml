@@ -30,9 +30,9 @@ on:
         required: false
         default: "1.13"
       workers:
-        description: Worker processes (models run in parallel)
+        description: Worker processes (models run in parallel; 2 ran out of the runner's 16 GB at model 327, 2026-10-03)
         required: false
-        default: "2"
+        default: "1"
       timeout:
         description: Seconds per model
         required: false
@@ -129,7 +129,7 @@ jobs:
         env:
           OMJL_COVERAGE_TAG: ci
           OMJL_COVERAGE_NOSKIP: "1"
-          OMJL_COVERAGE_WORKERS: ${{ inputs.workers || '2' }}
+          OMJL_COVERAGE_WORKERS: ${{ inputs.workers || '1' }}
           OMJL_COVERAGE_TIMEOUT: ${{ inputs.timeout || '600' }}
           # One thread per worker: OMLibraryTesting runs no parallel workloads.
           JULIA_NUM_THREADS: "1"
@@ -141,7 +141,7 @@ jobs:
         env:
           NOTE: >-
             No-skip run on GitHub Actions (ubuntu-latest, Julia ${{ inputs.julia || '1.13' }}),
-            ${{ inputs.workers || '2' }} workers, ${{ inputs.timeout || '600' }} s per model
+            ${{ inputs.workers || '1' }} workers, ${{ inputs.timeout || '600' }} s per model
         run: |
           results=$(ls -t logs/partial_ci_*.jls | head -1)
           julia --color=yes --project=. scripts/publish_coverage.jl "$results" "$GITHUB_WORKSPACE/commits.txt" "$NOTE"
