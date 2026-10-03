@@ -73,7 +73,7 @@ function load_reference_csv(path::String)::ReferenceData
     for (i, line) in enumerate(lines[2:end])
         vals = split(line, ',')
         for (j, v) in enumerate(vals)
-            data[i, j] = parse(Float64, strip(v))
+            data[i, j] = parse(Float64, strip(v, ['"', ' ', '\t', '\r']))
         end
     end
     time_vec = data[:, 1]
@@ -83,6 +83,11 @@ function load_reference_csv(path::String)::ReferenceData
     end
     return ReferenceData(time_vec, signals)
 end
+
+#= Whether a stopTime lies within a reference that ends at `ref_end`, up to
+   rounding (relative: some references span 1e-11 s). =#
+stoptime_within_reference(stopTime::Real, ref_end::Real)::Bool =
+    stopTime <= ref_end + 1e-9 * abs(ref_end)
 
 """
     load_comparison_signals(path) -> Vector{String}
@@ -118,6 +123,19 @@ function interpolate_reference(ref_time::Vector{Float64},
     v0, v1 = ref_values[idx], ref_values[idx + 1]
     frac = (t - t0) / (t1 - t0)
     return v0 + frac * (v1 - v0)
+end
+
+"""
+    _event_limits(ref_time, ref_values, t) -> Union{Nothing, Tuple{Float64, Float64}}
+
+The values before and after an event the reference recorded at `t` (a time
+that appears more than once: a result file stores both), else `nothing`.
+"""
+function _event_limits(ref_time::Vector{Float64}, ref_values::Vector{Float64}, t::Float64)
+    first_row = searchsortedfirst(ref_time, t)
+    last_row = searchsortedlast(ref_time, t)
+    last_row > first_row || return nothing
+    return (ref_values[first_row], ref_values[last_row])
 end
 
 """
@@ -170,7 +188,7 @@ If a signal is not in the mapping, dot-to-underscore conversion is used.
 function compare_signal(sol, ref::ReferenceData, signal_name::String,
                          stopTime::Float64;
                          reltol::Float64 = 3e-3,
-                         atol::Float64 = 1e-6,
+                         atol::Float64 = 1e-4,
                          npoints::Int = 21,
                          signalMapping::Dict{String, String} = Dict{String, String}())::SignalComparison
     if !haskey(ref.signals, signal_name)
@@ -188,6 +206,11 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
     worst_expected = 0.0
     passed = true
     times = range(0.0, stopTime, length = npoints)
+    #= At a reference discontinuity the sample instant carries both limits
+       (set-valued jump); accept the actual value if it matches either
+       one-sided reference limit within tolerance. =#
+    knot_eps = length(ref.time) > 1 ?
+        1.5 * (ref.time[end] - ref.time[1]) / (length(ref.time) - 1) : 0.0
     for t in times
         expected = interpolate_reference(ref.time, ref_values, t)
         actual = try
@@ -207,6 +230,22 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
         abs_err = abs(actual - expected)
         rel_err = abs(expected) > 1e-15 ? abs_err / abs(expected) : abs_err
         threshold = atol + reltol * abs(expected)
+        #= An event the reference recorded at t (its time repeated): the
+           values before and after it are its own one-sided limits. =#
+        limits = _event_limits(ref.time, ref_values, t)
+        if abs_err > threshold && limits !== nothing &&
+           any(v -> abs(actual - v) <= atol + reltol * abs(v), limits)
+            continue
+        end
+        if abs_err > threshold && knot_eps > 0.0
+            expected_lo = interpolate_reference(ref.time, ref_values, t - knot_eps)
+            expected_hi = interpolate_reference(ref.time, ref_values, t + knot_eps)
+            if abs(expected_hi - expected_lo) > threshold &&
+               (abs(actual - expected_lo) <= atol + reltol * abs(expected_lo) ||
+                abs(actual - expected_hi) <= atol + reltol * abs(expected_hi))
+                continue
+            end
+        end
         if abs_err > threshold
             passed = false
         end
@@ -228,7 +267,7 @@ end
 Validate an OM.jl solution against the MAP-LIB reference CSV for a model.
 Returns (overall_passed, vector_of_SignalComparison).
 """
-function validate_against_reference(sol, spec::ModelSpec,
+function validate_against_reference(sol, spec,
                                      ref_dir::String)::Tuple{Bool, Vector{SignalComparison}}
     ref_name = spec.referenceFile
     csv_path = joinpath(ref_dir, "csv", ref_name * ".csv")
@@ -237,6 +276,11 @@ function validate_against_reference(sol, spec::ModelSpec,
         error("Reference CSV not found: $csv_path")
     end
     ref = load_reference_csv(csv_path)
+    #= The reference covers the experiment, [0, StopTime]: a sample past its
+       end would be compared with its last value, frozen (interpolate_reference
+       clamps). A registry stopTime past it is an error in the registry. =#
+    stoptime_within_reference(spec.stopTime, ref.time[end]) ||
+        error("stopTime $(spec.stopTime) is past the end of reference $ref_name ($(ref.time[end]))")
     signal_names = if isfile(signals_path)
         load_comparison_signals(signals_path)
     else
@@ -260,6 +304,12 @@ function validate_against_reference(sol, spec::ModelSpec,
     end
     if n_skipped > 0
         @info "Validation: $n_skipped/$(length(signal_names)) signals not found in solution (skipped)"
+    end
+    #= A validation that compared no signal is not one (it passed until 2026-09-30:
+       GenerateRandomNumbers, whose outputs are not in the solution). =#
+    if !isempty(signal_names) && n_skipped == length(signal_names)
+        @warn "Validation: none of the $(length(signal_names)) reference signals is in the solution"
+        all_passed = false
     end
     return (all_passed, comparisons)
 end

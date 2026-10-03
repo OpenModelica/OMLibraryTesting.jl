@@ -34,6 +34,8 @@
 
 Use omc to enumerate all experiment models in a Modelica library.
 Returns a ModelSpec for each model with stopTime from the experiment annotation.
+Without omc on the path (a CI runner), the list recorded from omc in `models/`
+(`record_experiments`) is used instead.
 """
 const _DISCOVERY_CACHE = Dict{Tuple{String, String}, Vector{ModelSpec}}()
 
@@ -64,6 +66,45 @@ function discover_experiments(; library::String = "Modelica",
         @info "Using cached discovery: $(length(specs)) experiment models in $library $version"
         return specs
     end
+    recorded = recorded_experiments_path(library, version)
+    output = if Sys.which(omc_path) === nothing && isfile(recorded)
+        @info "Discovery: $omc_path not found; using the experiment list recorded from omc" recorded
+        read(recorded, String)
+    else
+        _omc_experiments(library, version, omc_path)
+    end
+    specs = ModelSpec[]
+    for line in split(output, '\n')
+        stripped = strip(line)
+        isempty(stripped) && continue
+        startswith(stripped, library * ".") || continue
+        parts = split(stripped, '|')
+        length(parts) >= 2 || continue
+        name = String(parts[1])
+        stopTime = parse(Float64, parts[2])
+        #= The experiment's Tolerance is the solver's relative tolerance, as
+           in the tools that produced the references (default 1e-6). =#
+        tolerance = length(parts) >= 3 ? something(tryparse(Float64, parts[3]), 0.0) : 0.0
+        domain = _extract_domain(name)
+        key = _name_to_key(name)
+        push!(specs, ModelSpec(name, key, domain, stopTime,
+                               UNKNOWN, Dict{String, Float64}(),
+                               0.01, 3e-3, "", Dict{String, String}(), "",
+                               Set{Phase}(), "", 0.0, "", 0.0, tolerance))
+    end
+    sort!(specs, by = s -> (s.domain, s.name))
+    if cache
+        _DISCOVERY_CACHE[cache_key] = specs
+    end
+    @info "Discovered $(length(specs)) experiment models in $library $version"
+    if !isempty(filter.pattern)
+        specs = Base.filter(s -> occursin(filter, s.name), specs)
+    end
+    return specs
+end
+
+#= The experiment models of a library as omc lists them: one `name|stopTime|tolerance` line each. =#
+function _omc_experiments(library::String, version::String, omc_path::String)::String
     script = """
     loadModel($library, {"$version"});
     names := getClassNames($library, recursive=true, qualified=true);
@@ -79,36 +120,38 @@ function discover_experiments(; library::String = "Modelica",
     write(script_path, script)
     t0 = time()
     output = try
-        read(`$omc_path $script_path`, String)
+        withenv("LD_LIBRARY_PATH" => "") do
+            read(`$omc_path $script_path`, String)
+        end
     finally
         rm(script_path, force = true)
     end
     @info "Discovery: omc query completed in $(round(time() - t0, digits=1))s"
-    specs = ModelSpec[]
-    for line in split(output, '\n')
-        stripped = strip(line)
-        isempty(stripped) && continue
-        startswith(stripped, library * ".") || continue
-        parts = split(stripped, '|')
-        length(parts) >= 2 || continue
-        name = String(parts[1])
-        stopTime = parse(Float64, parts[2])
-        domain = _extract_domain(name)
-        key = _name_to_key(name)
-        push!(specs, ModelSpec(name, key, domain, stopTime,
-                               UNKNOWN, Dict{String, Float64}(),
-                               0.01, 3e-3, "", Dict{String, String}(), "",
-                               Set{Phase}()))
-    end
-    sort!(specs, by = s -> (s.domain, s.name))
-    if cache
-        _DISCOVERY_CACHE[cache_key] = specs
-    end
-    @info "Discovered $(length(specs)) experiment models in $library $version"
-    if !isempty(filter.pattern)
-        specs = Base.filter(s -> occursin(filter, s.name), specs)
-    end
-    return specs
+    return output
+end
+
+"""
+    recorded_experiments_path(library, version) -> String
+
+Where `record_experiments` keeps a library's experiment list: `models/experiments_<library>_<version>.txt`.
+"""
+recorded_experiments_path(library::String, version::String)::String =
+    joinpath(@__DIR__, "..", "models", "experiments_$(library)_$(version).txt") |> abspath
+
+"""
+    record_experiments(; library = "Modelica", version = "3.2.3", omc_path = "omc") -> path
+
+Query omc for the library's experiment models and keep the list in `models/`, for
+`discover_experiments` where omc is not installed (CI). Rerun when the library changes.
+"""
+function record_experiments(; library::String = "Modelica", version::String = "3.2.3", omc_path::String = "omc")::String
+    local lines = [String(strip(l)) for l in split(_omc_experiments(library, version, omc_path), '\n')
+                   if startswith(strip(l), library * ".")]
+    isempty(lines) && error("omc listed no experiment models in $library $version")
+    local path = recorded_experiments_path(library, version)
+    write(path, join(sort(lines), "\n") * "\n")
+    @info "Recorded $(length(lines)) experiment models" path
+    return path
 end
 
 """
@@ -209,10 +252,20 @@ function merge_overrides!(specs::Vector{ModelSpec},
                 push!(skip, phase_from_string(s))
             end
         end
+        local solverName = haskey(effective, "solver") ? String(effective["solver"]) : ""
+        local dtmaxVal = haskey(effective, "dtmax") ? Float64(effective["dtmax"]) : 0.0
+        local initAlgName = haskey(effective, "initializealg") ? String(effective["initializealg"]) : ""
+        local solverAtolVal   = haskey(effective, "solverAtol")   ? Float64(effective["solverAtol"])   : 0.0
+        local solverReltolVal = haskey(effective, "solverReltol") ? Float64(effective["solverReltol"]) : spec.solverReltol
+        local observedFilterVal = haskey(effective, "observedFilter") ?
+            String[String(s) for s in effective["observedFilter"]] : String[]
+        local maxitersVal = haskey(effective, "maxiters") ? Float64(effective["maxiters"]) : 0.0
         push!(merged, ModelSpec(spec.name, spec.key, spec.domain,
                                 stopTime, expected, ref_dict,
                                 atol, reltol, referenceFile,
-                                sig_map, issue, skip))
+                                sig_map, issue, skip, solverName, dtmaxVal, initAlgName,
+                                solverAtolVal, solverReltolVal, observedFilterVal,
+                                maxitersVal))
     end
     n_broken = count(s -> s.expected == BROKEN, merged)
     n_skipped = count(s -> !isempty(s.skipPhases), merged)
@@ -260,7 +313,10 @@ function auto_detect_references!(specs::Vector{ModelSpec},
             push!(result, ModelSpec(spec.name, spec.key, spec.domain,
                                      spec.stopTime, spec.expected, spec.reference,
                                      spec.atol, spec.reltol, ref_key,
-                                     spec.signalMapping, spec.issue, spec.skipPhases))
+                                     spec.signalMapping, spec.issue, spec.skipPhases,
+                                     spec.solver, spec.dtmax, spec.initAlg,
+                                     spec.solverAtol, spec.solverReltol, spec.observedFilter,
+                                     spec.maxiters))
         else
             push!(result, spec)
         end
