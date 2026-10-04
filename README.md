@@ -18,7 +18,7 @@ Results are compared against Dymola-generated reference trajectories from the MA
 ## Latest coverage
 
 <!-- coverage:begin (scripts/publish_coverage.jl) -->
-Measured 2026-10-03 on 425 MSL example models: frontend 423 (99.5 %), backend 398 (93.6 %), simulate 325 (76.5 %), validate 299 (70.4 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
+Measured 2026-10-04 on 425 MSL example models: frontend 423 (99.5 %), backend 398 (93.6 %), simulate 324 (76.2 %), validate 299 (70.4 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
 <!-- coverage:end -->
 
 ## Directory Structure
