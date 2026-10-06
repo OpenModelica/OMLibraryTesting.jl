@@ -1,5 +1,7 @@
 # OMLibraryTesting.jl
 
+[![MSL coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fopenmodelica.github.io%2FOMLibraryTesting.jl%2Fbadge.json)](https://openmodelica.github.io/OMLibraryTesting.jl/)
+
 A Julia package for running MSL (Modelica Standard Library) coverage tests against [OM.jl](https://github.com/OpenModelica/OM.jl). It auto-discovers all experiment models in the MSL using `omc`, runs each through the OM.jl pipeline (flatten -> translate -> simulate -> validate), and generates HTML coverage reports.
 
 ## Overview
@@ -21,6 +23,8 @@ Results are compared against Dymola-generated reference trajectories from the MA
 Measured 2026-10-04 on 425 MSL example models: frontend 423 (99.5 %), backend 398 (93.6 %), simulate 324 (76.2 %), validate 299 (70.4 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
 <!-- coverage:end -->
 
+Every published run, by date, with the trend: the [coverage site](https://openmodelica.github.io/OMLibraryTesting.jl/).
+
 ## Directory Structure
 
 ```
@@ -34,6 +38,7 @@ OMLibraryTesting.jl/
 │   ├── comparison.jl         # CSV trajectory comparison
 │   ├── analysis.jl           # Error categorization and analysis utilities
 │   ├── report.jl             # HTML report generation
+│   ├── site.jl               # Coverage site: one page per run, index, badges
 │   └── testsuite.jl          # Fetch + run the upstream OpenModelica testsuite (rtest / OM.jl modes)
 ├── models/
 │   └── models.toml           # Per-model overrides (atol, reltol, expected phase, signal mapping)
@@ -78,11 +83,14 @@ OMLibraryTesting.print_error_analysis(results)
 The "Latest coverage" section above and docs/COVERAGE.md are published by the `MSL coverage` workflow
 (.github/workflows/coverage.yml: weekly, or by hand from the Actions tab with `commit` set). It runs
 `scripts/run_full_coverage.jl` with `OMJL_COVERAGE_NOSKIP=1` (every model through every phase) and passes the
-serialized results to the publisher. The same by hand:
+serialized results to the publisher. It also adds the run to the coverage site, served by GitHub Pages from
+the `gh-pages` branch (`scripts/publish_site.jl`): `runs/<date>/` with the analysis and the per-model report, an
+index over all runs, and the badges (`badge.json`, models that validate; `badges/<phase>.json`). The same by hand:
 
 ```bash
 OMJL_COVERAGE_NOSKIP=1 julia --project=. scripts/run_full_coverage.jl
 julia --project=. scripts/publish_coverage.jl logs/partial_full_msl_<timestamp>.jls [commits.txt] ["how the run was made"]
+julia --project=. scripts/publish_site.jl <gh-pages checkout> logs/partial_full_msl_<timestamp>.jls reports/<report>.html docs/COVERAGE.md [commits.txt] ["how the run was made"]
 ```
 
 ## Hot Validation Loop (`scripts/warm_validate.jl`)

@@ -3,7 +3,9 @@ name: MSL coverage
 # The coverage of the Modelica Standard Library examples through OM.jl
 # (flatten, translate, simulate, validate against the reference results),
 # published as documentation: docs/COVERAGE.md and the "Latest coverage"
-# section of README.md (scripts/publish_coverage.jl).
+# section of README.md (scripts/publish_coverage.jl), and on the coverage site
+# (GitHub Pages from the gh-pages branch, scripts/publish_site.jl): one page
+# per measured date, an index over all runs and the README badge.
 #
 # The run is a no-skip run (OMJL_COVERAGE_NOSKIP=1): the registry's
 # skipPhases and broken marks are removed, so every model goes through every
@@ -15,7 +17,8 @@ name: MSL coverage
 # on the runner; record_experiments() refreshes the file).
 #
 # Manual runs (Actions > MSL coverage > Run workflow) commit the documentation
-# back when `commit` is set; the weekly run always does. A schedule only fires
+# back and publish the run on the site when `commit` is set; the weekly run
+# always does. A schedule only fires
 # from the default branch, so it measures that branch's line.
 
 on:
@@ -38,7 +41,7 @@ on:
         required: false
         default: "600"
       commit:
-        description: Commit docs/COVERAGE.md and README.md back to the branch
+        description: Commit docs/COVERAGE.md and README.md back to the branch and add the run to the coverage site
         type: boolean
         required: false
         default: false
@@ -169,3 +172,31 @@ jobs:
           if git diff --cached --quiet; then echo "Coverage unchanged"; exit 0; fi
           git commit -m "Coverage of $(date -u +%Y-%m-%d) [skip ci]"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      # The run on the coverage site: runs/<date>/, the index and the badges on
+      # the gh-pages branch (created on the first run), which Pages serves.
+      - name: Publish the coverage site
+        if: steps.publish.outcome == 'success' && (github.event_name == 'schedule' || inputs.commit)
+        working-directory: OM.jl/OMLibraryTesting.jl
+        env:
+          NOTE: >-
+            No-skip run on GitHub Actions (ubuntu-latest, Julia ${{ inputs.julia || '1.13' }}),
+            ${{ inputs.workers || '1' }} workers, ${{ inputs.timeout || '600' }} s per model
+        run: |
+          export OMJL_SITE_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
+          site="$RUNNER_TEMP/site"
+          if git fetch --depth=1 origin gh-pages; then
+            git worktree add -B gh-pages "$site" FETCH_HEAD
+          else
+            git worktree add --orphan -b gh-pages "$site"
+          fi
+          results=$(ls -t logs/partial_ci_*.jls | head -1)
+          report=$(ls -t reports/coverage_ci_*.html | head -1)
+          julia --color=yes --project=. scripts/publish_site.jl "$site" "$results" "$report" docs/COVERAGE.md "$GITHUB_WORKSPACE/commits.txt" "$NOTE"
+          cd "$site"
+          git add -A
+          if git diff --cached --quiet; then echo "Site unchanged"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Coverage of $(date -u +%Y-%m-%d)"
+          git push origin gh-pages
+          echo "Coverage site: $OMJL_SITE_URL" >> "$GITHUB_STEP_SUMMARY"

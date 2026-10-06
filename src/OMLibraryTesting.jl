@@ -34,6 +34,7 @@ module OMLibraryTesting
 using TOML
 using Dates
 using Distributed
+using Markdown
 import OM
 import OMBackend
 import OMFrontend
@@ -45,6 +46,7 @@ include("discovery.jl")
 include("runner.jl")
 include("analysis.jl")
 include("report.jl")
+include("site.jl")
 include("rerun_failed.jl")
 include("testsuite.jl")
 
@@ -56,6 +58,7 @@ export load_reference_csv, load_comparison_signals, validate_against_reference
 export discover_experiments, record_experiments, merge_overrides!, clear_discovery_cache!, auto_detect_references!
 export run_coverage, run_coverage_and_report, run_model, WorkerManager, WorkerPool, ensure_pool!
 export generate_report, print_summary
+export coverage_funnel, publish_site, site_history
 export categorize_error, categorize_results, print_error_analysis
 export models_with_error, error_for_model, run_frontend_coverage
 export subcategorize_meta_errors
