@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OM.jl coverage</title><style>:root { --bg: #ffffff; --fg: #111418; --muted: #5b6470; --line: #d9dee5; --accent: #1f5fa8;
+        --bar: #e8eef6; --frontend: #7aa7d9; --backend: #4f86c6; --simulate: #2c66ab; --validate: #0f3f7a; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f1216; --fg: #e8ebef; --muted: #9aa4b0; --line: #2a313a; --accent: #7fb2ec;
+          --bar: #1b222b; --frontend: #3d6a99; --backend: #4f86c6; --simulate: #7aa7d9; --validate: #b5d2f2; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+       font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 1.6em; margin: 0 0 4px; } h2 { font-size: 1.2em; margin: 32px 0 8px; }
+p.lead, .muted { color: var(--muted); }
+a { color: var(--accent); }
+nav { margin-bottom: 16px; } nav a { margin-right: 16px; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 600; color: var(--muted); }
+.funnel { display: grid; grid-template-columns: 6em 1fr 8.5em; gap: 6px 12px; align-items: center; }
+.funnel .track { background: var(--bar); height: 14px; border-radius: 3px; overflow: hidden; }
+.funnel .fill { height: 100%; }
+.funnel .num { text-align: right; font-variant-numeric: tabular-nums; }
+svg text { fill: var(--muted); font-size: 11px; }
+.legend span { display: inline-block; margin-right: 14px; } .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 2px; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+pre { background: var(--bar); padding: 10px 12px; border-radius: 4px; overflow-x: auto; }
+.analysis td { white-space: normal; }
+</style></head>
+<body><main>
+<h1>OM.jl coverage of the MSL 3.2.3 examples</h1>
+<p class="lead">Each experiment model goes through OM.jl's pipeline: flatten (frontend), translate (backend), simulate, and validate against the reference trajectories. Measured by <a href="https://github.com/OpenModelica/OMLibraryTesting.jl">OMLibraryTesting.jl</a>.</p>
+<h2>Latest: <a href="runs/2026-10-04/">2026-10-04</a>, 425 models</h2>
+<div class="funnel">
+<div>frontend</div><div class="track"><div class="fill" style="width: 99.5%; background: var(--frontend)"></div></div><div class="num">423 · 99.5 %</div>
+<div>backend</div><div class="track"><div class="fill" style="width: 93.6%; background: var(--backend)"></div></div><div class="num">398 · 93.6 %</div>
+<div>simulate</div><div class="track"><div class="fill" style="width: 76.2%; background: var(--simulate)"></div></div><div class="num">324 · 76.2 %</div>
+<div>validate</div><div class="track"><div class="fill" style="width: 70.4%; background: var(--validate)"></div></div><div class="num">299 · 70.4 %</div>
+</div>
+
+<h2>Per run</h2><svg viewBox="0 0 900 220" width="100%" role="img" aria-label="Coverage per run">
+<line x1="40" x2="888" y1="194.0" y2="194.0" style="stroke: var(--line)"/><text x="34" y="198.0" text-anchor="end">0%</text>
+<line x1="40" x2="888" y1="148.0" y2="148.0" style="stroke: var(--line)"/><text x="34" y="152.0" text-anchor="end">25%</text>
+<line x1="40" x2="888" y1="102.0" y2="102.0" style="stroke: var(--line)"/><text x="34" y="106.0" text-anchor="end">50%</text>
+<line x1="40" x2="888" y1="56.0" y2="56.0" style="stroke: var(--line)"/><text x="34" y="60.0" text-anchor="end">75%</text>
+<line x1="40" x2="888" y1="10.0" y2="10.0" style="stroke: var(--line)"/><text x="34" y="14.0" text-anchor="end">100%</text>
+<text x="40.0" y="212" text-anchor="start">2026-10-03</text>
+<text x="888.0" y="212" text-anchor="end">2026-10-04</text>
+<polyline points="40.0,10.9 888.0,10.9" style="fill: none; stroke: var(--frontend); stroke-width: 2"/>
+<circle cx="40.0" cy="10.9" r="3" style="fill: var(--frontend)"><title>2026-10-03 frontend 423/425</title></circle>
+<circle cx="888.0" cy="10.9" r="3" style="fill: var(--frontend)"><title>2026-10-04 frontend 423/425</title></circle>
+<polyline points="40.0,21.7 888.0,21.7" style="fill: none; stroke: var(--backend); stroke-width: 2"/>
+<circle cx="40.0" cy="21.7" r="3" style="fill: var(--backend)"><title>2026-10-03 backend 398/425</title></circle>
+<circle cx="888.0" cy="21.7" r="3" style="fill: var(--backend)"><title>2026-10-04 backend 398/425</title></circle>
+<polyline points="40.0,53.3 888.0,53.7" style="fill: none; stroke: var(--simulate); stroke-width: 2"/>
+<circle cx="40.0" cy="53.3" r="3" style="fill: var(--simulate)"><title>2026-10-03 simulate 325/425</title></circle>
+<circle cx="888.0" cy="53.7" r="3" style="fill: var(--simulate)"><title>2026-10-04 simulate 324/425</title></circle>
+<polyline points="40.0,64.6 888.0,64.6" style="fill: none; stroke: var(--validate); stroke-width: 2"/>
+<circle cx="40.0" cy="64.6" r="3" style="fill: var(--validate)"><title>2026-10-03 validate 299/425</title></circle>
+<circle cx="888.0" cy="64.6" r="3" style="fill: var(--validate)"><title>2026-10-04 validate 299/425</title></circle>
+</svg>
+<div class="legend muted"><span><i style="background: var(--frontend)"></i>frontend</span><span><i style="background: var(--backend)"></i>backend</span><span><i style="background: var(--simulate)"></i>simulate</span><span><i style="background: var(--validate)"></i>validate</span></div>
+
+<div class="table-wrap"><table><tr><th>Date</th><th>Models</th><th>frontend</th><th>backend</th><th>simulate</th><th>validate</th><th></th></tr>
+<tr><td><a href="runs/2026-10-04/">2026-10-04</a></td><td>425</td><td>423 <span class="muted">(99.5 %)</span></td><td>398 <span class="muted">(93.6 %)</span></td><td>324 <span class="muted">(76.2 %)</span></td><td>299 <span class="muted">(70.4 %)</span></td><td><a href="runs/2026-10-04/report.html">per model</a></td></tr>
+<tr><td><a href="runs/2026-10-03/">2026-10-03</a></td><td>425</td><td>423 <span class="muted">(99.5 %)</span></td><td>398 <span class="muted">(93.6 %)</span></td><td>325 <span class="muted">(76.5 %)</span></td><td>299 <span class="muted">(70.4 %)</span></td><td><a href="runs/2026-10-03/report.html">per model</a></td></tr>
+</table></div>
+<h2>Badge</h2><p class="muted">The share of models that validate in the latest run (<code>badge.json</code>; <code>badges/&lt;phase&gt;.json</code> per phase), for a README:</p>
+<pre>[![Coverage](https://img.shields.io/endpoint?url=https://openmodelica.github.io/OMLibraryTesting.jl/badge.json)](https://openmodelica.github.io/OMLibraryTesting.jl/)</pre>
+
+</main></body></html>
