@@ -26,8 +26,8 @@ const NOTE = length(ARGS) >= 3 ? ARGS[3] : ""
 const ROOT = joinpath(@__DIR__, "..") |> abspath
 const MEASURED = Dates.format(Dates.unix2datetime(mtime(ARGS[1])), "yyyy-mm-dd")
 
-ok(r) = r.highest != OLT.BROKEN && r.highest != OLT.UNKNOWN
-reached(r, p) = ok(r) && r.highest >= p
+const ok = OLT.coverage_ok          # the definitions the coverage site uses (src/site.jl)
+const reached = OLT.coverage_reached
 domainOf(r) = join(split(r.spec.domain, '.')[1:min(2, end)], '.')
 short(name) = replace(name, "Modelica." => "")
 function firstError(r)

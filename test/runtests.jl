@@ -14,4 +14,5 @@ using Test
     include("comparisonTests.jl")
     include("registryTests.jl")
     include("runnerTests.jl")
+    include("siteTests.jl")
 end
