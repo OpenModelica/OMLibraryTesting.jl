@@ -20,7 +20,7 @@ Results are compared against Dymola-generated reference trajectories from the MA
 ## Latest coverage
 
 <!-- coverage:begin (scripts/publish_coverage.jl) -->
-Measured 2026-10-04 on 425 MSL example models: frontend 423 (99.5 %), backend 398 (93.6 %), simulate 324 (76.2 %), validate 299 (70.4 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
+Measured 2026-10-11 on 425 MSL example models: frontend 424 (99.8 %), backend 408 (96.0 %), simulate 340 (80.0 %), validate 314 (73.9 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
 <!-- coverage:end -->
 
 Every published run, by date, with the trend: the [coverage site](https://openmodelica.github.io/OMLibraryTesting.jl/).
