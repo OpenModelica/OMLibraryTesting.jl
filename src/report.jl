@@ -396,12 +396,12 @@ Runs `run_coverage` with the given arguments, then automatically saves both an
 HTML and a Markdown coverage report via `generate_report`. Returns the results vector.
 """
 function run_coverage_and_report(; library::String = "Modelica",
-                                   version::String = "3.2.3",
                                    msl_version::String = "MSL:3.2.3",
+                                   version::String = msl_library_version(msl_version),
                                    domain::String = "",
                                    model::String = "",
                                    filter::Regex = r"",
-                                   overrides::String = default_models_path(),
+                                   overrides::String = default_models_path(version),
                                    timeout::Float64 = 1000.0,
                                    phases::Vector{Phase} = PHASE_ORDER,
                                    from_phase::Phase = FRONTEND,

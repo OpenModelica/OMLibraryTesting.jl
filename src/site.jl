@@ -58,36 +58,75 @@ coverage_funnel(results::Vector{ModelResult}) =
     [PHASE_NAMES[p] => count(r -> coverage_reached(r, p), results) for p in SITE_PHASES]
 
 """
-    publish_site(site, results; date = today(), report = "", analysis = "", commits = String[],
-                 note = "", library = "MSL 3.2.3", url = "") -> String
+    site_folder(version) -> String
 
-Add a coverage run to the static site in the directory `site` (created if missing) and rebuild
-the index, the badges and the `latest` redirect. Runs are keyed by `date`: a second run of the
-same date replaces the first. `report` is the HTML report of `generate_report`, `analysis` the
-Markdown of scripts/publish_coverage.jl (docs/COVERAGE.md), `commits` lines such as
+The folder of MSL `version`'s runs on the coverage site: the root (`""`) for 3.2.3, the version
+covered first, `msl-<version>` for another.
+"""
+site_folder(version::AbstractString)::String =
+    version == TOP_LEVEL_MSL_VERSION ? "" : "msl-$version"
+
+"""
+    publish_site(site, results; version = "3.2.3", date = today(), report = "", analysis = "",
+                 commits = String[], note = "", library = "MSL <version>", url = "") -> String
+
+Add a coverage run of MSL `version` to the static site in the directory `site` (created if
+missing), in the version's folder (`site_folder`), and rebuild that folder's index, badges and
+`latest` redirect; every version's index links to the other versions. Runs are keyed by `date`: a
+second run of the same date replaces the first. `report` is the HTML report of `generate_report`,
+`analysis` the Markdown of scripts/publish_coverage.jl (docs/COVERAGE.md), `commits` lines such as
 "OMBackend.jl f661a4a", `url` the site's address (for the badge snippet). Returns the run's directory.
 """
-function publish_site(site::AbstractString, results::Vector{ModelResult}; date::Date = today(),
+function publish_site(site::AbstractString, results::Vector{ModelResult};
+                      version::AbstractString = TOP_LEVEL_MSL_VERSION, date::Date = today(),
                       report::AbstractString = "", analysis::AbstractString = "",
                       commits::Vector{String} = String[], note::AbstractString = "",
-                      library::AbstractString = "MSL 3.2.3", url::AbstractString = "")
+                      library::AbstractString = "MSL $version", url::AbstractString = "")
     local run = Dict{String, Any}("date" => string(date), "models" => length(results),
                                   "note" => String(note), "commits" => commits)
     for (p, c) in coverage_funnel(results)
         run[p] = c
     end
-    local dir = joinpath(site, "runs", string(date))
+    local folder = site_folder(version)
+    local here = joinpath(site, folder)
+    local dir = joinpath(here, "runs", string(date))
     mkpath(dir)
     isempty(report) || cp(report, joinpath(dir, "report.html"); force = true)
     open(io -> TOML.print(io, run; sorted = true), joinpath(dir, "summary.toml"), "w")
     write(joinpath(dir, "index.html"), _site_run_page(run, isempty(analysis) ? "" : read(analysis, String),
                                                       !isempty(report), library))
-    local history = filter(r -> r["date"] != run["date"], site_history(site))
+    local history = filter(r -> r["date"] != run["date"], site_history(here))
     push!(history, run)
     sort!(history; by = r -> r["date"], rev = true)
-    open(io -> TOML.print(io, Dict("runs" => history); sorted = true), joinpath(site, "history.toml"), "w")
-    _write_site_index(site, history, library, url)
+    open(io -> TOML.print(io, Dict("runs" => history); sorted = true), joinpath(here, "history.toml"), "w")
+    local versions = _site_versions(site)
+    _write_site_index(here, history, library, url, versions, folder)
+    #= The other versions' indexes, for their links to this one. =#
+    for (label, other) in versions
+        other == folder && continue
+        local d = joinpath(site, other)
+        _write_site_index(d, site_history(d), label, url, versions, other)
+    end
     return dir
+end
+
+#= The MSL versions with runs on the site, as (label, folder) pairs: 3.2.3 at the root first,
+   then the msl-<version> folders. =#
+function _site_versions(site::AbstractString)::Vector{Tuple{String, String}}
+    local versions = Tuple{String, String}[]
+    isfile(joinpath(site, "history.toml")) && push!(versions, ("MSL $TOP_LEVEL_MSL_VERSION", ""))
+    for d in sort(readdir(site))
+        local m = match(r"^msl-(.+)$", d)
+        m !== nothing && isfile(joinpath(site, d, "history.toml")) && push!(versions, ("MSL $(m[1])", d))
+    end
+    return versions
+end
+
+#= The link from the index of `folder` to the index of `target` (folders of _site_versions). =#
+function _site_link(folder::AbstractString, target::AbstractString)::String
+    local up = isempty(folder) ? "" : "../"
+    isempty(target) && return isempty(up) ? "./" : up
+    return "$up$target/"
 end
 
 """
@@ -122,7 +161,8 @@ function _write_badge(path, label, n, total)
                        ", \"color\": ", _json_string(_badge_color(_site_pct(n, total))), "}\n"))
 end
 
-function _write_site_index(site, history, library, url)
+function _write_site_index(site::AbstractString, history::Vector{Dict{String, Any}}, library::AbstractString,
+                           url::AbstractString, versions::Vector{Tuple{String, String}}, folder::AbstractString)
     local latest = first(history)
     _write_badge(joinpath(site, "badge.json"), "$library validate", latest["validate"], latest["models"])
     for p in SITE_PHASES
@@ -135,7 +175,7 @@ function _write_site_index(site, history, library, url)
         <title>Latest coverage</title><a href="../runs/$(latest["date"])/">Latest coverage: $(latest["date"])</a>
         """))
     touch(joinpath(site, ".nojekyll"))   # plain files, no Jekyll build
-    write(joinpath(site, "index.html"), _site_index_page(history, library, url))
+    write(joinpath(site, "index.html"), _site_index_page(history, library, url, versions, folder))
 end
 
 const _SITE_CSS = """
@@ -152,7 +192,7 @@ main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
 h1 { font-size: 1.6em; margin: 0 0 4px; } h2 { font-size: 1.2em; margin: 32px 0 8px; }
 p.lead, .muted { color: var(--muted); }
 a { color: var(--accent); }
-nav { margin-bottom: 16px; } nav a { margin-right: 16px; }
+nav { margin-bottom: 16px; } nav a, nav strong { margin-right: 16px; }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -222,9 +262,15 @@ function _site_trend(history)
     return String(take!(io))
 end
 
-function _site_index_page(history, library, url)
+function _site_index_page(history::Vector{Dict{String, Any}}, library::AbstractString, url::AbstractString,
+                          versions::Vector{Tuple{String, String}}, folder::AbstractString)
     local latest = first(history)
     local io = IOBuffer()
+    if length(versions) > 1
+        println(io, "<nav>", join((other == folder ? "<strong>$(html_escape(label))</strong>" :
+                                   "<a href=\"$(_site_link(folder, other))\">$(html_escape(label))</a>"
+                                   for (label, other) in versions)), "</nav>")
+    end
     println(io, "<h1>OM.jl coverage of the $(html_escape(String(library))) examples</h1>")
     println(io, "<p class=\"lead\">Each experiment model goes through OM.jl's pipeline: flatten (frontend), translate (backend), ",
             "simulate, and validate against the reference trajectories. Measured by ",
@@ -243,7 +289,8 @@ function _site_index_page(history, library, url)
     println(io, "</table></div>")
     println(io, "<h2>Badge</h2><p class=\"muted\">The share of models that validate in the latest run ",
             "(<code>badge.json</code>; <code>badges/&lt;phase&gt;.json</code> per phase), for a README:</p>")
-    local base = isempty(url) ? "&lt;this site&gt;/" : html_escape(String(rstrip(url, '/') * "/"))
+    local base = isempty(url) ? "&lt;this site&gt;/" :
+                 html_escape(String(rstrip(url, '/') * "/" * (isempty(folder) ? "" : "$folder/")))
     println(io, "<pre>[![Coverage](https://img.shields.io/endpoint?url=$(base)badge.json)]($base)</pre>")
     return _site_page("OM.jl coverage", String(take!(io)))
 end

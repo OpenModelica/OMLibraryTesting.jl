@@ -9,6 +9,9 @@ section of README.md (between its coverage markers).
 or results_noskip.jls of a no-skip run (every model through every phase, the registry's skips
 removed). [commits.txt] lists "<repository> <commit>" lines, one per package, as recorded when the
 run started; [note] is one line on how the run was made (e.g. "no-skip, 3 workers, 600 s per model").
+OMJL_COVERAGE_MSL (default "MSL:3.2.3", as scripts/run_full_coverage.jl) is the run's MSL version:
+3.2.3 writes docs/COVERAGE.md and the README section between the coverage markers, another version
+docs/COVERAGE_<version>.md and the section between its own markers (coverage-<version>:begin/end).
 =#
 
 using Dates
@@ -25,6 +28,9 @@ const COMMITS = length(ARGS) >= 2 && isfile(ARGS[2]) ?
 const NOTE = length(ARGS) >= 3 ? ARGS[3] : ""
 const ROOT = joinpath(@__DIR__, "..") |> abspath
 const MEASURED = Dates.format(Dates.unix2datetime(mtime(ARGS[1])), "yyyy-mm-dd")
+const VERSION_MSL = OLT.msl_library_version(get(ENV, "OMJL_COVERAGE_MSL", "MSL:3.2.3"))
+const TOP_LEVEL = VERSION_MSL == OLT.TOP_LEVEL_MSL_VERSION
+const COVERAGE_MD = TOP_LEVEL ? "COVERAGE.md" : "COVERAGE_$(VERSION_MSL).md"
 
 const ok = OLT.coverage_ok          # the definitions the coverage site uses (src/site.jl)
 const reached = OLT.coverage_reached
@@ -47,8 +53,8 @@ const FUNNEL = [(OLT.PHASE_NAMES[p], count(r -> reached(r, p), RESULTS)) for p i
 pct(n) = @sprintf("%.1f %%", 100n / N)
 
 function write_coverage(io)
-    println(io, "# MSL coverage of OM.jl\n")
-    println(io, "Measured $MEASURED: $N example models of the Modelica Standard Library, each run through OM.jl's ",
+    println(io, "# MSL $VERSION_MSL coverage of OM.jl\n")
+    println(io, "Measured $MEASURED: $N example models of the Modelica Standard Library $VERSION_MSL, each run through OM.jl's ",
             "pipeline (flatten, translate, simulate) and validated against the reference trajectories.",
             isempty(NOTE) ? "" : " $NOTE.", "\n")
     if !isempty(COMMITS)
@@ -87,17 +93,18 @@ function write_coverage(io)
 end
 
 mkpath(joinpath(ROOT, "docs"))
-open(write_coverage, joinpath(ROOT, "docs", "COVERAGE.md"), "w")
+open(write_coverage, joinpath(ROOT, "docs", COVERAGE_MD), "w")
 
 #= The README's section between the markers: the headline numbers and a link. =#
-const BEGIN_MARK = "<!-- coverage:begin (scripts/publish_coverage.jl) -->"
-const END_MARK = "<!-- coverage:end -->"
+const MARK = TOP_LEVEL ? "coverage" : "coverage-$VERSION_MSL"
+const BEGIN_MARK = "<!-- $MARK:begin (scripts/publish_coverage.jl) -->"
+const END_MARK = "<!-- $MARK:end -->"
 const readme_path = joinpath(ROOT, "README.md")
 const readme = read(readme_path, String)
 const section = string(BEGIN_MARK, "\n",
-    "Measured $MEASURED on $N MSL example models: ",
+    "Measured $MEASURED on $N MSL $VERSION_MSL example models: ",
     join(("$(lowercase(p)) $c ($(pct(c)))" for (p, c) in FUNNEL), ", "),
-    ". Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).\n", END_MARK)
+    ". Per domain and what stops the rest: [docs/$COVERAGE_MD](docs/$COVERAGE_MD).\n", END_MARK)
 occursin(BEGIN_MARK, readme) || error("README.md has no coverage markers ($BEGIN_MARK … $END_MARK)")
 write(readme_path, replace(readme, Regex("\\Q$BEGIN_MARK\\E.*?\\Q$END_MARK\\E", "s") => section))
-@info "Published" coverage = joinpath(ROOT, "docs", "COVERAGE.md") funnel = FUNNEL
+@info "Published" coverage = joinpath(ROOT, "docs", COVERAGE_MD) funnel = FUNNEL

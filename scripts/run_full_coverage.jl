@@ -7,7 +7,9 @@ Invoked from a fresh tmux via:
 
 Environment variables:
     OMJL_COVERAGE_TAG       Human-readable tag (default: "full_msl").
-    OMJL_COVERAGE_MSL       MSL version (default: "MSL:3.2.3").
+    OMJL_COVERAGE_MSL       MSL version (default: "MSL:3.2.3"). Its experiment list, registry and reference data
+                            (models/experiments_Modelica_<version>.txt, default_models_path(version), reference_dir);
+                            a version OMFrontend does not bundle (e.g. "MSL:4.1.0") is the installed library.
     OMJL_COVERAGE_TIMEOUT   Per-model timeout seconds (default: 1500).
     OMJL_COVERAGE_DOMAIN    Optional domain regex filter.
     OMJL_COVERAGE_MODEL     Optional single model name.
@@ -28,6 +30,7 @@ using OMLibraryTesting: FRONTEND, BACKEND, SIMULATE, VALIDATE, phase_from_string
 
 const TAG       = get(ENV, "OMJL_COVERAGE_TAG", "full_msl")
 const MSL       = get(ENV, "OMJL_COVERAGE_MSL", "MSL:3.2.3")
+const LIBRARY_VERSION = OMLibraryTesting.msl_library_version(MSL)
 const TIMEOUT   = parse(Float64, get(ENV, "OMJL_COVERAGE_TIMEOUT", "1500"))
 const DOMAIN    = get(ENV, "OMJL_COVERAGE_DOMAIN", "")
 const MODEL     = get(ENV, "OMJL_COVERAGE_MODEL",  "")
@@ -49,7 +52,7 @@ mkpath(LOG_DIR)
 #= A copy of the registry without skips and broken marks, next to a link to the reference data
    (run_coverage reads the reference beside the registry it is given). =#
 function noskip_registry()::String
-    local reg = TOML.parsefile(OMLibraryTesting.default_models_path())
+    local reg = TOML.parsefile(OMLibraryTesting.default_models_path(LIBRARY_VERSION))
     for table in (get(reg, "models", Dict()), get(reg, "domain_overrides", Dict())), (_, e) in table
         delete!(e, "skipPhases")
         get(e, "expected", "") == "broken" && delete!(e, "expected")
@@ -62,7 +65,7 @@ function noskip_registry()::String
     open(io -> TOML.print(io, reg), path, "w")
     return path
 end
-const OVERRIDES = NOSKIP ? noskip_registry() : OMLibraryTesting.default_models_path()
+const OVERRIDES = NOSKIP ? noskip_registry() : OMLibraryTesting.default_models_path(LIBRARY_VERSION)
 
 @info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS noskip=NOSKIP
 @info "Report directory: $REPORT_DIR"

@@ -18,6 +18,8 @@ logs/
 # Reference CSVs and signals (large binary/text data, fetched by download_refs.sh)
 reference/csv/
 reference/signals/
+reference/*/csv/
+reference/*/signals/
 
 # Editor and OS artifacts
 .DS_Store

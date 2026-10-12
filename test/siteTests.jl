@@ -37,5 +37,20 @@ using TOML
         @test isfile(joinpath(site, "badges", "frontend.json"))
         local index = read(joinpath(site, "index.html"), String)
         @test occursin("runs/2026-10-04/report.html", index) && occursin("<polyline", index)
+        @test !occursin("<nav>", index)   # one version: no links to others
+
+        #= Another MSL version: its own folder, history and badges; the indexes link each other. =#
+        @test OLT.site_folder("3.2.3") == "" && OLT.site_folder("4.1.0") == "msl-4.1.0"
+        local dir4 = OLT.publish_site(site, results[1:3]; version = "4.1.0", date = Date(2026, 10, 12),
+                                      url = "https://example.org/cov")
+        @test dir4 == joinpath(site, "msl-4.1.0", "runs", "2026-10-12")
+        @test [r["date"] for r in OLT.site_history(joinpath(site, "msl-4.1.0"))] == ["2026-10-12"]
+        @test [r["date"] for r in OLT.site_history(site)] == ["2026-10-04", "2026-10-03"]   # 3.2.3 untouched
+        @test occursin("\"label\": \"MSL 4.1.0 validate\"", read(joinpath(site, "msl-4.1.0", "badge.json"), String))
+        @test occursin("\"label\": \"MSL 3.2.3 validate\"", read(joinpath(site, "badge.json"), String))
+        local index4 = read(joinpath(site, "msl-4.1.0", "index.html"), String)
+        @test occursin("<a href=\"../\">MSL 3.2.3</a>", index4) && occursin("<strong>MSL 4.1.0</strong>", index4)
+        @test occursin("https://example.org/cov/msl-4.1.0/badge.json", index4)
+        @test occursin("<a href=\"msl-4.1.0/\">MSL 4.1.0</a>", read(joinpath(site, "index.html"), String))
     end
 end

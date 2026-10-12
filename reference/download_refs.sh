@@ -1,16 +1,29 @@
 #!/usr/bin/env bash
 # Download Dymola-generated reference CSV files from MAP-LIB_ReferenceResults.
-# These are the official Modelica Association reference results for MSL 3.2.3.
-# Source: https://github.com/modelica/MAP-LIB_ReferenceResults (branch v3.2.3)
+# These are the official Modelica Association reference results of the MSL.
+# Source: https://github.com/modelica/MAP-LIB_ReferenceResults (branch v<MSL version>)
 #
-# Usage: cd OMLibraryTesting.jl/reference && bash download_refs.sh [SHORT_NAME...]
+# Usage: cd OMLibraryTesting.jl/reference && bash download_refs.sh [--msl VERSION] [SHORT_NAME...]
+#   Without --msl: MSL 3.2.3 into csv/ and signals/.
+#   --msl VERSION (e.g. 4.1.0): that version into VERSION/csv/ and VERSION/signals/, for the
+#   models in ../models/experiments_Modelica_VERSION.txt (record_experiments).
 #   With names (e.g. Blocks_Examples_InverseModel), download only those models.
 
 set -euo pipefail
 
-BASE_URL="https://raw.githubusercontent.com/modelica/MAP-LIB_ReferenceResults/v3.2.3"
+MSL_VERSION="3.2.3"
+if [ "${1:-}" = "--msl" ]; then
+  MSL_VERSION="${2:?--msl needs a version}"
+  shift 2
+fi
+
+BASE_URL="https://raw.githubusercontent.com/modelica/MAP-LIB_ReferenceResults/v$MSL_VERSION"
 CSV_DIR="csv"
 SIGNALS_DIR="signals"
+if [ "$MSL_VERSION" != "3.2.3" ]; then
+  CSV_DIR="$MSL_VERSION/csv"
+  SIGNALS_DIR="$MSL_VERSION/signals"
+fi
 
 mkdir -p "$CSV_DIR" "$SIGNALS_DIR"
 
@@ -433,6 +446,19 @@ MODELS=(
   "Utilities_Examples_WriteRealMatrixToFile|Modelica/Utilities/Examples/WriteRealMatrixToFile/WriteRealMatrixToFile"
   "Utilities_Examples_readRealParameterModel|Modelica/Utilities/Examples/readRealParameterModel/readRealParameterModel"
 )
+
+# Other versions: the recorded experiment models, by MAP-LIB's layout
+# (Modelica.A.B.M -> A_B_M|Modelica/A/B/M/M), which the list above follows too.
+if [ "$MSL_VERSION" != "3.2.3" ]; then
+  EXPERIMENTS="../models/experiments_Modelica_$MSL_VERSION.txt"
+  [ -f "$EXPERIMENTS" ] || { echo "No $EXPERIMENTS: record it with record_experiments first" >&2; exit 1; }
+  MODELS=()
+  while IFS='|' read -r model _; do
+    [ -n "$model" ] || continue
+    short="${model#Modelica.}"
+    MODELS+=("${short//./_}|${model//.//}/${model##*.}")
+  done < "$EXPERIMENTS"
+fi
 
 # Only the models named on the command line, if any.
 if [ $# -gt 0 ]; then

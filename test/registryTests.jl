@@ -9,9 +9,9 @@ one depend on Dict order.
 
 import OMLibraryTesting as OLT
 
-@testset "registry: stopTimes within the reference data, one entry per model" begin
-    local root = joinpath(@__DIR__, "..")
-    local reg = OLT.TOML.parsefile(joinpath(root, "models", "models.toml"))["models"]
+@testset "registry $version: stopTimes within the reference data, one entry per model" for version in ("3.2.3", "4.1.0")
+    local path = OLT.default_models_path(version)
+    local reg = OLT.TOML.parsefile(path)["models"]
     local names = [s["name"] for s in values(reg)]
     local dups = sort!(unique!([n for n in names if count(==(n), names) > 1]))
     @test isempty(dups)
@@ -24,9 +24,26 @@ import OMLibraryTesting as OLT
         haskey(s, "stopTime") || continue
         local rf = get(s, "referenceFile", "")
         isempty(rf) && (rf = OLT._model_name_to_ref_key(s["name"]))
-        local f = joinpath(root, "reference", "csv", rf * ".csv")
+        local f = joinpath(OLT.reference_dir(path, version), "csv", rf * ".csv")
         isfile(f) || continue
         OLT.stoptime_within_reference(s["stopTime"], refEnd(f)) || push!(past, key)
     end
     @test isempty(past)
+end
+
+@testset "per-version registry, reference data and MSL loading" begin
+    local models = normpath(joinpath(@__DIR__, "..", "models"))
+    local reference = normpath(joinpath(@__DIR__, "..", "reference"))
+    @test OLT.msl_library_version("MSL:4.1.0") == "4.1.0"
+    @test normpath(OLT.default_models_path("3.2.3")) == joinpath(models, "models.toml")
+    @test normpath(OLT.default_models_path("4.1.0")) == joinpath(models, "models_4.1.0.toml")
+    @test OLT.reference_dir(OLT.default_models_path("3.2.3"), "3.2.3") == reference
+    @test OLT.reference_dir(OLT.default_models_path("4.1.0"), "4.1.0") == joinpath(reference, "4.1.0")
+    @test OLT.load_registry_meta(OLT.default_models_path("4.1.0"))["msl_version"] == "MSL:4.1.0"
+    #= Every 4.1.0 entry is an experiment of 4.1.0. =#
+    local experiments = Set(first(split(l, '|')) for l in eachline(joinpath(models, "experiments_Modelica_4.1.0.txt")))
+    @test all(e -> e["name"] in experiments, values(OLT.TOML.parsefile(OLT.default_models_path("4.1.0"))["models"]))
+    #= Bundled versions by MSL_Version; others are installed libraries (not loaded here). =#
+    @test OLT._msl_kwargs("MSL:3.2.3") == (; MSL_Version = "MSL:3.2.3")
+    @test OLT._msl_kwargs("MSL:4.0.0") == (; MSL_Version = "MSL:4.0.0")
 end

@@ -351,6 +351,20 @@ function _bounded_showerror(@nospecialize(e), cap::Int = 500)::String
 end
 
 """
+    _msl_kwargs(msl_version) -> NamedTuple
+
+How OM loads the MSL of `msl_version`: a version bundled with OMFrontend
+(`lib/Modelica/MSL_<x>_<y>_<z>.mo`) by `MSL_Version`, any other from the installed
+libraries (`OM.loadInstalledLibrary`, which brings ModelicaServices and Complex along).
+"""
+function _msl_kwargs(msl_version::String)::NamedTuple
+    local bundled = joinpath(pkgdir(OMFrontend), "lib", "Modelica",
+                             replace(msl_version, r"[.:]" => "_") * ".mo")
+    isfile(bundled) && return (; MSL_Version = msl_version)
+    return (; libraries = [OM.loadInstalledLibrary("Modelica"; version = msl_library_version(msl_version))])
+end
+
+"""
     _run_model_phases(model_name, msl_version, stop_time, reference_file,
                       reference, atol, reltol, signal_mapping, ref_dir,
                       phase_ints) -> (results, highest)
@@ -395,10 +409,11 @@ function _run_model_phases(model_name::String,
 
         t0 = time()
         try
+            local msl = _msl_kwargs(msl_version)
             if phase_int == Int(FRONTEND)
-                OM.flatten(model_name; MSL_Version = msl_version)
+                OM.flatten(model_name; msl...)
             elseif phase_int == Int(BACKEND)
-                OM.translate(model_name; MSL_Version = msl_version,
+                OM.translate(model_name; msl...,
                              checkSimCode = check_sim_code)
             elseif phase_int == Int(SIMULATE)
                 # Build kwargs: solver + dtmax (if non-zero) + initializealg (if specified).
@@ -415,7 +430,7 @@ function _run_model_phases(model_name::String,
                 if solver_atol > 0.0
                     _tol = (; _tol..., abstol = solver_atol)
                 end
-                sol = OM.simulate(model_name; stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _mi..., _tol...)
+                sol = OM.simulate(model_name; msl..., stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _mi..., _tol...)
                 #= Terminated is a successful end per Modelica semantics: a model
                    calling terminate() completed its intended scenario. =#
                 if sol.retcode != ReturnCode.Success && sol.retcode != ReturnCode.Terminated
@@ -701,6 +716,12 @@ Run the full MSL coverage suite. Models are discovered automatically via omc.
 TOML overrides (reference files, known broken, signal mappings) are merged in.
 Each model runs on an isolated worker process with an enforced timeout.
 
+`msl_version` (e.g. `"MSL:4.1.0"`) selects the MSL: a version bundled with OMFrontend
+(3.2.3, 4.0.0) is loaded from there, any other from the installed libraries
+(`OM.loadInstalledLibrary`). `version` (its library version by default) selects the
+experiment list, `overrides` the registry and, beside it, the reference data
+(`default_models_path(version)`, `reference_dir`).
+
 Optionally filter by `domain` regex, single `model` name, or general `filter` regex.
 
 Use `from_phase` and `to_phase` to restrict which phases are run. For example,
@@ -718,12 +739,12 @@ pre-added workers via `addprocs(N)`, the pool adopts them; otherwise the pool
 spawns a single worker and runs serially.
 """
 function run_coverage(; library::String = "Modelica",
-                        version::String = "3.2.3",
                         msl_version::String = "MSL:3.2.3",
+                        version::String = msl_library_version(msl_version),
                         domain::String = "",
                         model::String = "",
                         filter::Regex = r"",
-                        overrides::String = default_models_path(),
+                        overrides::String = default_models_path(version),
                         timeout::Float64 = 1000.0,
                         phases::Vector{Phase} = PHASE_ORDER,
                         from_phase::Phase = FRONTEND,
@@ -737,7 +758,7 @@ function run_coverage(; library::String = "Modelica",
     @info "Starting coverage run (phases: $phase_names, n_workers: $n_workers)"
     specs = discover_experiments(; library = library, version = version, filter = filter)
     specs = merge_overrides!(specs, overrides)
-    ref_dir = joinpath(dirname(overrides), "..", "reference") |> abspath
+    ref_dir = reference_dir(overrides, version)
     specs = auto_detect_references!(specs, ref_dir)
     if !isempty(model)
         specs = Base.filter(s -> s.name == model, specs)
@@ -758,7 +779,7 @@ function run_coverage(; library::String = "Modelica",
     @info "Running $n_active models ($n_broken known broken, $total_models total), timeout=$(round(Int, timeout))s"
 
     effective_workers = min(n_workers, total_models)
-    pool = WorkerPool(effective_workers; msl_version = msl_version)
+    pool = WorkerPool(effective_workers; msl_version = msl_version, ref_dir = ref_dir)
     ensure_pool!(pool)
 
     indexed_results = Vector{Union{Nothing, ModelResult}}(nothing, total_models)

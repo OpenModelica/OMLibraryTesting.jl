@@ -61,9 +61,9 @@ end
                              from_phase = BACKEND,
                              include_broken = false,
                              library = "Modelica",
-                             version = "3.2.3",
                              msl_version = "MSL:3.2.3",
-                             overrides = default_models_path(),
+                             version = msl_library_version(msl_version),
+                             overrides = default_models_path(version),
                              timeout = 1000.0,
                              phases = PHASE_ORDER,
                              run_from_phase = FRONTEND,
@@ -95,9 +95,9 @@ function run_failed_from_report(; report_path::String = "",
                                   from_phase::Phase = BACKEND,
                                   include_broken::Bool = false,
                                   library::String = "Modelica",
-                                  version::String = "3.2.3",
                                   msl_version::String = "MSL:3.2.3",
-                                  overrides::String = default_models_path(),
+                                  version::String = msl_library_version(msl_version),
+                                  overrides::String = default_models_path(version),
                                   timeout::Float64 = 1000.0,
                                   phases::Vector{Phase} = PHASE_ORDER,
                                   run_from_phase::Phase = FRONTEND,
@@ -121,7 +121,7 @@ function run_failed_from_report(; report_path::String = "",
     # then keep only the entries whose name is in the failed set.
     specs = discover_experiments(; library = library, version = version, filter = r"")
     specs = merge_overrides!(specs, overrides)
-    ref_dir = joinpath(dirname(overrides), "..", "reference") |> abspath
+    ref_dir = reference_dir(overrides, version)
     specs = auto_detect_references!(specs, ref_dir)
 
     fail_set = Set{String}(failed_names)
@@ -137,6 +137,7 @@ function run_failed_from_report(; report_path::String = "",
 
     return _run_specs(rerun_specs;
                       msl_version = msl_version,
+                      ref_dir = ref_dir,
                       timeout = timeout,
                       phases = phases,
                       from_phase = run_from_phase,
@@ -160,9 +161,9 @@ function run_failed_and_report(; report_path::String = "",
                                  from_phase::Phase = BACKEND,
                                  include_broken::Bool = false,
                                  library::String = "Modelica",
-                                 version::String = "3.2.3",
                                  msl_version::String = "MSL:3.2.3",
-                                 overrides::String = default_models_path(),
+                                 version::String = msl_library_version(msl_version),
+                                 overrides::String = default_models_path(version),
                                  timeout::Float64 = 1000.0,
                                  phases::Vector{Phase} = PHASE_ORDER,
                                  run_from_phase::Phase = FRONTEND,
@@ -212,6 +213,8 @@ needs to drive an explicit subset can share the worker-pool wiring.
 """
 function _run_specs(specs::Vector{ModelSpec};
                     msl_version::String = "MSL:3.2.3",
+                    ref_dir::String = reference_dir(default_models_path(msl_library_version(msl_version)),
+                                                    msl_library_version(msl_version)),
                     timeout::Float64 = 1000.0,
                     phases::Vector{Phase} = PHASE_ORDER,
                     from_phase::Phase = FRONTEND,
@@ -229,7 +232,7 @@ function _run_specs(specs::Vector{ModelSpec};
     @info "Rerunning $n_active models ($n_broken known broken, $total_models total) phases=[$phase_names] n_workers=$n_workers timeout=$(round(Int, timeout))s"
 
     effective_workers = min(n_workers, total_models)
-    pool = WorkerPool(effective_workers; msl_version = msl_version)
+    pool = WorkerPool(effective_workers; msl_version = msl_version, ref_dir = ref_dir)
     ensure_pool!(pool)
 
     indexed_results = Vector{Union{Nothing, ModelResult}}(nothing, total_models)

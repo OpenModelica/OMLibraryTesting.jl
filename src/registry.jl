@@ -33,6 +33,40 @@ function default_models_path()
     joinpath(@__DIR__, "..", "models", "models.toml")
 end
 
+#= MSL 3.2.3, the version covered first, has the top-level registry and reference data
+   (models/models.toml, reference/csv, reference/signals); another version has its own
+   (models/models_<version>.toml, reference/<version>/csv, reference/<version>/signals). =#
+const TOP_LEVEL_MSL_VERSION = "3.2.3"
+
+"""
+    default_models_path(version) -> String
+
+The registry of MSL `version`: `models/models.toml` for 3.2.3, else `models/models_<version>.toml`.
+"""
+function default_models_path(version::String)::String
+    version == TOP_LEVEL_MSL_VERSION && return default_models_path()
+    return joinpath(@__DIR__, "..", "models", "models_$(version).toml")
+end
+
+"""
+    reference_dir(models_path, version) -> String
+
+The reference data of MSL `version` for the registry at `models_path`: `reference/` beside the
+registry's folder, its subfolder `version` for a version other than 3.2.3.
+"""
+function reference_dir(models_path::String, version::String)::String
+    local dir = joinpath(dirname(models_path), "..", "reference")
+    version == TOP_LEVEL_MSL_VERSION || (dir = joinpath(dir, version))
+    return abspath(dir)
+end
+
+"""
+    msl_library_version(msl_version) -> String
+
+The library version of an `MSL_Version` string: `"MSL:4.1.0"` -> `"4.1.0"`.
+"""
+msl_library_version(msl_version::String)::String = replace(msl_version, "MSL:" => "")
+
 """
     load_registry_meta(path) -> Dict{String, Any}
 
