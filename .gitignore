@@ -6,10 +6,14 @@
 
 # Julia package manifest (keep Project.toml, ignore Manifest)
 Manifest.toml
+Manifest-v*.toml
 
 # Generated results and reports (large, machine-generated)
 results/
 reports/
+# coverage run logs (scripts/run_full_coverage.jl) and .mat files the simulated models write
+logs/
+*.mat
 
 # Reference CSVs and signals (large binary/text data, fetched by download_refs.sh)
 reference/csv/
