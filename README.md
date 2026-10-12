@@ -1,6 +1,7 @@
 # OMLibraryTesting.jl
 
 [![MSL coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fopenmodelica.github.io%2FOMLibraryTesting.jl%2Fbadge.json)](https://openmodelica.github.io/OMLibraryTesting.jl/)
+[![MSL 4.1.0 coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fopenmodelica.github.io%2FOMLibraryTesting.jl%2Fmsl-4.1.0%2Fbadge.json)](https://openmodelica.github.io/OMLibraryTesting.jl/msl-4.1.0/)
 
 A Julia package for running MSL (Modelica Standard Library) coverage tests against [OM.jl](https://github.com/OpenModelica/OM.jl). It auto-discovers all experiment models in the MSL using `omc`, runs each through the OM.jl pipeline (flatten -> translate -> simulate -> validate), and generates HTML coverage reports.
 
@@ -23,7 +24,11 @@ Results are compared against Dymola-generated reference trajectories from the MA
 Measured 2026-10-11 on 425 MSL example models: frontend 424 (99.8 %), backend 408 (96.0 %), simulate 340 (80.0 %), validate 314 (73.9 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
 <!-- coverage:end -->
 
-Every published run, by date, with the trend: the [coverage site](https://openmodelica.github.io/OMLibraryTesting.jl/).
+<!-- coverage-4.1.0:begin (scripts/publish_coverage.jl) -->
+Measured 2026-10-12 on 534 MSL 4.1.0 example models: frontend 534 (100.0 %), backend 438 (82.0 %), simulate 339 (63.5 %), validate 312 (58.4 %). Per domain and what stops the rest: [docs/COVERAGE_4.1.0.md](docs/COVERAGE_4.1.0.md).
+<!-- coverage-4.1.0:end -->
+
+Every published run, by date, with the trend: the [coverage site](https://openmodelica.github.io/OMLibraryTesting.jl/) (MSL 3.2.3; MSL 4.1.0 in [msl-4.1.0/](https://openmodelica.github.io/OMLibraryTesting.jl/msl-4.1.0/)).
 
 ## Directory Structure
 
@@ -41,14 +46,18 @@ OMLibraryTesting.jl/
 │   ├── site.jl               # Coverage site: one page per run, index, badges
 │   └── testsuite.jl          # Fetch + run the upstream OpenModelica testsuite (rtest / OM.jl modes)
 ├── models/
-│   └── models.toml           # Per-model overrides (atol, reltol, expected phase, signal mapping)
+│   ├── models.toml           # Per-model overrides (atol, reltol, expected phase, signal mapping), MSL 3.2.3
+│   ├── models_4.1.0.toml     # The same for MSL 4.1.0
+│   └── experiments_Modelica_<version>.txt  # The experiment models omc lists (record_experiments)
 ├── reference/
 │   ├── csv/                  # Dymola reference CSVs (MAP-LIB, MSL 3.2.3)
 │   ├── signals/              # Per-model comparisonSignals.txt files
+│   ├── 4.1.0/                # The same for MSL 4.1.0 (csv/, signals/)
 │   ├── download_refs.sh      # Script to fetch/refresh reference files from GitHub
 │   └── generate_refs.mos     # OpenModelica script to generate reference results
 ├── docs/
-│   └── COVERAGE.md           # The latest published coverage (scripts/publish_coverage.jl)
+│   ├── COVERAGE.md           # The latest published MSL 3.2.3 coverage (scripts/publish_coverage.jl)
+│   └── COVERAGE_4.1.0.md     # The same for MSL 4.1.0
 ├── results/                  # Runtime output (ignored by git)
 └── reports/                  # Generated coverage reports (ignored by git)
 ```
@@ -70,6 +79,11 @@ results = OMLibraryTesting.run_coverage(domain = "Thermal", msl_version = "MSL:3
 # Run a single model
 results = OMLibraryTesting.run_coverage(model = "Modelica.Thermal.HeatTransfer.Examples.TwoMasses")
 
+# MSL 4.1.0: its experiment list, registry (models/models_4.1.0.toml) and reference data
+# (reference/4.1.0/); OMFrontend bundles 3.2.3 and 4.0.0, so 4.1.0 is the installed library
+# (~/.openmodelica/libraries: Modelica, ModelicaServices and Complex 4.1.0)
+results = OMLibraryTesting.run_coverage(msl_version = "MSL:4.1.0")
+
 # Generate an HTML report
 OMLibraryTesting.generate_report(results)
 
@@ -81,11 +95,13 @@ OMLibraryTesting.print_error_analysis(results)
 ```
 
 The "Latest coverage" section above and docs/COVERAGE.md are published by the `MSL coverage` workflow
-(.github/workflows/coverage.yml: weekly, or by hand from the Actions tab with `commit` set). It runs
-`scripts/run_full_coverage.jl` with `OMJL_COVERAGE_NOSKIP=1` (every model through every phase) and passes the
-serialized results to the publisher. It also adds the run to the coverage site, served by GitHub Pages from
-the `gh-pages` branch (`scripts/publish_site.jl`): `runs/<date>/` with the analysis and the per-model report, an
-index over all runs, and the badges (`badge.json`, models that validate; `badges/<phase>.json`). The same by hand:
+(.github/workflows/coverage.yml: MSL 3.2.3 weekly, MSL 4.1.0 every third day, or by hand from the Actions
+tab with `msl` and `commit` set). It runs `scripts/run_full_coverage.jl` with `OMJL_COVERAGE_NOSKIP=1` (every
+model through every phase) and passes the serialized results to the publisher. It also adds the run to the
+coverage site, served by GitHub Pages from the `gh-pages` branch (`scripts/publish_site.jl`): `runs/<date>/` with
+the analysis and the per-model report, an index over all runs, and the badges (`badge.json`, models that
+validate; `badges/<phase>.json`); MSL 4.1.0 has the same in `msl-4.1.0/`, docs/COVERAGE_4.1.0.md and its own
+section above. The same by hand (`OMJL_COVERAGE_MSL`, default `MSL:3.2.3`, selects the version for all three):
 
 ```bash
 OMJL_COVERAGE_NOSKIP=1 julia --project=. scripts/run_full_coverage.jl
@@ -201,7 +217,7 @@ Reference CSVs use Modelica dot notation (e.g., `rev.phi`). OM.jl uses underscor
 
 ## Reference Data
 
-Reference trajectories come from the MAP-LIB Dymola reference results (MSL 3.2.3 branch). Run `reference/download_refs.sh` to fetch or refresh them.
+Reference trajectories come from the MAP-LIB Dymola reference results (branch v3.2.3, and v4.1.0 for MSL 4.1.0). Run `reference/download_refs.sh` (MSL 3.2.3) or `reference/download_refs.sh --msl 4.1.0` to fetch or refresh them.
 
 ## License
 
