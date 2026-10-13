@@ -13,7 +13,7 @@ main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
 h1 { font-size: 1.6em; margin: 0 0 4px; } h2 { font-size: 1.2em; margin: 32px 0 8px; }
 p.lead, .muted { color: var(--muted); }
 a { color: var(--accent); }
-nav { margin-bottom: 16px; } nav a { margin-right: 16px; }
+nav { margin-bottom: 16px; } nav a, nav strong { margin-right: 16px; }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -30,6 +30,7 @@ pre { background: var(--bar); padding: 10px 12px; border-radius: 4px; overflow-x
 .analysis td { white-space: normal; }
 </style></head>
 <body><main>
+<nav><strong>MSL 3.2.3</strong><a href="msl-4.1.0/">MSL 4.1.0</a></nav>
 <h1>OM.jl coverage of the MSL 3.2.3 examples</h1>
 <p class="lead">Each experiment model goes through OM.jl's pipeline: flatten (frontend), translate (backend), simulate, and validate against the reference trajectories. Measured by <a href="https://github.com/OpenModelica/OMLibraryTesting.jl">OMLibraryTesting.jl</a>.</p>
 <h2>Latest: <a href="runs/2026-10-11/">2026-10-11</a>, 425 models</h2>
