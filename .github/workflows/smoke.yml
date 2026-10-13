@@ -1,0 +1,74 @@
+name: Smoke
+
+# A quick check of a change: the package's tests and a few MSL models through
+# every phase, validation included (scripts/smoke.jl), with the other OM.jl
+# packages at the matching branch, on Julia 1.13. OM.jl does not use this
+# package, so OM.jl's own test suite is not run here; the coverage runs
+# (coverage.yml) measure every model.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write  # julia-actions/cache deletes the caches it replaces
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  # Superseded PR runs only; every push to master is tested.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  smoke:
+    name: Package tests and smoke models, Julia 1.13
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      JULIA_PKG_PRECOMPILE_AUTO: "0"
+      LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
+      # One thread: OMLibraryTesting runs no parallel workloads.
+      JULIA_NUM_THREADS: "1"
+      # One model per domain for the bundled MSL; one for an installed one.
+      MODELS_323: >-
+        Modelica.Blocks.Examples.PID_Controller
+        Modelica.Mechanics.Rotational.Examples.First
+        Modelica.Electrical.Analog.Examples.CauerLowPassAnalog
+      MODELS_410: Modelica.Blocks.Examples.PID_Controller
+    steps:
+      - name: Check out OM.jl
+        uses: JKRT/OM.jl/.github/actions/checkout-siblings@master
+        with:
+          packages: OM
+          path: .
+
+      - name: Check out OMLibraryTesting
+        uses: actions/checkout@v4
+        with:
+          path: OM.jl/OMLibraryTesting.jl
+
+      - name: Set up
+        uses: ./OM.jl/OMLibraryTesting.jl/.github/actions/coverage-setup
+        with:
+          msl: "4.1.0"
+
+      - name: Package tests
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: julia --color=yes --project=. -e 'using Pkg; Pkg.test()'
+
+      - name: Reference data of the smoke models
+        working-directory: OM.jl/OMLibraryTesting.jl/reference
+        run: |
+          short() { for m in "$@"; do s="${m#Modelica.}"; echo "${s//./_}"; done; }
+          bash download_refs.sh $(short $MODELS_323)
+          bash download_refs.sh --msl 4.1.0 $(short $MODELS_410)
+
+      - name: Smoke, MSL 3.2.3
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: julia --color=yes --project=. scripts/smoke.jl MSL:3.2.3 $MODELS_323
+
+      - name: Smoke, MSL 4.1.0
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: julia --color=yes --project=. scripts/smoke.jl MSL:4.1.0 $MODELS_410
