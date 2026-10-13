@@ -97,7 +97,9 @@ OMLibraryTesting.print_error_analysis(results)
 The "Latest coverage" section above and docs/COVERAGE.md are published by the `MSL coverage` workflow
 (.github/workflows/coverage.yml: MSL 3.2.3 weekly, MSL 4.1.0 every third day, or by hand from the Actions
 tab with `msl` and `commit` set). It runs `scripts/run_full_coverage.jl` with `OMJL_COVERAGE_NOSKIP=1` (every
-model through every phase) and passes the serialized results to the publisher. It also adds the run to the
+model through every phase) in two shard jobs (`OMJL_COVERAGE_SHARD=1/2` and `2/2`: every second model each,
+within the 6-hour job limit); the publish job merges their results (`scripts/merge_coverage.jl`, which checks
+that every model is there once) and passes them to the publisher. It also adds the run to the
 coverage site, served by GitHub Pages from the `gh-pages` branch (`scripts/publish_site.jl`): `runs/<date>/` with
 the analysis and the per-model report, an index over all runs, and the badges (`badge.json`, models that
 validate; `badges/<phase>.json`); MSL 4.1.0 has the same in `msl-4.1.0/`, docs/COVERAGE_4.1.0.md and its own
@@ -105,6 +107,8 @@ section above. The same by hand (`OMJL_COVERAGE_MSL`, default `MSL:3.2.3`, selec
 
 ```bash
 OMJL_COVERAGE_NOSKIP=1 julia --project=. scripts/run_full_coverage.jl
+# or in shards, merged: OMJL_COVERAGE_SHARD=1/2 ... and 2/2 ..., then
+#   julia --project=. scripts/merge_coverage.jl logs/partial_<tag1>_<ts>.jls logs/partial_<tag2>_<ts>.jls
 julia --project=. scripts/publish_coverage.jl logs/partial_full_msl_<timestamp>.jls [commits.txt] ["how the run was made"]
 julia --project=. scripts/publish_site.jl <gh-pages checkout> logs/partial_full_msl_<timestamp>.jls reports/<report>.html docs/COVERAGE.md [commits.txt] ["how the run was made"]
 ```
