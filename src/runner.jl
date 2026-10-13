@@ -307,11 +307,10 @@ function _reference_signal_filter(ref_dir::String,
     end
     local patterns = String[]
     local seen = Set{String}()
-    for col in split(header_line, ',')
+    for col in split_csv_header(header_line)
         local raw = strip(col, ['"', ' ', '\t', '\r', '\n'])
         (isempty(raw) || raw == "time") && continue
-        local mapped = get(signal_mapping, String(raw), String(raw))
-        local under = replace(mapped, "." => "_")
+        local under = haskey(signal_mapping, String(raw)) ? signal_mapping[String(raw)] : modelica_to_omjl_name(String(raw))
         if !(under in seen)
             push!(seen, under)
             push!(patterns, string("^", _escape_regex(under), "\$"))
@@ -421,7 +420,11 @@ function _run_model_phases(model_name::String,
                 local _sa = isempty(solver_name) ? NamedTuple() : _resolve_solver(solver_name)
                 local _extra = dtmax > 0.0 ? (; dtmax = dtmax) : NamedTuple()
                 local _ia = isempty(init_alg) ? NamedTuple() : _resolve_init_alg(init_alg)
-                local _of = isempty(observed_filter) ? NamedTuple() : (; observedFilter = observed_filter)
+                #= The reference's signals stay observable (the backend drops eliminated array
+                   elements' aliases by default): a registry filter, else the reference header. =#
+                local _filter = isempty(observed_filter) ?
+                    _reference_signal_filter(ref_dir, reference_file, signal_mapping) : observed_filter
+                local _of = isempty(_filter) ? NamedTuple() : (; observedFilter = _filter)
                 local _mi = (; maxiters = maxiters > 0.0 ? round(Int, maxiters) : DEFAULT_MAXITERS)
                 local _tol = NamedTuple()
                 if solver_reltol > 0.0
@@ -448,7 +451,7 @@ function _run_model_phases(model_name::String,
                         failed = filter(c -> !c.passed, comparisons)
                         isempty(failed) &&
                             error("Validation compared no signal: none of the $(length(comparisons)) reference signals is in the solution")
-                        names = join([c.name for c in failed], ", ")
+                        names = join([c.name * (isnan(c.max_abs_err) ? " (not in the solution)" : "") for c in failed], ", ")
                         error("Validation failed for signals: $names")
                     end
                 else

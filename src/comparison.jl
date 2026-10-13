@@ -65,8 +65,9 @@ headers on line 1 and numeric data rows. The first column is "time".
 function load_reference_csv(path::String)::ReferenceData
     lines = readlines(path)
     isempty(lines) && error("Empty reference file: $path")
-    header = split(lines[1], ',')
-    header = [strip(h, ['"', ' ']) for h in header]
+    #= Quoted names may hold commas (MSL 4.1.0's `stack.cell[1, 1].cell.limIntegrator.y`):
+       split outside quotes, or every later column was read under the wrong name. =#
+    header = [strip(h, ['"', ' ']) for h in split_csv_header(lines[1])]
     ncols = length(header)
     nrows = length(lines) - 1
     data = zeros(Float64, nrows, ncols)
@@ -84,6 +85,34 @@ function load_reference_csv(path::String)::ReferenceData
     return ReferenceData(time_vec, signals)
 end
 
+"""
+    split_csv_header(line) -> Vector{String}
+
+The fields of a CSV header line, split at the commas outside double quotes.
+"""
+function split_csv_header(line::AbstractString)::Vector{String}
+    fields = String[]
+    buf = IOBuffer()
+    inquote = false
+    for c in line
+        if c == '"'
+            inquote = !inquote
+            print(buf, c)
+        elseif c == ',' && !inquote
+            push!(fields, String(take!(buf)))
+        else
+            print(buf, c)
+        end
+    end
+    push!(fields, String(take!(buf)))
+    return fields
+end
+
+#= The instants a signal is compared at, evenly spaced over [0, stopTime]: 101, so a
+   periodic signal is not sampled at its zero crossings only (21 points put every sample of
+   Blocks.Modulation's sine.y on one). =#
+const COMPARISON_POINTS = 101
+
 #= Whether a stopTime lies within a reference that ends at `ref_end`, up to
    rounding (relative: some references span 1e-11 s). The MSL 4.1.0 references
    print 8 significant digits: 1e-8 ends at 9.9999999e-9 (DifferenceAmplifier),
@@ -99,7 +128,8 @@ Skips the "time" entry.
 """
 function load_comparison_signals(path::String)::Vector{String}
     lines = strip.(readlines(path))
-    filter(l -> !isempty(l) && l != "time", lines)
+    #= `//` lines are comments (the MAP-LIB comparisonSignals of 16 MSL 4.1.0 models). =#
+    filter(l -> !isempty(l) && l != "time" && !startswith(l, "//"), lines)
 end
 
 """
@@ -147,7 +177,9 @@ Convert Modelica dot-notation signal name to OM.jl underscore convention.
 E.g., "revolute1.phi" -> "revolute1_phi", "C1.v" -> "C1_v"
 """
 function modelica_to_omjl_name(name::String)::String
-    return replace(name, "." => "_")
+    #= OM.jl names a matrix element x[1][2] (scalarized): `x[1, 2]` from the reference. =#
+    local n = replace(name, r"\[([^\]]*)\]" => m -> "[" * join(strip.(split(m[2:end-1], ',')), "][") * "]")
+    return replace(n, "." => "_")
 end
 
 """
@@ -225,9 +257,15 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
                 interpolate_reference(sol_times, vals, t)
             catch e
                 @warn "Signal $omjl_name not found in solution (eliminated by alias/simplification?)"
-                # Signal not available: return as skipped (passed=true, NaN errors)
-                return SignalComparison(signal_name, true, NaN, NaN, t, NaN, expected)
+                #= Not in the solution: not compared (passed = false, NaN errors), which fails the
+                   validation (validate_against_reference). It passed, so a model validated on a
+                   subset of its signals; and a sample after a failed one discarded that failure. =#
+                return SignalComparison(signal_name, false, NaN, NaN, t, NaN, expected)
             end
+        end
+        #= A non-finite value is a failure: NaN compared as never above the threshold. =#
+        if !(actual isa Real) || !isfinite(actual)
+            return SignalComparison(signal_name, false, Inf, Inf, t, actual isa Real ? Float64(actual) : NaN, expected)
         end
         abs_err = abs(actual - expected)
         rel_err = abs(expected) > 1e-15 ? abs_err / abs(expected) : abs_err
@@ -290,28 +328,28 @@ function validate_against_reference(sol, spec,
     end
     reltol = spec.reltol
     atol = spec.atol
+    #= A listed signal the reference does not have is an error of the reference data or of
+       its reading (a header split inside a quoted name), not a pass. =#
+    missing_ref = filter(n -> !haskey(ref.signals, n), signal_names)
+    isempty(missing_ref) ||
+        error("Reference $ref_name has no column for the listed signals: $(join(missing_ref, ", "))")
     comparisons = SignalComparison[]
     all_passed = true
     n_skipped = 0
     for name in signal_names
         cmp = compare_signal(sol, ref, name, spec.stopTime;
-                              reltol = reltol, atol = atol,
+                              reltol = reltol, atol = atol, npoints = COMPARISON_POINTS,
                               signalMapping = spec.signalMapping)
         push!(comparisons, cmp)
-        if isnan(cmp.max_abs_err)
-            n_skipped += 1
-        elseif !cmp.passed
-            all_passed = false
-        end
+        isnan(cmp.max_abs_err) && (n_skipped += 1)
+        cmp.passed || (all_passed = false)
     end
+    #= Every listed signal is compared: one the solution lacks fails the validation (it was
+       skipped, and a model validated on a subset: IdealGasH2O on 1 of 3 signals, MSL 4
+       CCCV_Stack on 1 of 13). The harness keeps the reference signals observable
+       (_reference_signal_filter). =#
     if n_skipped > 0
-        @info "Validation: $n_skipped/$(length(signal_names)) signals not found in solution (skipped)"
-    end
-    #= A validation that compared no signal is not one (it passed until 2026-09-30:
-       GenerateRandomNumbers, whose outputs are not in the solution). =#
-    if !isempty(signal_names) && n_skipped == length(signal_names)
-        @warn "Validation: none of the $(length(signal_names)) reference signals is in the solution"
-        all_passed = false
+        @warn "Validation: $n_skipped/$(length(signal_names)) reference signals are not in the solution"
     end
     return (all_passed, comparisons)
 end
