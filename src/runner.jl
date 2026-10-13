@@ -723,6 +723,8 @@ experiment list, `overrides` the registry and, beside it, the reference data
 (`default_models_path(version)`, `reference_dir`).
 
 Optionally filter by `domain` regex, single `model` name, or general `filter` regex.
+`shard = (k, n)` runs the `k`-th of every `n` of those models (`shard_specs`), for a run split
+over `n` processes or CI jobs; `merge_shards` joins their results.
 
 Use `from_phase` and `to_phase` to restrict which phases are run. For example,
 `from_phase=BACKEND` skips the frontend phase (useful when frontend is 100% pass).
@@ -750,7 +752,8 @@ function run_coverage(; library::String = "Modelica",
                         from_phase::Phase = FRONTEND,
                         to_phase::Phase = VALIDATE,
                         check_sim_code::Bool = false,
-                        n_workers::Int = max(1, nprocs() - 1))::Vector{ModelResult}
+                        n_workers::Int = max(1, nprocs() - 1),
+                        shard::Tuple{Int, Int} = (1, 1))::Vector{ModelResult}
     t_start = time()
     n_workers >= 1 || throw(ArgumentError("n_workers must be >= 1, got $n_workers"))
     phases = Base.filter(p -> Int(from_phase) <= Int(p) <= Int(to_phase), phases)
@@ -772,6 +775,11 @@ function run_coverage(; library::String = "Modelica",
         if isempty(specs)
             error("No models found matching domain: $domain")
         end
+    end
+    if shard != (1, 1)
+        local n_all = length(specs)
+        specs = shard_specs(specs, shard)
+        @info "Shard $(shard[1]) of $(shard[2]): $(length(specs)) of $n_all models"
     end
     n_broken = count(s -> s.expected == BROKEN, specs)
     n_active = length(specs) - n_broken
@@ -825,6 +833,35 @@ function run_coverage(; library::String = "Modelica",
     total_time = time() - t_start
     print_summary(results; total_time = total_time)
     return results
+end
+
+"""
+    shard_specs(specs, shard) -> Vector{ModelSpec}
+
+The `k`-th of every `n` models for `shard = (k, n)`, in the order given (run_coverage's: by
+domain, then name), so each domain is spread over the shards; `(1, 1)` is all of them.
+"""
+function shard_specs(specs::Vector{ModelSpec}, shard::Tuple{Int, Int})::Vector{ModelSpec}
+    local (k, n) = shard
+    1 <= k <= n || throw(ArgumentError("shard must be (k, n) with 1 <= k <= n, got $shard"))
+    return specs[k:n:end]
+end
+
+"""
+    merge_shards(parts) -> Vector{ModelResult}
+
+The results of a run's shards as one run, in run_coverage's order (domain, then name). A
+model in more than one shard is an error.
+"""
+function merge_shards(parts::Vector{Vector{ModelResult}})::Vector{ModelResult}
+    local merged = reduce(vcat, parts; init = ModelResult[])
+    local seen = Set{String}()
+    local dups = String[]
+    for r in merged
+        r.spec.name in seen ? push!(dups, r.spec.name) : push!(seen, r.spec.name)
+    end
+    isempty(dups) || error("Models in more than one shard: $(join(sort!(unique!(dups)), ", "))")
+    return sort!(merged; by = r -> (r.spec.domain, r.spec.name))
 end
 
 function print_summary(results::Vector{ModelResult}; total_time::Float64 = 0.0)

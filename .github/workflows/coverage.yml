@@ -11,6 +11,11 @@ name: MSL coverage
 # skipPhases and broken marks are removed, so every model goes through every
 # phase and the documentation shows what really stops each one.
 #
+# Two shard jobs measure every second model each (OMJL_COVERAGE_SHARD), each
+# within the 6-hour job limit; the publish job merges their results
+# (scripts/merge_coverage.jl, every model exactly once, the same commits) and
+# publishes them. Standard runners only.
+#
 # Two MSL versions: 3.2.3 weekly (docs/COVERAGE.md, the README's coverage
 # section, the site's root) and 4.1.0 every third day (docs/COVERAGE_4.1.0.md,
 # its own README section, the site's msl-4.1.0/). OMFrontend bundles 3.2.3;
@@ -70,9 +75,13 @@ concurrency:
 
 jobs:
   coverage:
-    name: MSL ${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }} coverage, Julia ${{ inputs.julia || '1.13' }}
+    name: MSL ${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }} coverage, shard ${{ matrix.shard }}/2, Julia ${{ inputs.julia || '1.13' }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     env:
       JULIA_PKG_PRECOMPILE_AUTO: "0"
       LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
@@ -92,57 +101,12 @@ jobs:
         with:
           path: OM.jl/OMLibraryTesting.jl
 
-      - name: Check out the other packages
-        uses: JKRT/OM.jl/.github/actions/checkout-siblings@master
+      - name: Set up
+        uses: ./OM.jl/OMLibraryTesting.jl/.github/actions/coverage-setup
         with:
-          path: OM.jl
-          exclude: OMLibraryTesting
           line: ${{ inputs.line }}
-
-      - uses: actions/setup-java@v4  # ANTLR, if the parser is built from source
-        with:
-          distribution: zulu
-          java-version: "21"
-
-      - uses: julia-actions/setup-julia@v2
-        with:
-          version: ${{ inputs.julia || '1.13' }}
-
-      - uses: julia-actions/cache@v2
-
-      - name: OMParser library
-        env:
-          PACKAGE: OMLibraryTesting
-        run: OM.jl/ci/build-parser.sh
-
-      - name: Set up OM.jl
-        run: julia --color=yes --project=OM.jl OM.jl/ci/setup.jl
-
-      - name: Set up OMLibraryTesting
-        run: julia --color=yes --project=OM.jl/OMLibraryTesting.jl -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-
-      - name: The version's documentation
-        run: |
-          doc=docs/COVERAGE.md
-          [ "$MSL" = 3.2.3 ] || doc="docs/COVERAGE_$MSL.md"
-          echo "COVERAGE_MD=$doc" >> "$GITHUB_ENV"
-
-      # OMFrontend bundles MSL 3.2.3 and 4.0.0; another version is the installed
-      # library: Modelica, ModelicaServices and Complex (a single file in the
-      # repository, a folder with its package.mo when installed).
-      - name: Install MSL ${{ env.MSL }}
-        if: env.MSL != '3.2.3' && env.MSL != '4.0.0'
-        run: |
-          src="$RUNNER_TEMP/msl"
-          git clone -q --depth 1 --branch "v$MSL" --filter=blob:none --sparse \
-            https://github.com/modelica/ModelicaStandardLibrary.git "$src"
-          git -C "$src" sparse-checkout set Modelica ModelicaServices
-          libs="$HOME/.openmodelica/libraries"
-          mkdir -p "$libs/Complex $MSL"
-          cp -r "$src/Modelica" "$libs/Modelica $MSL"
-          cp -r "$src/ModelicaServices" "$libs/ModelicaServices $MSL"
-          cp "$src/Complex.mo" "$libs/Complex $MSL/package.mo"
-          ls "$libs"
+          julia: ${{ inputs.julia || '1.13' }}
+          msl: ${{ env.MSL }}
 
       # The MAP-LIB reference results (1.3 GB for 3.2.3, 2 GB for 4.1.0) change with
       # download_refs.sh and the experiment lists only.
@@ -173,19 +137,88 @@ jobs:
         env:
           OMJL_COVERAGE_TAG: ci
           OMJL_COVERAGE_NOSKIP: "1"
+          OMJL_COVERAGE_SHARD: ${{ matrix.shard }}/2
           OMJL_COVERAGE_WORKERS: ${{ inputs.workers || '1' }}
           OMJL_COVERAGE_TIMEOUT: ${{ inputs.timeout || '600' }}
           # One thread per worker: OMLibraryTesting runs no parallel workloads.
           JULIA_NUM_THREADS: "1"
         run: julia --color=yes --project=. scripts/run_full_coverage.jl
 
+      - name: Upload the shard's results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: msl-coverage-${{ env.MSL }}-shard-${{ matrix.shard }}
+          path: |
+            commits.txt
+            OM.jl/OMLibraryTesting.jl/reports/
+            OM.jl/OMLibraryTesting.jl/logs/partial_ci_*.jls
+          if-no-files-found: error
+
+  # Both shards' results as one run: the reports, the documentation and the site.
+  publish:
+    name: MSL ${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }} coverage, publish
+    needs: coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      JULIA_PKG_PRECOMPILE_AUTO: "0"
+      LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
+      MSL: ${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }}
+      OMJL_COVERAGE_MSL: MSL:${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }}
+      OMJL_COVERAGE_TAG: ci
+      NOTE: >-
+        No-skip run on GitHub Actions (ubuntu-latest, Julia ${{ inputs.julia || '1.13' }}),
+        2 shards of ${{ inputs.workers || '1' }} workers, ${{ inputs.timeout || '600' }} s per model
+    steps:
+      - name: Check out OM.jl
+        uses: JKRT/OM.jl/.github/actions/checkout-siblings@master
+        with:
+          packages: OM
+          path: .
+          line: ${{ inputs.line }}
+
+      - name: Check out OMLibraryTesting
+        uses: actions/checkout@v4
+        with:
+          path: OM.jl/OMLibraryTesting.jl
+
+      - name: Set up
+        uses: ./OM.jl/OMLibraryTesting.jl/.github/actions/coverage-setup
+        with:
+          line: ${{ inputs.line }}
+          julia: ${{ inputs.julia || '1.13' }}
+
+      - name: The version's documentation
+        run: |
+          doc=docs/COVERAGE.md
+          [ "$MSL" = 3.2.3 ] || doc="docs/COVERAGE_$MSL.md"
+          echo "COVERAGE_MD=$doc" >> "$GITHUB_ENV"
+
+      - name: Download the shards' results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: msl-coverage-${{ env.MSL }}-shard-*
+          path: ${{ runner.temp }}/shards
+
+      # Both shards measured the same commits (checked out at their start).
+      - name: Commits measured
+        run: |
+          shards="$RUNNER_TEMP/shards"
+          for f in "$shards"/*/commits.txt; do
+            cmp -s "$f" "$shards/msl-coverage-$MSL-shard-1/commits.txt" ||
+              { echo "::error::The shards measured different commits"; diff "$shards"/*/commits.txt; exit 1; }
+          done
+          cp "$shards/msl-coverage-$MSL-shard-1/commits.txt" commits.txt
+          cat commits.txt
+
+      - name: Merge the shards
+        working-directory: OM.jl/OMLibraryTesting.jl
+        run: julia --color=yes --project=. scripts/merge_coverage.jl "$RUNNER_TEMP"/shards/*/OM.jl/OMLibraryTesting.jl/logs/partial_ci_*.jls
+
       - name: Publish
         id: publish
         working-directory: OM.jl/OMLibraryTesting.jl
-        env:
-          NOTE: >-
-            No-skip run on GitHub Actions (ubuntu-latest, Julia ${{ inputs.julia || '1.13' }}),
-            ${{ inputs.workers || '1' }} workers, ${{ inputs.timeout || '600' }} s per model
         run: |
           results=$(ls -t logs/partial_ci_*.jls | head -1)
           julia --color=yes --project=. scripts/publish_coverage.jl "$results" "$GITHUB_WORKSPACE/commits.txt" "$NOTE"
@@ -220,10 +253,6 @@ jobs:
       - name: Publish the coverage site
         if: steps.publish.outcome == 'success' && (github.event_name == 'schedule' || inputs.commit)
         working-directory: OM.jl/OMLibraryTesting.jl
-        env:
-          NOTE: >-
-            No-skip run on GitHub Actions (ubuntu-latest, Julia ${{ inputs.julia || '1.13' }}),
-            ${{ inputs.workers || '1' }} workers, ${{ inputs.timeout || '600' }} s per model
         run: |
           export OMJL_SITE_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
           site="$RUNNER_TEMP/site"

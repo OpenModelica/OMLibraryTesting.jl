@@ -18,6 +18,8 @@ Environment variables:
     OMJL_COVERAGE_WORKERS   Worker processes, models run in parallel (default: nprocs() - 1, at least 1).
     OMJL_COVERAGE_NOSKIP    "1": the registry's skipPhases and expected = "broken" marks removed, so every
                             model goes through every phase (what really stops each one; as docs/COVERAGE.md).
+    OMJL_COVERAGE_SHARD     "k/n": only the k-th of every n models (run_coverage's `shard`), for a run split
+                            over n jobs; scripts/merge_coverage.jl joins their results (default "1/1").
 =#
 
 using Dates
@@ -39,6 +41,10 @@ const TOPHASE   = phase_from_string(get(ENV, "OMJL_COVERAGE_TOPHASE",   "validat
 const WORKERS   = parse(Int, get(ENV, "OMJL_COVERAGE_WORKERS", string(max(1, nprocs() - 1))))
 WORKERS >= 1 || error("OMJL_COVERAGE_WORKERS must be >= 1, got $WORKERS")
 const NOSKIP    = lowercase(get(ENV, "OMJL_COVERAGE_NOSKIP", "")) in ("1", "true", "yes")
+const SHARD     = let m = match(r"^(\d+)/(\d+)$", get(ENV, "OMJL_COVERAGE_SHARD", "1/1"))
+    m === nothing && error("OMJL_COVERAGE_SHARD must be k/n, got $(ENV["OMJL_COVERAGE_SHARD"])")
+    (parse(Int, m[1]), parse(Int, m[2]))
+end
 
 const RUN_START    = Dates.now()
 const RUN_TS       = Dates.format(RUN_START, "yyyy-mm-dd_HHMM")
@@ -67,7 +73,7 @@ function noskip_registry()::String
 end
 const OVERRIDES = NOSKIP ? noskip_registry() : OMLibraryTesting.default_models_path(LIBRARY_VERSION)
 
-@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS noskip=NOSKIP
+@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS noskip=NOSKIP shard=SHARD
 @info "Report directory: $REPORT_DIR"
 @info "Partial-results snapshot: $PARTIAL_PATH"
 
@@ -81,7 +87,8 @@ results = try
         from_phase  = FROMPHASE,
         to_phase    = TOPHASE,
         overrides   = OVERRIDES,
-        n_workers   = WORKERS)
+        n_workers   = WORKERS,
+        shard       = SHARD)
 catch e
     @error "run_coverage threw" exception=(e, catch_backtrace())
     OMLibraryTesting.ModelResult[]
@@ -109,6 +116,7 @@ else
         "End: ", Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS"), ". ",
         "Timeout per model: ", Int(round(TIMEOUT)), "s. ",
         NOSKIP ? "Registry skips and broken marks removed. " : "",
+        SHARD == (1, 1) ? "" : "Shard $(SHARD[1]) of $(SHARD[2]). ",
         "Total wall-clock: ", string(floor(Int, total_time ÷ 60)), "m ",
         string(round(Int, total_time % 60)), "s.")
     @info "Generating HTML report" filename=fname

@@ -77,3 +77,17 @@ end
         OLT.cleanup!(mgr)
     end
 end
+
+@testset "shards: every n-th model, merged back without loss or duplicates" begin
+    local spec(name, domain) = OLT.ModelSpec(name, name, domain, 1.0, OLT.VALIDATE, Dict{String, Float64}(),
+                                             0.0, 0.0, "", Dict{String, String}(), "", Set{OLT.Phase}())
+    local specs = [spec("M$i", i <= 3 ? "A" : "B") for i in 1:7]
+    @test OLT.shard_specs(specs, (1, 1)) == specs
+    local s1, s2 = OLT.shard_specs(specs, (1, 2)), OLT.shard_specs(specs, (2, 2))
+    @test [s.name for s in s1] == ["M1", "M3", "M5", "M7"] && [s.name for s in s2] == ["M2", "M4", "M6"]
+    @test_throws ArgumentError OLT.shard_specs(specs, (3, 2))
+    local result(s) = OLT.ModelResult(s, OLT.PhaseResult[], OLT.VALIDATE, "")
+    local merged = OLT.merge_shards([result.(s2), result.(s1)])
+    @test [r.spec.name for r in merged] == [s.name for s in specs]   # run_coverage's order (domain, name)
+    @test_throws ErrorException OLT.merge_shards([result.(s1), result.(s1[1:1])])
+end

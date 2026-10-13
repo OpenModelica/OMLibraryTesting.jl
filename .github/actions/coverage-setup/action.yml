@@ -1,0 +1,80 @@
+name: Coverage setup
+description: >-
+  The rest of the coverage environment, after OM.jl (at the workspace root) and
+  OMLibraryTesting (in OM.jl/OMLibraryTesting.jl) are checked out: the other
+  packages, Julia, the parser library and the precompiled environments, shared by
+  the shard jobs and the publish job of coverage.yml and the smoke job of
+  smoke.yml; with `msl`, the MSL version installed if OMFrontend does not bundle it.
+
+inputs:
+  line:
+    description: OM.jl line to check out (empty for the branch the workflow runs on)
+    required: false
+    default: ""
+  julia:
+    description: Julia version
+    required: false
+    default: "1.13"
+  msl:
+    description: MSL version the job runs models of (installed when OMFrontend does not bundle it)
+    required: false
+    default: "3.2.3"
+
+runs:
+  using: composite
+  steps:
+    - name: Check out the other packages
+      uses: JKRT/OM.jl/.github/actions/checkout-siblings@master
+      with:
+        path: OM.jl
+        exclude: OMLibraryTesting
+        line: ${{ inputs.line }}
+
+    - uses: actions/setup-java@v4  # ANTLR, if the parser is built from source
+      with:
+        distribution: zulu
+        java-version: "21"
+
+    - uses: julia-actions/setup-julia@v2
+      with:
+        version: ${{ inputs.julia }}
+
+    # One depot cache for all jobs of the workflow (the default name has the job in it).
+    - uses: julia-actions/cache@v2
+      with:
+        cache-name: julia-cache;workflow=${{ github.workflow }}
+        include-matrix: false
+
+    - name: OMParser library
+      shell: bash
+      env:
+        PACKAGE: OMLibraryTesting
+      run: OM.jl/ci/build-parser.sh
+
+    - name: Set up OM.jl
+      shell: bash
+      run: julia --color=yes --project=OM.jl OM.jl/ci/setup.jl
+
+    - name: Set up OMLibraryTesting
+      shell: bash
+      run: julia --color=yes --project=OM.jl/OMLibraryTesting.jl -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+
+    # OMFrontend bundles MSL 3.2.3 and 4.0.0; another version is the installed
+    # library: Modelica, ModelicaServices and Complex (a single file in the
+    # repository, a folder with its package.mo when installed).
+    - name: Install MSL ${{ inputs.msl }}
+      if: inputs.msl != '3.2.3' && inputs.msl != '4.0.0'
+      shell: bash
+      env:
+        MSL_VERSION: ${{ inputs.msl }}
+      run: |
+        src="$RUNNER_TEMP/msl"
+        git clone -q --depth 1 --branch "v$MSL_VERSION" --filter=blob:none --sparse \
+          https://github.com/modelica/ModelicaStandardLibrary.git "$src"
+        git -C "$src" sparse-checkout set Modelica ModelicaServices
+        libs="$HOME/.openmodelica/libraries"
+        mkdir -p "$libs/Complex $MSL_VERSION"
+        cp -r "$src/Modelica" "$libs/Modelica $MSL_VERSION"
+        cp -r "$src/ModelicaServices" "$libs/ModelicaServices $MSL_VERSION"
+        cp "$src/Complex.mo" "$libs/Complex $MSL_VERSION/package.mo"
+        ls "$libs"
