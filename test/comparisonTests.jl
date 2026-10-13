@@ -75,6 +75,9 @@ end
     @test OLT.stoptime_within_reference(1e-7, 1e-7)
     @test !OLT.stoptime_within_reference(1.01e-7, 1e-7)
     @test OLT.stoptime_within_reference(0.0, 0.0)
+    #= 8 significant digits in the MSL 4.1.0 references. =#
+    @test OLT.stoptime_within_reference(1e-8, 9.9999999e-9)
+    @test OLT.stoptime_within_reference(0.32, 0.31999999)
 end
 
 @testset "comparison: no reference signal in the solution" begin

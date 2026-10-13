@@ -772,3 +772,9 @@ reltol = 0.01
 domain = "Utilities"
 name = "Modelica.Utilities.Examples.readRealParameterModel"
 stopTime = 0.0
+
+[models.Mechanics_MultiBody_Examples_Rotational3DEffects_BevelGear1D]
+name = "Modelica.Mechanics.MultiBody.Examples.Rotational3DEffects.BevelGear1D"
+domain = "Mechanics.MultiBody"
+stopTime = 0.4
+issue = "2026-10-13: the MSL 4.1.0 reference ends at 0.4 s (experiment StopTime 1): compared over the reference's span."

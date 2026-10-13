@@ -85,9 +85,11 @@ function load_reference_csv(path::String)::ReferenceData
 end
 
 #= Whether a stopTime lies within a reference that ends at `ref_end`, up to
-   rounding (relative: some references span 1e-11 s). =#
+   rounding (relative: some references span 1e-11 s). The MSL 4.1.0 references
+   print 8 significant digits: 1e-8 ends at 9.9999999e-9 (DifferenceAmplifier),
+   0.32 at 0.31999999 (SMPM_NoLoad). =#
 stoptime_within_reference(stopTime::Real, ref_end::Real)::Bool =
-    stopTime <= ref_end + 1e-9 * abs(ref_end)
+    stopTime <= ref_end + 1e-7 * abs(ref_end)
 
 """
     load_comparison_signals(path) -> Vector{String}
