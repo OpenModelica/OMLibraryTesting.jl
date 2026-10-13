@@ -308,7 +308,8 @@ Validate an OM.jl solution against the MAP-LIB reference CSV for a model.
 Returns (overall_passed, vector_of_SignalComparison).
 """
 function validate_against_reference(sol, spec,
-                                     ref_dir::String)::Tuple{Bool, Vector{SignalComparison}}
+                                     ref_dir::String;
+                                     terminatedAt::Union{Nothing, Float64} = nothing)::Tuple{Bool, Vector{SignalComparison}}
     ref_name = spec.referenceFile
     csv_path = joinpath(ref_dir, "csv", ref_name * ".csv")
     signals_path = joinpath(ref_dir, "signals", ref_name * ".txt")
@@ -319,8 +320,16 @@ function validate_against_reference(sol, spec,
     #= The reference covers the experiment, [0, StopTime]: a sample past its
        end would be compared with its last value, frozen (interpolate_reference
        clamps). A registry stopTime past it is an error in the registry. =#
-    stoptime_within_reference(spec.stopTime, ref.time[end]) ||
-        error("stopTime $(spec.stopTime) is past the end of reference $ref_name ($(ref.time[end]))")
+    #= A run that terminate()d before stopTime (MSL 4 RobotR3: the path planning ends it at
+       1.498 s) is compared up to where its reference ends, which must be where it ended. =#
+    local compareStop = spec.stopTime
+    if terminatedAt !== nothing && terminatedAt < spec.stopTime
+        abs(terminatedAt - ref.time[end]) <= 1e-6 * max(1.0, abs(ref.time[end])) ||
+            error("terminated at $terminatedAt, the reference $ref_name ends at $(ref.time[end])")
+        compareStop = min(terminatedAt, ref.time[end])
+    end
+    stoptime_within_reference(compareStop, ref.time[end]) ||
+        error("stopTime $(compareStop) is past the end of reference $ref_name ($(ref.time[end]))")
     signal_names = if isfile(signals_path)
         load_comparison_signals(signals_path)
     else
@@ -337,7 +346,7 @@ function validate_against_reference(sol, spec,
     all_passed = true
     n_skipped = 0
     for name in signal_names
-        cmp = compare_signal(sol, ref, name, spec.stopTime;
+        cmp = compare_signal(sol, ref, name, compareStop;
                               reltol = reltol, atol = atol, npoints = COMPARISON_POINTS,
                               signalMapping = spec.signalMapping)
         push!(comparisons, cmp)

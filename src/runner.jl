@@ -446,7 +446,8 @@ function _run_model_phases(model_name::String,
                         model_name, "", "", stop_time, UNKNOWN,
                         reference, atol, reltol, reference_file, signal_mapping, "",
                         Set{Phase}())
-                    (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir)
+                    (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir;
+                        terminatedAt = sol.retcode == ReturnCode.Terminated ? Float64(sol.t[end]) : nothing)
                     if !passed
                         failed = filter(c -> !c.passed, comparisons)
                         isempty(failed) &&

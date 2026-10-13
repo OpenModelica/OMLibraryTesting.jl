@@ -128,3 +128,17 @@ end
         @test_throws ErrorException OLT.validate_against_reference(SignalOf(t -> 2t), spec, dir)
     end
 end
+
+@testset "comparison: a run that terminate()d" begin
+    #= Compared up to where it ended, which must be where its reference ends (MSL 4 RobotR3). =#
+    mktempdir() do dir
+        mkpath(joinpath(dir, "csv"))
+        write(joinpath(dir, "csv", "M.csv"), "time,x\n0.0,0.0\n0.25,0.5\n0.5,1.0\n")
+        local spec = OLT.ModelSpec("M", "M", "Test", 1.0, OLT.VALIDATE, Dict{String, Float64}(),
+                                   1e-4, 3e-3, "M", Dict{String, String}(), "", Set{OLT.Phase}())
+        local s = SignalOf(t -> 2t)
+        @test_throws ErrorException OLT.validate_against_reference(s, spec, dir)
+        @test first(OLT.validate_against_reference(s, spec, dir; terminatedAt = 0.5 + 1e-8))
+        @test_throws ErrorException OLT.validate_against_reference(s, spec, dir; terminatedAt = 0.3)
+    end
+end
