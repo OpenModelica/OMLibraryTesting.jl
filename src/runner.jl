@@ -488,6 +488,15 @@ function _run_model_phases(model_name::String,
         end
     end
 
+    #= The model's build and its tables are not needed after its phases: a worker runs hundreds
+       of models, and every model's build and tables stayed for the whole run. =#
+    sol = nothing
+    try
+        OMBackend.forgetModel(model_name)
+    catch e
+        @warn "    $(model_name): forgetModel failed" exception = e
+    end
+
     return (results, highest)
 end
 
