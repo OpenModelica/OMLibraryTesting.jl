@@ -556,7 +556,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         e isa InterruptException && rethrow()
         _remove_started_marker(marker_path)
         msg = "Worker spawn failed: $(_bounded_showerror(e, 500))"
-        @warn "    CRASH: $msg"
+        @warn "    $(spec.name): CRASH: $msg"
         kill_worker!(mgr)     # a worker that started but did not load the packages
         phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
         return ModelResult(spec, PhaseResult[PhaseResult(phase, false, 0.0, msg)], BROKEN,
@@ -592,7 +592,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     timer_interrupt = Timer(timeout) do _t
         if _future_pending()
             interrupted[] = true
-            @warn "  TIMEOUT after $(round(timeout, digits=0))s, sending interrupt to worker..."
+            @warn "  $(spec.name): TIMEOUT after $(round(timeout, digits=0))s, sending interrupt to worker..."
             try; interrupt(pid); catch; end
         end
     end
@@ -600,7 +600,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     timer_kill = Timer(timeout + grace_period) do _t
         if _future_pending() && interrupted[]
             killed[] = true
-            @warn "  Worker did not respond to interrupt, killing..."
+            @warn "  $(spec.name): worker did not respond to interrupt, killing..."
             try; kill_worker!(mgr); catch; end
         end
     end
@@ -625,9 +625,9 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         # Log phase results
         for pr in phase_results
             if pr.success
-                @info "    $(PHASE_NAMES[pr.phase]): PASS ($(round(pr.time_s, digits=1))s)"
+                @info "    $(spec.name): $(PHASE_NAMES[pr.phase]): PASS ($(round(pr.time_s, digits=1))s)"
             else
-                @info "    $(PHASE_NAMES[pr.phase]): FAIL: $(pr.error)"
+                @info "    $(spec.name): $(PHASE_NAMES[pr.phase]): FAIL: $(pr.error)"
             end
         end
 
@@ -638,7 +638,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
 
         # A Ctrl-C of the run itself; the timeout's interrupt of the worker arrives as a RemoteException.
         if e isa InterruptException
-            @warn "    INTERRUPTED by user"
+            @warn "    $(spec.name): INTERRUPTED by user"
             kill_worker!(mgr)
             rethrow()
         elseif interrupted[] || killed[]
@@ -648,7 +648,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                 mgr.pid = nothing
                 mgr.ready = false
             end
-            @warn "    TIMEOUT: $msg"
+            @warn "    $(spec.name): TIMEOUT: $msg"
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
             return ModelResult(spec, phases, BROKEN,
@@ -656,7 +656,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         elseif e isa ProcessExitedException ||
                (e isa RemoteException && e.captured.ex isa ProcessExitedException)
             msg = "Worker process crashed: $(_bounded_showerror(e, 500))"
-            @warn "    CRASH: $msg"
+            @warn "    $(spec.name): CRASH: $msg"
             mgr.pid = nothing
             mgr.ready = false
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
@@ -666,7 +666,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         elseif e isa RemoteException
             # Worker threw a normal exception that escaped _run_model_phases
             msg = _bounded_showerror(e, 500)
-            @info "    FAIL: $msg"
+            @info "    $(spec.name): FAIL: $msg"
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
             return ModelResult(spec, phases, BROKEN,
