@@ -2279,8 +2279,8 @@ issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=f
 name = "Modelica.Mechanics.MultiBody.Examples.Rotational3DEffects.BevelGear1D"
 domain = "Mechanics.MultiBody"
 expected = "simulate"
-skipPhases = ["validate"]
-issue = "Apr25 full MSL run: backend passed; downstream phase failed (simulate=ok, validate=fail). Skipping simulate and validate to preserve frontend/backend coverage. 2026-09-27: reaches simulate without the registry's skips (coverage run on the 1.13 stack)."
+stopTime = 0.4
+issue = "2026-10-14: the motion diverges after 0.4 s (a sensitive system: revolute1.w at 0.55 s -3353 vs 150 rad/s), and MSL 4.1.0's reference of the model ends at 0.4 s (models_4.1.0.toml): compared over the same 0.4 s. There revolute1-3.w still fail the pointwise rule at single points (worst 3.3e-3 relative at 0.4 s, and near zero crossings), as in 4.1.0."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Rotational3DEffects_GearConstraint]
 name = "Modelica.Mechanics.MultiBody.Examples.Rotational3DEffects.GearConstraint"

@@ -75,6 +75,9 @@ end
     @test OLT.stoptime_within_reference(1e-7, 1e-7)
     @test !OLT.stoptime_within_reference(1.01e-7, 1e-7)
     @test OLT.stoptime_within_reference(0.0, 0.0)
+    #= 8 significant digits in the MSL 4.1.0 references. =#
+    @test OLT.stoptime_within_reference(1e-8, 9.9999999e-9)
+    @test OLT.stoptime_within_reference(0.32, 0.31999999)
 end
 
 @testset "comparison: no reference signal in the solution" begin
@@ -89,8 +92,53 @@ end
                                    1e-4, 3e-3, "M", Dict{String, String}(), "", Set{OLT.Phase}())
         local absent = SignalOf(t -> error("not in the solution"))
         @test !first(OLT.validate_against_reference(absent, spec, dir))
-        #= x found and right, y missing: validated on x. =#
+        #= x found and right, y missing: every listed signal is compared, so not validated
+           (it validated on x alone until 2026-10-13). =#
         local onlyX = (t; idxs = nothing) -> idxs === :x ? 2t : error("not in the solution")
-        @test first(OLT.validate_against_reference(onlyX, spec, dir))
+        @test !first(OLT.validate_against_reference(onlyX, spec, dir))
+        local both = (t; idxs = nothing) -> 2t
+        @test first(OLT.validate_against_reference(both, spec, dir))
+    end
+end
+
+@testset "comparison: what a validation must not let pass (audit 2026-10-13)" begin
+    local ref = OLT.ReferenceData([0.0, 0.5, 1.0], Dict("x" => [0.0, 1.0, 2.0]))
+    #= NaN was never above the threshold. =#
+    @test !OLT.compare_signal(SignalOf(t -> NaN), ref, "x", 1.0; npoints = 5).passed
+    @test !OLT.compare_signal(SignalOf(t -> t < 0.5 ? 2t : Inf), ref, "x", 1.0; npoints = 5).passed
+    @test OLT.compare_signal(SignalOf(t -> 2t), ref, "x", 1.0; npoints = 5).passed
+    #= A quoted name with a comma is one column (MSL 4.1.0's stack.cell[1, 1]...). =#
+    @test OLT.split_csv_header("\"time\",\"a.b\",\"c[1, 2].d\",\"e\"") ==
+          ["\"time\"", "\"a.b\"", "\"c[1, 2].d\"", "\"e\""]
+    @test OLT.modelica_to_omjl_name("stack.cell[1, 2].y") == "stack_cell[1][2]_y"
+    @test OLT.modelica_to_omjl_name("r.v[3]") == "r_v[3]"
+    mktempdir() do dir
+        mkpath(joinpath(dir, "csv"))
+        mkpath(joinpath(dir, "signals"))
+        write(joinpath(dir, "csv", "M.csv"), "\"time\",\"c[1, 2].d\",\"e\"\n0.0,0.0,5.0\n0.5,1.0,5.0\n")
+        local r = OLT.load_reference_csv(joinpath(dir, "csv", "M.csv"))
+        @test r.signals["c[1, 2].d"] == [0.0, 1.0] && r.signals["e"] == [5.0, 5.0]
+        #= `//` lines of a comparisonSignals file are comments. =#
+        write(joinpath(dir, "signals", "M.txt"), "time\n// a comment\nc[1, 2].d\ne\n")
+        @test OLT.load_comparison_signals(joinpath(dir, "signals", "M.txt")) == ["c[1, 2].d", "e"]
+        #= A listed signal without a column is an error of the reference, not a pass. =#
+        write(joinpath(dir, "signals", "M.txt"), "c[1, 2].d\nf\n")
+        local spec = OLT.ModelSpec("M", "M", "Test", 0.5, OLT.VALIDATE, Dict{String, Float64}(),
+                                   1e-4, 3e-3, "M", Dict{String, String}(), "", Set{OLT.Phase}())
+        @test_throws ErrorException OLT.validate_against_reference(SignalOf(t -> 2t), spec, dir)
+    end
+end
+
+@testset "comparison: a run that terminate()d" begin
+    #= Compared up to where it ended, which must be where its reference ends (MSL 4 RobotR3). =#
+    mktempdir() do dir
+        mkpath(joinpath(dir, "csv"))
+        write(joinpath(dir, "csv", "M.csv"), "time,x\n0.0,0.0\n0.25,0.5\n0.5,1.0\n")
+        local spec = OLT.ModelSpec("M", "M", "Test", 1.0, OLT.VALIDATE, Dict{String, Float64}(),
+                                   1e-4, 3e-3, "M", Dict{String, String}(), "", Set{OLT.Phase}())
+        local s = SignalOf(t -> 2t)
+        @test_throws ErrorException OLT.validate_against_reference(s, spec, dir)
+        @test first(OLT.validate_against_reference(s, spec, dir; terminatedAt = 0.5 + 1e-8))
+        @test_throws ErrorException OLT.validate_against_reference(s, spec, dir; terminatedAt = 0.3)
     end
 end

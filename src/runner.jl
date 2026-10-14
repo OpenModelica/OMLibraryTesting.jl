@@ -307,11 +307,10 @@ function _reference_signal_filter(ref_dir::String,
     end
     local patterns = String[]
     local seen = Set{String}()
-    for col in split(header_line, ',')
+    for col in split_csv_header(header_line)
         local raw = strip(col, ['"', ' ', '\t', '\r', '\n'])
         (isempty(raw) || raw == "time") && continue
-        local mapped = get(signal_mapping, String(raw), String(raw))
-        local under = replace(mapped, "." => "_")
+        local under = haskey(signal_mapping, String(raw)) ? signal_mapping[String(raw)] : modelica_to_omjl_name(String(raw))
         if !(under in seen)
             push!(seen, under)
             push!(patterns, string("^", _escape_regex(under), "\$"))
@@ -421,7 +420,11 @@ function _run_model_phases(model_name::String,
                 local _sa = isempty(solver_name) ? NamedTuple() : _resolve_solver(solver_name)
                 local _extra = dtmax > 0.0 ? (; dtmax = dtmax) : NamedTuple()
                 local _ia = isempty(init_alg) ? NamedTuple() : _resolve_init_alg(init_alg)
-                local _of = isempty(observed_filter) ? NamedTuple() : (; observedFilter = observed_filter)
+                #= The reference's signals stay observable (the backend drops eliminated array
+                   elements' aliases by default): a registry filter, else the reference header. =#
+                local _filter = isempty(observed_filter) ?
+                    _reference_signal_filter(ref_dir, reference_file, signal_mapping) : observed_filter
+                local _of = isempty(_filter) ? NamedTuple() : (; observedFilter = _filter)
                 local _mi = (; maxiters = maxiters > 0.0 ? round(Int, maxiters) : DEFAULT_MAXITERS)
                 local _tol = NamedTuple()
                 if solver_reltol > 0.0
@@ -443,12 +446,13 @@ function _run_model_phases(model_name::String,
                         model_name, "", "", stop_time, UNKNOWN,
                         reference, atol, reltol, reference_file, signal_mapping, "",
                         Set{Phase}())
-                    (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir)
+                    (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir;
+                        terminatedAt = sol.retcode == ReturnCode.Terminated ? Float64(sol.t[end]) : nothing)
                     if !passed
                         failed = filter(c -> !c.passed, comparisons)
                         isempty(failed) &&
                             error("Validation compared no signal: none of the $(length(comparisons)) reference signals is in the solution")
-                        names = join([c.name for c in failed], ", ")
+                        names = join([c.name * (isnan(c.max_abs_err) ? " (not in the solution)" : "") for c in failed], ", ")
                         error("Validation failed for signals: $names")
                     end
                 else
@@ -482,6 +486,15 @@ function _run_model_phases(model_name::String,
             push!(results, (phase_int, false, elapsed, msg))
             break
         end
+    end
+
+    #= The model's build and its tables are not needed after its phases: a worker runs hundreds
+       of models, and every model's build and tables stayed for the whole run. =#
+    sol = nothing
+    try
+        OMBackend.forgetModel(model_name)
+    catch e
+        @warn "    $(model_name): forgetModel failed" exception = e
     end
 
     return (results, highest)
@@ -552,7 +565,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         e isa InterruptException && rethrow()
         _remove_started_marker(marker_path)
         msg = "Worker spawn failed: $(_bounded_showerror(e, 500))"
-        @warn "    CRASH: $msg"
+        @warn "    $(spec.name): CRASH: $msg"
         kill_worker!(mgr)     # a worker that started but did not load the packages
         phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
         return ModelResult(spec, PhaseResult[PhaseResult(phase, false, 0.0, msg)], BROKEN,
@@ -588,7 +601,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     timer_interrupt = Timer(timeout) do _t
         if _future_pending()
             interrupted[] = true
-            @warn "  TIMEOUT after $(round(timeout, digits=0))s, sending interrupt to worker..."
+            @warn "  $(spec.name): TIMEOUT after $(round(timeout, digits=0))s, sending interrupt to worker..."
             try; interrupt(pid); catch; end
         end
     end
@@ -596,7 +609,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     timer_kill = Timer(timeout + grace_period) do _t
         if _future_pending() && interrupted[]
             killed[] = true
-            @warn "  Worker did not respond to interrupt, killing..."
+            @warn "  $(spec.name): worker did not respond to interrupt, killing..."
             try; kill_worker!(mgr); catch; end
         end
     end
@@ -621,9 +634,9 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         # Log phase results
         for pr in phase_results
             if pr.success
-                @info "    $(PHASE_NAMES[pr.phase]): PASS ($(round(pr.time_s, digits=1))s)"
+                @info "    $(spec.name): $(PHASE_NAMES[pr.phase]): PASS ($(round(pr.time_s, digits=1))s)"
             else
-                @info "    $(PHASE_NAMES[pr.phase]): FAIL: $(pr.error)"
+                @info "    $(spec.name): $(PHASE_NAMES[pr.phase]): FAIL: $(pr.error)"
             end
         end
 
@@ -634,7 +647,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
 
         # A Ctrl-C of the run itself; the timeout's interrupt of the worker arrives as a RemoteException.
         if e isa InterruptException
-            @warn "    INTERRUPTED by user"
+            @warn "    $(spec.name): INTERRUPTED by user"
             kill_worker!(mgr)
             rethrow()
         elseif interrupted[] || killed[]
@@ -644,7 +657,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                 mgr.pid = nothing
                 mgr.ready = false
             end
-            @warn "    TIMEOUT: $msg"
+            @warn "    $(spec.name): TIMEOUT: $msg"
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
             return ModelResult(spec, phases, BROKEN,
@@ -652,7 +665,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         elseif e isa ProcessExitedException ||
                (e isa RemoteException && e.captured.ex isa ProcessExitedException)
             msg = "Worker process crashed: $(_bounded_showerror(e, 500))"
-            @warn "    CRASH: $msg"
+            @warn "    $(spec.name): CRASH: $msg"
             mgr.pid = nothing
             mgr.ready = false
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
@@ -662,7 +675,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         elseif e isa RemoteException
             # Worker threw a normal exception that escaped _run_model_phases
             msg = _bounded_showerror(e, 500)
-            @info "    FAIL: $msg"
+            @info "    $(spec.name): FAIL: $msg"
             phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
             phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
             return ModelResult(spec, phases, BROKEN,
