@@ -743,8 +743,8 @@ Use `from_phase` and `to_phase` to restrict which phases are run. For example,
 `from_phase=BACKEND` skips the frontend phase (useful when frontend is 100% pass).
 `to_phase=BACKEND` stops after backend without attempting simulate or validate.
 
-Set `check_sim_code=true` to run SimulationCode.SimCodeCheck on the optimized
-SimCode before MTK codegen during the BACKEND phase. Violations are printed
+Set `check_sim_code=true` to run `OMBackend.SimCode.check` on the optimized
+simulation code before MTK codegen during the BACKEND phase. Violations are printed
 to the worker's stderr and do not alter pass/fail of the phase itself.
 
 Set `n_workers > 1` to run models in parallel. Each worker is a separate
