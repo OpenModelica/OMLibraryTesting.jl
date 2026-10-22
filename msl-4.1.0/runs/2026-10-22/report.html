@@ -1,0 +1,4490 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Modelica 4.1.0 - OM.jl Pipeline Test Results</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         margin: 2em; background: #fff; color: #333; }
+  h1 { margin-bottom: 0.2em; }
+  .meta { color: #666; font-size: 0.9em; margin-bottom: 0.5em; }
+  .meta code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
+  .changelog { color: #555; font-size: 0.9em; margin-bottom: 1.5em; }
+  .summary-table { border-collapse: collapse; margin-bottom: 2em; }
+  .summary-table th, .summary-table td { border: 1px solid #ccc; padding: 6px 16px; text-align: right; }
+  .summary-table th { background: #f5f5f5; text-align: left; }
+  .summary-table td:last-child { font-weight: bold; }
+  table.results { border-collapse: collapse; width: 100%; }
+  table.results th { border: 1px solid #ccc; padding: 4px 10px; background: #f5f5f5;
+                     text-align: left; font-size: 0.85em; text-transform: uppercase; }
+  table.results td { border: 1px solid #ccc; padding: 4px 10px; font-size: 0.9em; }
+  .model-name { font-family: monospace; font-size: 0.85em; }
+  .ok { background: #d4edda; color: #155724; text-align: center; }
+  .fail { background: #f8d7da; color: #721c24; text-align: center; cursor: pointer; }
+  .fail[data-error]:hover { text-decoration: underline dotted; }
+  #error-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+                 z-index: 1000; align-items: center; justify-content: center; }
+  #error-modal.open { display: flex; }
+  #error-modal-box { background: #fff; border-radius: 6px; padding: 1.5em 2em;
+                     max-width: 70vw; max-height: 80vh; overflow-y: auto;
+                     box-shadow: 0 8px 32px rgba(0,0,0,0.25); position: relative; }
+  #error-modal-close { position: absolute; top: 0.6em; right: 0.8em;
+                       font-size: 1.3em; cursor: pointer; color: #555; border: none;
+                       background: none; }
+  #error-modal-close:hover { color: #000; }
+  #error-modal-text { font-family: monospace; font-size: 0.85em; white-space: pre-wrap;
+                      color: #721c24; margin-top: 0.5em; }
+  .na { color: #888; text-align: center; }
+  .time { text-align: right; color: #666; font-family: monospace; }
+  .broken-row { opacity: 0.5; }
+  .broken-row td { font-style: italic; }
+  .domain-header td { background: #e9ecef; font-size: 0.85em; padding: 6px 10px; }
+</style>
+</head>
+<body>
+<h1>Modelica 4.1.0 - OM.jl Pipeline Test Results</h1>
+<div class="meta">
+  Generated: 2026-10-22 17:58:38 | 534 models (0 known broken)
+</div>
+<div class="changelog"><strong>Changes:</strong> Run tag: ci. MSL: MSL:4.1.0. Merged from 2 shards.</div>
+
+<table class="summary-table">
+<tr><th>Stage</th><th>Passed</th><th>Total</th><th>Rate</th></tr>
+<tr><td>Frontend</td><td>531</td><td>534</td><td>99.4%</td></tr>
+<tr><td>Backend</td><td>527</td><td>534</td><td>98.7%</td></tr>
+<tr><td>Simulate</td><td>473</td><td>534</td><td>88.6%</td></tr>
+<tr><td>Validate</td><td>437</td><td>534</td><td>81.8%</td></tr>
+</table>
+
+<table class="results">
+<thead>
+<tr>
+  <th>Model</th>
+  <th>Frontend</th>
+  <th>Backend</th>
+  <th>Simulate</th>
+  <th>Validate</th>
+  <th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="domain-header">
+  <td colspan="6"><strong>Blocks</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.BooleanNetwork1</td>
+  <td class="ok">&#10003; 42.9s</td>
+  <td class="fail" data-error="_affectValue: unsupported in an ImperativeAffect body: sample(0.3, 0.5)" onclick="showError(this)">&#10007; 42.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">85.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.BusUsage</td>
+  <td class="ok">&#10003; 26.7s</td>
+  <td class="ok">&#10003; 4.7s</td>
+  <td class="ok">&#10003; 4.7s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="time">37.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.CompareSincExpSine</td>
+  <td class="ok">&#10003; 3.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 4.4s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="time">9.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.DemoSignalCharacteristic</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 4.0s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">14.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.DemonstrateContinuousSignalExtrema</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 44.4s</td>
+  <td class="ok">&#10003; 19.1s</td>
+  <td class="fail" data-error="Validation failed for signals: signalExtrema3.y_max, signalExtrema3.t_max" onclick="showError(this)">&#10007; 0.7s</td>
+  <td class="time">65.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.DemonstrateSignalExtrema</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 56.8s</td>
+  <td class="ok">&#10003; 9.8s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">68.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Filter</td>
+  <td class="ok">&#10003; 5.9s</td>
+  <td class="ok">&#10003; 16.7s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">29.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.FilterWithDifferentiation</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 16.5s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">30.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.FilterWithRiseTime</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">7.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.IntegerNetwork1</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 18.9s</td>
+  <td class="ok">&#10003; 15.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">35.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Interaction1</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 18.3s</td>
+  <td class="ok">&#10003; 12.8s</td>
+  <td class="fail" data-error="Validation failed for signals: start.on, start.reset[1], stop.on, stop.reset[1]" onclick="showError(this)">&#10007; 0.6s</td>
+  <td class="time">33.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.InverseModel</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 11.8s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">19.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.LogicalNetwork1</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.7s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">10.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Modulation</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">2.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.ActuatorWithNoise</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 30.0s</td>
+  <td class="ok">&#10003; 21.8s</td>
+  <td class="fail" data-error="Validation failed for signals: controller.speed_PI.x, controller.positionToSpeed.x, controller.busdelay.y" onclick="showError(this)">&#10007; 0.7s</td>
+  <td class="time">65.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.AutomaticSeed</td>
+  <td class="ok">&#10003; 2.6s</td>
+  <td class="ok">&#10003; 21.0s</td>
+  <td class="ok">&#10003; 14.1s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">38.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.Densities</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 1.9s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">3.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.Distributions</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 12.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">24.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.DrydenContinuousTurbulence</td>
+  <td class="ok">&#10003; 4.9s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="fail" data-error="Validation failed for signals: Hw.x_scaled[1], Hw.x_scaled[2]" onclick="showError(this)">&#10007; 0.4s</td>
+  <td class="time">24.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.ImpureGenerator</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="fail" data-error="UnsupportedLowering: fixed start values or initial equations that the initialization cannot hold: the initial system (Stalled)" onclick="showError(this)">&#10007; 1.8s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">2.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.NormalNoiseProperties</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">20.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.UniformNoise</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 9.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Noise.UniformNoiseProperties</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 3.6s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">14.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.PID_Controller</td>
+  <td class="ok">&#10003; 3.4s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">24.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.RealNetwork1</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 11.1s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">20.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Rectifier12pulseFFT</td>
+  <td class="fail" data-error="Timeout after 616.4s (limit: 600.0s) [worker killed]" onclick="showError(this)">&#10007; 616.4s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">616.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.Rectifier6pulseFFT</td>
+  <td class="fail" data-error="Timeout after 615.7s (limit: 600.0s) [worker killed]" onclick="showError(this)">&#10007; 615.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">615.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.ShowLogicalSources</td>
+  <td class="ok">&#10003; 32.7s</td>
+  <td class="ok">&#10003; 56.5s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">100.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.SinCosEncoder</td>
+  <td class="ok">&#10003; 23.3s</td>
+  <td class="ok">&#10003; 61.3s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="time">94.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.SlewRateLimiter</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 13.9s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">25.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Blocks.Examples.TotalHarmonicDistortion</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="ok">&#10003; 6.2s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">14.6s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Clocked</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.CascadeControlledDrive.AbsoluteClocks</td>
+  <td class="ok">&#10003; 5.0s</td>
+  <td class="ok">&#10003; 21.6s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">37.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.CascadeControlledDrive.Continuous</td>
+  <td class="ok">&#10003; 3.3s</td>
+  <td class="ok">&#10003; 20.0s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">33.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.CascadeControlledDrive.SubClocked</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 3.1s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">13.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.CascadeControlledDrive.SuperSampled</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 13.0s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">23.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.AssignClock</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">7.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.AssignClockVectorized</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 2.9s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">8.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.BackSample</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">11.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.Hold</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 9.1s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">23.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.Sample1</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.4s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.Sample2</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">10.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.SampleClocked</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.SampleVectorizedAndClocked</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="ok">&#10003; 6.5s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">9.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.ShiftSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 3.0s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">11.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.SubSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.5s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">10.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.SuperSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.4s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">10.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.TickBasedPulse</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.6s</td>
+  <td class="ok">&#10003; 4.2s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">7.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.TickBasedStep</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">6.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.TimeBasedPulse</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">6.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.TimeBasedStep</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">6.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.BooleanSignals.UpSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.9s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">11.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.ClockSignals.LogicalSample</td>
+  <td class="ok">&#10003; 3.1s</td>
+  <td class="ok">&#10003; 29.8s</td>
+  <td class="ok">&#10003; 18.2s</td>
+  <td class="fail" data-error="Validation failed for signals: rotational_clock_1.direction, rotational_clock_1.direction_changed, rotational_clock_2.direction, rotational_clock_2.direction_changed, sample_conjunctive.y, sample_disjunctive.y" onclick="showError(this)">&#10007; 0.7s</td>
+  <td class="time">51.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.ClockSignals.RotationalSample</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 13.0s</td>
+  <td class="ok">&#10003; 14.6s</td>
+  <td class="fail" data-error="Validation failed for signals: sample_angle.y, rotationalClock.direction, rotationalClock.direction_changed" onclick="showError(this)">&#10007; 0.4s</td>
+  <td class="time">28.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.ClockSignals.ShiftSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.ClockSignals.SubSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.ClockSignals.SuperSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.AssignClock</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">6.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.AssignClockVectorized</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">7.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.BackSample</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.Hold</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">22.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.Sample1</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.Sample2</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.SampleClocked</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.SampleVectorizedAndClocked</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.ShiftSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.SubSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">19.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.SuperSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 9.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">18.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.TickBasedStep</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">7.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.TimeBasedStep</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 3.0s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">7.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.IntegerSignals.UpSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">18.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.AssignClock</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.AssignClockToSquareWaveHold</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.AssignClockToTriggerHold</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 9.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">18.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.AssignClockVectorized</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.BackSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.FractionalDelay</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.Hold</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.HoldWithDAeffects1</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 8.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">16.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.HoldWithDAeffects2</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.Sample1</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.Sample2</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.Sample3</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.SampleClocked</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.SampleVectorizedAndClocked</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.SampleWithADeffects</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.ShiftSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.SubSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.SuperSample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.6s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.SuperSampleInterpolated</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.TickBasedRamp</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.TickBasedSine</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.TickBasedStep</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.TimeBasedRamp</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 3.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.TimeBasedSine</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.TimeBasedStep</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">5.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.UniformNoise</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="ok">&#10003; 4.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.UniformNoiseXorshift64star</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 4.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">13.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.UpSample1</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Elementary.RealSignals.UpSample2</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.SimpleControlledDrive.ClockedWithDiscreteController</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.SimpleControlledDrive.ClockedWithDiscreteTextbookController</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.SimpleControlledDrive.ClockedWithDiscretizedContinuousController</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="fail" data-error="UnsupportedLowering: a clocked discretized continuous-time partition (a solver clock): Clock(0.1)" onclick="showError(this)">&#10007; 0.1s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">0.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.SimpleControlledDrive.ClockedWith_AD_DA_Effects</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.SimpleControlledDrive.Continuous</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 6.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">13.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.SimpleControlledDrive.ExactlyClockedWithDiscreteController</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Systems.ControlledMixingUnit</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="fail" data-error="UnsupportedLowering: a clocked discretized continuous-time partition (a solver clock): Clock(1.0)" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">2.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Systems.EngineThrottleControl</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">22.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Clocked.Examples.Systems.Utilities.ComponentsMixingUnit.MixingUnitWithContinuousControl</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">13.0s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>ComplexBlocks</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">ComplexBlocks.Examples.ShowTransferFunction</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 5.3s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">15.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">ComplexBlocks.Examples.TestConversionBlock</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">13.9s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.Analog</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.AD_DA_conversion</td>
+  <td class="ok">&#10003; 1.9s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 2.7s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">5.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.AmplifierWithOpAmpDetailed</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 6.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.CauerLowPassAnalog</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">13.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.CauerLowPassOPV</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">14.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.CauerLowPassSC</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 21.4s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 578.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.CharacteristicIdealDiodes</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">18.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.CharacteristicThyristors</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">19.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ChuaCircuit</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 4.0s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">6.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.CompareTransformers</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 5.7s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">12.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ControlledSwitchWithArc</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 10.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.DemoPowerSupply</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 11.2s</td>
+  <td class="fail" data-error="Validation failed for signals: dcPowerSupply.v, dcPowerSupply.i, dcPowerSupply.P" onclick="showError(this)">&#10007; 0.4s</td>
+  <td class="time">21.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.DemoPowerSupplyWithBuffer</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="fail" data-error="UnsupportedLowering: fixed start values or initial equations that the initialization cannot hold: bufferCapacitor_v(t) = 28.813443885753625 (fixed 0.0)" onclick="showError(this)">&#10007; 0.3s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">9.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.DemonstrateLightning</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="fail" data-error="Validation failed for signals: currentSensor1.i, der1.y (not in the solution), der2.y (not in the solution)" onclick="showError(this)">&#10007; 0.3s</td>
+  <td class="time">13.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.DifferenceAmplifier</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 13.7s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="fail" data-error="Validation failed for signals: C2.v, C4.v, C5.v, Transistor1.Tr.C.v, Transistor2.Tr.C.v, Transistor2.ct.v" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="time">16.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.GenerationOfFMUs</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 5.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.HeatingMOSInverter</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.HeatingNPN_NORGate</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 10.9s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">23.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.HeatingPNP_NORGate</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 10.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.HeatingRectifier</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">13.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.IdealTriacCircuit</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">19.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.InvertingAmp</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Lines.CompareLineTrunks</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 11.0s</td>
+  <td class="ok">&#10003; 19.0s</td>
+  <td class="ok">&#10003; 2.5s</td>
+  <td class="time">33.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Lines.CompareLosslessLines</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 22.5s</td>
+  <td class="fail" data-error="Validation failed for signals: line1.v1, line1.v2, line1.i1, line2.v1, line2.v2, line2.i1, line2.i2, line3.v1, line3.i1, line3.i2" onclick="showError(this)">&#10007; 0.9s</td>
+  <td class="time">31.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Lines.LightningLosslessTransmissionLine</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 14.8s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">23.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Lines.LightningSegmentedTransmissionLine</td>
+  <td class="ok">&#10003; 5.9s</td>
+  <td class="ok">&#10003; 78.2s</td>
+  <td class="ok">&#10003; 3.4s</td>
+  <td class="fail" data-error="Validation failed for signals: load.i, lightningImpulseCurrent.v" onclick="showError(this)">&#10007; 3.3s</td>
+  <td class="time">90.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Lines.SmoothStep</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 18.1s</td>
+  <td class="ok">&#10003; 59.1s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="time">79.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.NandGate</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 3.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">3.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.Adder</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 5.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">11.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.Comparator</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.ControlCircuit</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">8.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.DifferentialAmplifier</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.Differentiator</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">12.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.HighPass</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.Integrator</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">15.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.InvertingAmplifier</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.InvertingSchmittTrigger</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="fail" data-error="Validation failed for signals: opAmp.out.v" onclick="showError(this)">&#10007; 0.5s</td>
+  <td class="time">15.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.LCOscillator</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 4.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">11.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.LowPass</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">15.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.Multivibrator</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">5.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.NonInvertingAmplifier</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 12.8s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">21.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.SchmittTrigger</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.SignalGenerator</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">15.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.Subtracter</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 5.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">11.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OpAmps.VoltageFollower</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">18.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.OvervoltageProtection</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ParallelResonance</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">2.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Rectifier</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 15.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">23.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.Resistor</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ResonanceCircuits</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">5.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.SeriesResonance</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">2.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ShowSaturatingInductor</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ShowVariableResistor</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">7.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.SimpleTriacCircuit</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="fail" data-error="Simulation retcode: MaxIters" onclick="showError(this)">&#10007; 299.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">310.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.SwitchWithArc</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">18.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Analog.Examples.ThyristorBehaviourTest</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 10.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.1s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.Batteries</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.BatteryDischargeCharge</td>
+  <td class="ok">&#10003; 4.7s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 9.7s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">26.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.CCCV_Cell</td>
+  <td class="ok">&#10003; 1.9s</td>
+  <td class="ok">&#10003; 9.1s</td>
+  <td class="ok">&#10003; 16.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">27.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.CCCV_CellRC</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">21.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.CCCV_Stack</td>
+  <td class="ok">&#10003; 4.9s</td>
+  <td class="ok">&#10003; 14.7s</td>
+  <td class="ok">&#10003; 14.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">34.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.CCCV_StackRC</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 19.7s</td>
+  <td class="ok">&#10003; 12.6s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">38.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.CCCVcharging</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 11.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">22.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.ShowImpedance</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">8.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Batteries.Examples.SuperCapDischargeCharge</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="fail" data-error="Validation failed for signals: energy.y, superCap.capacitor.v" onclick="showError(this)">&#10007; 0.1s</td>
+  <td class="time">8.9s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.Digital</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.Adder4</td>
+  <td class="ok">&#10003; 2.3s</td>
+  <td class="ok">&#10003; 53.8s</td>
+  <td class="ok">&#10003; 26.9s</td>
+  <td class="ok">&#10003; 2.6s</td>
+  <td class="time">85.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.BUF3S</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.Counter</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 13.2s</td>
+  <td class="ok">&#10003; 12.8s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">28.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.Counter3</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 9.2s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">17.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DFFREG</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DFFREGL</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DFFREGSRH</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">15.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DFFREGSRL</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DLATREG</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.3s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DLATREGL</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.3s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DLATREGSRH</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.DLATREGSRL</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.FlipFlop</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">12.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.FullAdder</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 17.1s</td>
+  <td class="ok">&#10003; 22.5s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">40.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.HalfAdder</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 14.1s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">24.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.INV3S</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 3.1s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.MUX2x1</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 4.8s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">11.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.Multiplexer</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 4.9s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.NRXFER</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 3.6s</td>
+  <td class="ok">&#10003; 6.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">10.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.NXFER</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 3.2s</td>
+  <td class="ok">&#10003; 6.3s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.RAM</td>
+  <td class="ok">&#10003; 2.0s</td>
+  <td class="ok">&#10003; 12.3s</td>
+  <td class="fail" data-error="ModelicaInternal_readLine failed: Not possible to open file &quot;/home/runner/work/OMLibraryTesting.jl/OMLibraryTesting.jl/OM.jl/OMLibraryTesting.jl/modelica://Modelica/Resources/Data/Electrical/Digital/Memory_Matrix.txt&quot; for reading:
+No such file or directory
+" onclick="showError(this)">&#10007; 0.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">14.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.VectorDelay</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Digital.Examples.WiredX</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">15.3s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.Machines</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.ControlledDCDrives.CurrentControlledDCPM</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 9.7s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">19.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.ControlledDCDrives.PositionControlledDCPM</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="ok">&#10003; 11.1s</td>
+  <td class="ok">&#10003; 14.0s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">27.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.ControlledDCDrives.SpeedControlledDCPM</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.2s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">20.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCEE_Start</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">7.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_Cooling</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 9.1s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="time">21.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_CurrentControlled</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">16.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_Drive</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">22.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_QuasiStatic</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">18.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_Start</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">9.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_Temperature</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">15.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCPM_withLosses</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">17.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCSE_SinglePhase</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">17.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DCSE_Start</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">16.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.DCMachines.DC_CompareCharacteristics</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">18.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_Conveyor</td>
+  <td class="ok">&#10003; 3.1s</td>
+  <td class="ok">&#10003; 8.0s</td>
+  <td class="ok">&#10003; 28.1s</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="time">41.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_DCBraking</td>
+  <td class="ok">&#10003; 2.5s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="fail" data-error="Validation failed for signals: imc.idq_rr[1], imc.idq_rr[2], imc.idq_sr[1], imc.idq_sr[2]" onclick="showError(this)">&#10007; 1.6s</td>
+  <td class="time">21.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_DOL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="time">21.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_Initialize</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">11.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_Inverter</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">17.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_InverterDrive</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 17.3s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 581.4s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_Steinmetz</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 10.8s</td>
+  <td class="fail" data-error="Validation failed for signals: aimc.idq_sr[1]" onclick="showError(this)">&#10007; 1.2s</td>
+  <td class="time">19.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_Transformer</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 11.3s</td>
+  <td class="ok">&#10003; 20.7s</td>
+  <td class="fail" data-error="Validation failed for signals: aimc.idq_rr[1], aimc.idq_rr[2], aimc.idq_sr[1], aimc.idq_sr[2]" onclick="showError(this)">&#10007; 1.3s</td>
+  <td class="time">33.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_YD</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 13.1s</td>
+  <td class="ok">&#10003; 16.1s</td>
+  <td class="fail" data-error="Validation failed for signals: aimc.idq_rr[1], aimc.idq_rr[2], aimc.idq_sr[1], aimc.idq_sr[2]" onclick="showError(this)">&#10007; 1.2s</td>
+  <td class="time">30.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_YDarc</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 18.6s</td>
+  <td class="ok">&#10003; 24.2s</td>
+  <td class="fail" data-error="Validation failed for signals: aimc.idq_rr[1], aimc.idq_rr[2], aimc.idq_sr[1], aimc.idq_sr[2]" onclick="showError(this)">&#10007; 1.6s</td>
+  <td class="time">44.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMC_withLosses</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.6s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">11.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.InductionMachines.IMS_Start</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.8s</td>
+  <td class="ok">&#10003; 14.8s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="time">26.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMEE_DOL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="time">19.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMEE_Generator</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 9.2s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">11.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMEE_LoadDump</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 13.9s</td>
+  <td class="fail" data-error="Simulation retcode: MaxIters" onclick="showError(this)">&#10007; 59.9s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">74.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMEE_Rectifier</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 30.1s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">43.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMPM_Braking</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">21.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMPM_CurrentSource</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 6.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">8.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMPM_Inverter</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.2s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">17.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMPM_NoLoad</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="fail" data-error="Validation failed for signals: hallSensor.y" onclick="showError(this)">&#10007; 0.3s</td>
+  <td class="time">8.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMPM_ResistiveBraking</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">20.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMPM_VoltageSource</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="time">7.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMR_DOL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 10.1s</td>
+  <td class="fail" data-error="Validation failed for signals: smr.idq_rr[2]" onclick="showError(this)">&#10007; 0.9s</td>
+  <td class="time">18.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.SynchronousMachines.SMR_Inverter</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.0s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">17.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.Transformers.AsymmetricalLoad</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 6.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">7.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.Transformers.IMC_Transformer</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 14.4s</td>
+  <td class="fail" data-error="Validation failed for signals: aimc.idq_rr[1], aimc.idq_rr[2], aimc.idq_sr[1], aimc.idq_sr[2]" onclick="showError(this)">&#10007; 1.2s</td>
+  <td class="time">21.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.Transformers.Rectifier12pulse</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 27.0s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">39.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.Transformers.Rectifier6pulse</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 19.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">28.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Machines.Examples.Transformers.TransformerTestbench</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">6.9s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.Polyphase</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Polyphase.Examples.PolyphaseRectifier</td>
+  <td class="ok">&#10003; 2.5s</td>
+  <td class="ok">&#10003; 117.0s</td>
+  <td class="ok">&#10003; 67.2s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">187.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Polyphase.Examples.Rectifier</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Polyphase.Examples.TestSensors</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 5.9s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Polyphase.Examples.TransformerYD</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 4.6s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">5.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Polyphase.Examples.TransformerYY</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 5.0s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">5.3s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.PowerConverters</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACAC.Dimmer_R</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="ok">&#10003; 15.6s</td>
+  <td class="ok">&#10003; 23.8s</td>
+  <td class="ok">&#10003; 2.0s</td>
+  <td class="time">42.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACAC.Dimmer_RL</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 19.1s</td>
+  <td class="ok">&#10003; 29.1s</td>
+  <td class="fail" data-error="Validation failed for signals: vH01.y_arg, iH01.y_arg" onclick="showError(this)">&#10007; 1.9s</td>
+  <td class="time">50.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACAC.SoftStarter</td>
+  <td class="ok">&#10003; 2.3s</td>
+  <td class="ok">&#10003; 30.0s</td>
+  <td class="ok">&#10003; 432.5s</td>
+  <td class="ok">&#10003; 5.1s</td>
+  <td class="time">469.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.Rectifier1Pulse.Thyristor1Pulse_R</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.7s</td>
+  <td class="ok">&#10003; 13.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">24.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.Rectifier1Pulse.Thyristor1Pulse_R_Characteristic</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 12.5s</td>
+  <td class="ok">&#10003; 14.4s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="time">28.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.DiodeBridge2Pulse</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 12.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">24.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.HalfControlledBridge2Pulse</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 12.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">25.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_DC_Drive</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 21.7s</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="time">35.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 10.1s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">22.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_RL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.1s</td>
+  <td class="ok">&#10003; 17.9s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">29.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_RLV</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 16.8s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">27.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2Pulse.ThyristorBridge2Pulse_RLV_Characteristic</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.2s</td>
+  <td class="ok">&#10003; 41.2s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">53.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.DiodeBridge2mPulse</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 9.7s</td>
+  <td class="ok">&#10003; 12.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">22.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.HalfControlledBridge2mPulse</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 17.1s</td>
+  <td class="ok">&#10003; 25.1s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">43.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_DC_Drive</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 16.0s</td>
+  <td class="ok">&#10003; 62.8s</td>
+  <td class="fail" data-error="Validation failed for signals: pulse2.twomPulse.filter[2].firstOrder.y, rectifier.pre_n[1].u, rectifier.pre_n[2].u, rectifier.pre_n[3].u, rectifier.pre_p[1].u, rectifier.pre_p[2].u, rectifier.pre_p[3].u" onclick="showError(this)">&#10007; 5.4s</td>
+  <td class="time">84.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 16.0s</td>
+  <td class="ok">&#10003; 23.3s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">40.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_RL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 14.6s</td>
+  <td class="ok">&#10003; 21.0s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">36.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_RLV</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 15.8s</td>
+  <td class="ok">&#10003; 23.2s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">40.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierBridge2mPulse.ThyristorBridge2mPulse_RLV_Characteristic</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 14.9s</td>
+  <td class="ok">&#10003; 162.5s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="time">179.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.DiodeCenterTap2Pulse</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">21.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 12.5s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">24.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_RL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.9s</td>
+  <td class="ok">&#10003; 17.8s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">29.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_RLV</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 17.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">28.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2Pulse.ThyristorCenterTap2Pulse_RLV_Characteristic</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.1s</td>
+  <td class="ok">&#10003; 42.6s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">54.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.DiodeCenterTap2mPulse</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 12.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">24.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_R</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 15.8s</td>
+  <td class="ok">&#10003; 20.5s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">37.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_RL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 14.7s</td>
+  <td class="ok">&#10003; 20.1s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">35.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_RLV</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 14.8s</td>
+  <td class="ok">&#10003; 20.9s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">36.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTap2mPulse.ThyristorCenterTap2mPulse_RLV_Characteristic</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 15.1s</td>
+  <td class="ok">&#10003; 147.2s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">163.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.DiodeCenterTapmPulse</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">22.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 14.7s</td>
+  <td class="ok">&#10003; 16.1s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">31.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_RL</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 16.9s</td>
+  <td class="ok">&#10003; 22.4s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">40.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_RLV</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 14.1s</td>
+  <td class="ok">&#10003; 23.0s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">37.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.ACDC.RectifierCenterTapmPulse.ThyristorCenterTapmPulse_RLV_Characteristic</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 15.6s</td>
+  <td class="ok">&#10003; 69.5s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">86.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCAC.PolyphaseTwoLevel.PolyphaseTwoLevel_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 36.0s</td>
+  <td class="ok">&#10003; 67.0s</td>
+  <td class="ok">&#10003; 4.0s</td>
+  <td class="time">107.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCAC.PolyphaseTwoLevel.PolyphaseTwoLevel_RL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 48.7s</td>
+  <td class="fail" data-error="DirectRHS: structural imbalance in reduced system: 246 full_equations vs 247 unknowns. The model cannot be integrated as a well-posed DAE; this is typically a residual issue from MTK structural_simplify." onclick="showError(this)">&#10007; 1.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">50.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCAC.PolyphaseTwoLevel.ThreePhaseTwoLevel_PWM</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 15.9s</td>
+  <td class="ok">&#10003; 37.3s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="time">55.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCAC.SinglePhaseTwoLevel.SinglePhaseTwoLevel_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 13.8s</td>
+  <td class="ok">&#10003; 16.8s</td>
+  <td class="fail" data-error="Validation failed for signals: inverter.ac.v, inverter.ac.i" onclick="showError(this)">&#10007; 0.8s</td>
+  <td class="time">31.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCAC.SinglePhaseTwoLevel.SinglePhaseTwoLevel_RL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 13.1s</td>
+  <td class="ok">&#10003; 22.9s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">37.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.ChopperBuckBoost.ChopperBuckBoost_DutyCycle</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 13.8s</td>
+  <td class="ok">&#10003; 42.9s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">57.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.ChopperStepDown.ChopperStepDown_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 11.1s</td>
+  <td class="ok">&#10003; 21.1s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">33.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.ChopperStepDown.ChopperStepDown_RL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.9s</td>
+  <td class="ok">&#10003; 20.5s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">33.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.ChopperStepUp.ChopperStepUp_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 11.2s</td>
+  <td class="ok">&#10003; 19.2s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">31.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_DC_Drive</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 15.1s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 584.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_R</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 14.9s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">27.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_RL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 30.5s</td>
+  <td class="fail" data-error="Validation failed for signals: hbridge.iDC1" onclick="showError(this)">&#10007; 0.9s</td>
+  <td class="time">43.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.PowerConverters.Examples.DCDC.HBridge.HBridge_TrianglePWM_RL</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 13.1s</td>
+  <td class="ok">&#10003; 30.1s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">44.1s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.QuasiStatic.Machines</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.Machines.Examples.TransformerTestbench</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 15.9s</td>
+  <td class="ok">&#10003; 4.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">26.7s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.QuasiStatic.Polyphase</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.Polyphase.Examples.BalancingDelta</td>
+  <td class="ok">&#10003; 2.6s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">10.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.Polyphase.Examples.BalancingStar</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">7.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.Polyphase.Examples.TestSensors</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">10.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.Polyphase.Examples.UnsymmetricalLoad</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 2.3s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">10.4s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.QuasiStatic.SinglePhase</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.SinglePhase.Examples.MultipleResonance</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">6.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.SinglePhase.Examples.ParallelResonance</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.SinglePhase.Examples.Rectifier</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.1s</td>
+  <td class="ok">&#10003; 13.4s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">24.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.SinglePhase.Examples.SeriesBode</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">17.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.SinglePhase.Examples.SeriesResonance</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.3s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">5.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.QuasiStatic.SinglePhase.Examples.Transformer</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">8.6s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Electrical.Spice3</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.CascodeCircuit</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 12.9s</td>
+  <td class="ok">&#10003; 17.2s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">31.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.CoupledInductors</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">7.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.FourInverters</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="ok">&#10003; 16.2s</td>
+  <td class="ok">&#10003; 30.7s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">49.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Graetz</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 24.6s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">36.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Inverter</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 20.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">29.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.InvertersApartRecord</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 16.2s</td>
+  <td class="ok">&#10003; 24.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">42.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.InvertersExtendedModel</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 25.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">35.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Nand</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 24.2s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 26.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">51.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Nor</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 588.1s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Oscillator</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 12.2s</td>
+  <td class="ok">&#10003; 68.2s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">81.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Spice3BenchmarkDifferentialPair</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 27.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">40.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Spice3BenchmarkFourBitBinaryAdder</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 40.0s</td>
+  <td class="fail" data-error="OverflowError: 10000000000 * 10000000000 overflowed for type Int64" onclick="showError(this)">&#10007; 2.9s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">48.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Spice3BenchmarkMosfetCharacterization</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.6s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">18.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Electrical.Spice3.Examples.Spice3BenchmarkRtlInverter</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 22.9s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">31.6s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Fluid</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.BatchPlant_StandardWater</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 173.0s</td>
+  <td class="fail" data-error="IF97 medium function tsat called with too low pressure\np = -410648 Pa &lt;= 611.657 Pa (triple point pressure)" onclick="showError(this)">&#10007; 44.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">227.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.Test.OneTank</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 12.7s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 12.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">30.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.Test.TankWithEmptyingPipe1</td>
+  <td class="ok">&#10003; 2.0s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 11.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">24.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.Test.TankWithEmptyingPipe2</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 13.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">26.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.Test.TanksWithEmptyingPipe1</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 15.5s</td>
+  <td class="ok">&#10003; 14.9s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">31.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.Test.TanksWithEmptyingPipe2</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 13.1s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 14.4s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">27.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.AST_BatchPlant.Test.TwoTanks</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.5s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 11.1s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">20.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.BranchingDynamicPipes</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 22.6s</td>
+  <td class="fail" data-error="OverflowError: -5625000000 * -1875000000 overflowed for type Int64" onclick="showError(this)">&#10007; 0.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">28.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.ControlledTankSystem.ControlledTanks</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 31.5s</td>
+  <td class="fail" data-error="UnsupportedLowering: initialization equations that do not reduce to the states and parameters: var&quot;shut_reset[2]&quot;(t); var&quot;shut_reset[2]&quot;(t)" onclick="showError(this)">&#10007; 1.0s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">33.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.DrumBoiler.DrumBoiler</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 19.3s</td>
+  <td class="ok">&#10003; 33.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">54.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.Explanatory.MeasuringTemperature</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 56.6s</td>
+  <td class="ok">&#10003; 77.6s</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="time">136.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.Explanatory.MomentumBalanceFittings</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 56.9s</td>
+  <td class="fail" data-error="DAE init: residual 1.309e123 exceeds threshold 20.0; refusing inconsistent ICs. Worst:
+  eq[2] :: 0 ~ rightAdaptor_F_fg(t) + 3.926990816987241e119(110000.0 - rightAdaptor_state_a_p(t)) residual 1.309e123
+  eq[3] :: 0 ~ Modelica_Fluid_Fittings_BaseClasses_QuadraticTurbulent_pressureLoss_m_flow_totalPressure(suddenExpansion2_m_flow(t), suddenExpansion2_state_a_d(t), suddenEx residual 3333.0
+  eq[4] :: 0 ~ Modelica_Fluid_Fittings_BaseClasses_QuadraticTurbulent_pressureLoss_m_flow_totalPressure(-sud..." onclick="showError(this)">&#10007; 45.0s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">102.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.HeatExchanger.HeatExchangerSimulation</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 447.5s</td>
+  <td class="fail" data-error="IF97 medium function tsat called with too low pressure\np = -218191 Pa &lt;= 611.657 Pa (triple point pressure)" onclick="showError(this)">&#10007; 117.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">566.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.HeatingSystem</td>
+  <td class="ok">&#10003; 2.4s</td>
+  <td class="ok">&#10003; 14.5s</td>
+  <td class="fail" data-error="UnsupportedLowering: derivative initial equations on algebraic or observed variables without a symbolic Jacobian or with a non-diagonal mass matrix: 4" onclick="showError(this)">&#10007; 0.4s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">17.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.IncompressibleFluidNetwork</td>
+  <td class="ok">&#10003; 4.7s</td>
+  <td class="ok">&#10003; 36.8s</td>
+  <td class="ok">&#10003; 83.2s</td>
+  <td class="ok">&#10003; 3.2s</td>
+  <td class="time">127.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.InverseParameterization</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 17.9s</td>
+  <td class="ok">&#10003; 48.8s</td>
+  <td class="ok">&#10003; 1.9s</td>
+  <td class="time">69.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.NonCircularPipes</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 47.3s</td>
+  <td class="ok">&#10003; 23.3s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">71.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.PumpingSystem</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 304.7s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 294.1s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.Tanks.EmptyTanks</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 9.7s</td>
+  <td class="ok">&#10003; 12.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">22.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.Tanks.TanksWithOverflow</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 20.0s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 23.1s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">43.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.Tanks.ThreeTanks</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 18.0s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">30.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.TraceSubstances.RoomCO2</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 80.0s</td>
+  <td class="ok">&#10003; 48.7s</td>
+  <td class="fail" data-error="Validation failed for signals: volume.medium.T, volume.medium.p" onclick="showError(this)">&#10007; 0.5s</td>
+  <td class="time">130.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Fluid.Examples.TraceSubstances.RoomCO2WithControls</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 278.0s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 318.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.0s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Magnetic.FluxTubes</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.BasicExamples.QuadraticCoreAirgap</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 5.9s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">12.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.BasicExamples.SaturatedInductor</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="fail" data-error="Validation failed for signals: r_mFe.mu_r, r_mFe.H" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="time">7.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.BasicExamples.ToroidalCoreAirgap</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">6.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.BasicExamples.ToroidalCoreQuadraticCrossSection</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 5.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">11.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.Hysteresis.HysteresisModelComparison</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 28.8s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 18.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">48.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.Hysteresis.InductorWithHysteresis</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.Hysteresis.SinglePhaseTransformerWithHysteresis1</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="fail" data-error="Simulation retcode: MaxIters" onclick="showError(this)">&#10007; 331.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">339.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.Hysteresis.SinglePhaseTransformerWithHysteresis2</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="fail" data-error="InvalidSystemException: The system is structurally singular! Here are the problematic variables: 
+ transformer_core_LossPower(t)" onclick="showError(this)">&#10007; 0.0s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">1.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.Hysteresis.ThreePhaseTransformerWithRectifier</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 54.9s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 17.8s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">72.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.MovingCoilActuator.ArmatureStroke</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">18.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.MovingCoilActuator.ForceCurrentBehaviour</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">18.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.MovingCoilActuator.ForceStrokeBehaviour</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">16.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.SolenoidActuator.ComparisonPullInStroke</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 14.0s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="time">28.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FluxTubes.Examples.SolenoidActuator.ComparisonQuasiStatic</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 10.1s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 2.9s</td>
+  <td class="time">23.2s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Magnetic.FundamentalWave</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.ComparisonPolyphase.IMC_DOL_CommonLeakage</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 27.3s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 12.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">40.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.ComparisonPolyphase.IMC_DOL_Polyphase</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 14.1s</td>
+  <td class="ok">&#10003; 2.7s</td>
+  <td class="time">29.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.ComparisonPolyphase.IMS_Start_Polyphase</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 15.7s</td>
+  <td class="ok">&#10003; 21.7s</td>
+  <td class="ok">&#10003; 5.5s</td>
+  <td class="time">43.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Conveyor</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 24.5s</td>
+  <td class="ok">&#10003; 4.7s</td>
+  <td class="time">36.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_DOL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="ok">&#10003; 12.6s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="time">24.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Initialize</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="time">8.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Inverter</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 6.9s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="time">16.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Steinmetz</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">18.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Transformer</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.8s</td>
+  <td class="ok">&#10003; 23.4s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="time">35.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_YD</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 16.1s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="time">29.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_withLosses</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">9.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMS_Start</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 15.7s</td>
+  <td class="ok">&#10003; 3.1s</td>
+  <td class="time">31.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.ComparisonPolyphase.SMEE_Generator_Polyphase</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.8s</td>
+  <td class="ok">&#10003; 27.4s</td>
+  <td class="ok">&#10003; 3.4s</td>
+  <td class="time">42.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.ComparisonPolyphase.SMPM_Inverter_Polyphase</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 5.9s</td>
+  <td class="time">23.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.ComparisonPolyphase.SMR_Inverter_Polyphase</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 2.4s</td>
+  <td class="time">23.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMEE_DOL</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">16.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMEE_Generator</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 13.3s</td>
+  <td class="ok">&#10003; 10.7s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="time">26.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMEE_LoadDump</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 12.8s</td>
+  <td class="fail" data-error="Simulation retcode: MaxIters" onclick="showError(this)">&#10007; 80.4s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">93.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMEE_Rectifier</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 25.7s</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="time">37.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_Braking</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="fail" data-error="Simulation retcode: Failure" onclick="showError(this)">&#10007; 11.7s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">20.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_CurrentSource</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">8.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_Inverter</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 2.6s</td>
+  <td class="time">22.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_VoltageSource</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 6.4s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">8.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMR_Inverter</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="time">21.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.Components.EddyCurrentLosses</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.8s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">7.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.Components.PolyphaseInductance</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">8.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.FundamentalWave.Examples.Components.SinglePhaseInductance</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.0s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Magnetic.QuasiStatic.FluxTubes</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.BasicExamples.QuadraticCoreAirgap</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">7.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.BasicExamples.ToroidalCoreAirgap</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.5s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">7.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.BasicExamples.ToroidalCoreQuadraticCrossSection</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">6.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.FixedShapes.CuboidSections</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.FixedShapes.CylinderSections</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.Leakage.CylinderLeakage</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 4.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">13.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.Leakage.GeneralLeakage</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.5s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.LinearInductor</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 8.0s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">16.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FluxTubes.Examples.NonLinearInductor</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 13.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">25.6s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Magnetic.QuasiStatic.FundamentalWave</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Characteristics</td>
+  <td class="ok">&#10003; 2.5s</td>
+  <td class="ok">&#10003; 10.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">13.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Conveyor</td>
+  <td class="ok">&#10003; 3.0s</td>
+  <td class="ok">&#10003; 11.3s</td>
+  <td class="ok">&#10003; 33.2s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="time">49.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_DOL</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 14.2s</td>
+  <td class="ok">&#10003; 13.8s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">29.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Initialize</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 11.9s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="time">20.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Inverter</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 9.8s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">19.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_Transformer</td>
+  <td class="ok">&#10003; 2.0s</td>
+  <td class="ok">&#10003; 25.0s</td>
+  <td class="ok">&#10003; 35.3s</td>
+  <td class="ok">&#10003; 2.7s</td>
+  <td class="time">64.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_YD</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 27.2s</td>
+  <td class="ok">&#10003; 23.8s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="time">53.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMC_withLosses</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 10.4s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 1.0s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">11.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMS_Characteristics</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">11.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.InductionMachines.IMS_Start</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 17.0s</td>
+  <td class="ok">&#10003; 17.8s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="time">38.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMEE_Generator</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 10.8s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 1.9s</td>
+  <td class="time">19.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_CurrentSource</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 11.3s</td>
+  <td class="ok">&#10003; 3.6s</td>
+  <td class="ok">&#10003; 13.5s</td>
+  <td class="time">29.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_FieldWeakening</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 13.2s</td>
+  <td class="fail" data-error="DAE init: residual 94.29 exceeds threshold 20.0; refusing inconsistent ICs. Worst:
+  eq[6] :: 0 ~ (sqrt(var&quot;resistorS_plugToPins_n_plugToPin_n[1]_pin_n_v_re&quot;(t)^2.0 + var&quot;resistorS_resistor[1]_v_im&quot;(t)^2.0) + sqrt(var&quot;resistorS_plugToPins_n_plugToPin_n[2 residual 94.29
+  eq[12] :: 0 ~ -1.4142135623730951var&quot;smpm_stator_electroMagneticConverter_vSymmetricalComponent[1]_re&quot;(t) + smpm_stator_core_port_p_Phi_im(t)*var&quot;smpm_stator_resistor_res residual 6.992e-7
+  eq[11] :: 0 ~ -1.4142135623730951var&quot;..." onclick="showError(this)">&#10007; 1.6s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">15.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_MTPA</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">10.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_Mains</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="time">15.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMPM_OpenCircuit</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 3.7s</td>
+  <td class="time">13.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.BasicMachines.SynchronousMachines.SMR_CurrentSource</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 1.6s</td>
+  <td class="time">21.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.Components.EddyCurrentLosses</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">10.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Magnetic.QuasiStatic.FundamentalWave.Examples.Components.PolyphaseInductance</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="time">11.8s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Math.FastFourierTransform</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Math.FastFourierTransform.Examples.RealFFT1</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 17.5s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">25.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Math.FastFourierTransform.Examples.RealFFT2</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 19.8s</td>
+  <td class="ok">&#10003; 5.7s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">27.4s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Math.Nonlinear</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Math.Nonlinear.Examples.QuadratureLobatto3</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">1.2s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Math.Random</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Math.Random.Examples.GenerateRandomNumbers</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 4.2s</td>
+  <td class="ok">&#10003; 4.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">9.1s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Mechanics.MultiBody</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Constraints.PrismaticConstraint</td>
+  <td class="ok">&#10003; 3.0s</td>
+  <td class="ok">&#10003; 16.1s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="time">20.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Constraints.RevoluteConstraint</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 18.5s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.3s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">22.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Constraints.SphericalConstraint</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.0s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.3s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">11.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Constraints.UniversalConstraint</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 14.0s</td>
+  <td class="fail" data-error="ModelicaAssertionError: assertion violated at time 1.80347e-153: 
+The distance between the origin of frame_a and the origin of frame_b
+of a line force component became smaller as parameter s_small
+(= a small number, defined in the \&quot;Advanced\&quot; menu). The distance is
+set to s_small, although it is smaller, to avoid a division by zero
+when computing the direction of the line force. Possible reasons
+for this situation:
+- At initial time the distance may already be zero: Change the initial
+  positio..." onclick="showError(this)">&#10007; 0.3s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">14.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.DoublePendulum</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 9.8s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">11.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.DoublePendulumInitTip</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">11.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.ForceAndTorque</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">9.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.FreeBody</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 1.9s</td>
+  <td class="time">11.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.HeatLosses</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.2s</td>
+  <td class="fail" data-error="Simulation retcode: InitialFailure" onclick="showError(this)">&#10007; 5.1s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">16.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.InitSpringConstant</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">9.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.LineForceWithTwoMasses</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 13.2s</td>
+  <td class="ok">&#10003; 5.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">19.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.Pendulum</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">8.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.PendulumWithSpringDamper</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">11.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.PointGravity</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">15.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.PointGravityWithPointMasses</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 3.8s</td>
+  <td class="ok">&#10003; 3.4s</td>
+  <td class="fail" data-error="Validation failed for signals: body4.v_0[2]" onclick="showError(this)">&#10007; 0.9s</td>
+  <td class="time">8.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.PointGravityWithPointMasses2</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 15.6s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">16.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.RollingWheel</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 2.8s</td>
+  <td class="fail" data-error="ArgumentError: The equations have at least one cycle." onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">3.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.RollingWheelSetDriving</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">13.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.RollingWheelSetPulling</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="time">21.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.SpringDamperSystem</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.5s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">9.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.SpringMassSystem</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">8.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.SpringWithMass</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">8.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.Surfaces</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 7.5s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">8.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.ThreeSprings</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">9.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Elementary.UserDefinedGravityField</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">8.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.Engine1a</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 12.9s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.Engine1b</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 14.2s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">24.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.Engine1b_analytic</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 26.6s</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">37.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.EngineV6</td>
+  <td class="ok">&#10003; 3.2s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 596.8s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.EngineV6_analytic</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="ok">&#10003; 90.6s</td>
+  <td class="ok">&#10003; 13.4s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="time">107.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.Fourbar1</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 23.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="time">25.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.Fourbar2</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 12.0s</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 1.7s</td>
+  <td class="time">19.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.Fourbar_analytic</td>
+  <td class="ok">&#10003; 0.8s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">11.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.PlanarFourbar</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 15.8s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">16.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Loops.PlanarLoops_analytic</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="fail" data-error="InvalidSystemException: The system is structurally singular! Here are the problematic variables: 
+ var&quot;jointRRR1_jointUSR_rod2_frame_a_f[1]&quot;(t)
+ var&quot;jointRRR1_jointUSR_rod2_frame_a_f[2]&quot;(t)
+ var&quot;jointRRR1_jointUSR_rod2_frame_a_f[3]&quot;(t)
+ jointRRR1_totalPower(t)
+ var&quot;jointRRR2_jointUSR_revolute_frame_a_f[3]&quot;(t)
+ var&quot;jointRRR2_jointUSR_rod1_f_ia_a[1]&quot;(t)
+ var&quot;jointRRR2_jointUSR_rod1_f_ia_a[2]&quot;(t)
+ var&quot;jointRRR2_jointUSR_rod1_frame_b_f[1]&quot;(t)
+ var&quot;jointRRR2_jointUSR_rod1_t_ia_a[2]&quot;(t)
+ var&quot;jointRRR2..." onclick="showError(this)">&#10007; 0.9s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">10.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Rotational3DEffects.ActuatedDrive</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">9.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Rotational3DEffects.BevelGear1D</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 13.6s</td>
+  <td class="ok">&#10003; 7.3s</td>
+  <td class="fail" data-error="Validation failed for signals: revolute1.w, revolute2.w, revolute3.w" onclick="showError(this)">&#10007; 0.6s</td>
+  <td class="time">21.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Rotational3DEffects.GearConstraint</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">11.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Rotational3DEffects.GyroscopicEffects</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 12.4s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 0.2s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">13.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Rotational3DEffects.MovingActuatedDrive</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">10.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Systems.RobotR3.FullRobot</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 36.7s</td>
+  <td class="ok">&#10003; 15.3s</td>
+  <td class="fail" data-error="Validation failed for signals: axis2.gear.bearingFriction.mode" onclick="showError(this)">&#10007; 4.8s</td>
+  <td class="time">57.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.MultiBody.Examples.Systems.RobotR3.OneAxis</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 11.8s</td>
+  <td class="fail" data-error="Validation failed for signals: axis.motor.C.v" onclick="showError(this)">&#10007; 0.9s</td>
+  <td class="time">24.3s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Mechanics.Rotational</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.Backlash</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.CompareBrakingTorque</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.CoupledClutches</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 10.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">19.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.EddyCurrentBrake</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">7.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.ElasticBearing</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.First</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">6.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.FirstGrounded</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">6.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.Friction</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.1s</td>
+  <td class="ok">&#10003; 11.5s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">20.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.GenerationOfFMUs</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.HeatLosses</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 16.0s</td>
+  <td class="ok">&#10003; 15.8s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="time">33.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.LossyGearDemo1</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 12.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">21.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.LossyGearDemo2</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 9.0s</td>
+  <td class="ok">&#10003; 13.1s</td>
+  <td class="fail" data-error="Validation failed for signals: bearingFriction.mode, bearingFriction.startForward, gear.mode" onclick="showError(this)">&#10007; 0.4s</td>
+  <td class="time">22.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.LossyGearDemo3</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 11.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.OneWayClutch</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 9.1s</td>
+  <td class="ok">&#10003; 12.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">22.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.OneWayClutchDisengaged</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 10.2s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">17.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.RollingWheel</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 7.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Rotational.Examples.SimpleGearShift</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 9.2s</td>
+  <td class="fail" data-error="Validation failed for signals: brake.mode" onclick="showError(this)">&#10007; 0.6s</td>
+  <td class="time">18.1s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Mechanics.Translational</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Accelerate</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">5.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Brake</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 10.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">20.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.CompareBrakingForce</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">7.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Damper</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 3.3s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">5.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.EddyCurrentBrake</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">5.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.ElastoGap</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 8.2s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">14.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Friction</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 11.6s</td>
+  <td class="ok">&#10003; 13.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">25.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.GenerationOfFMUs</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.HeatLosses</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 10.7s</td>
+  <td class="ok">&#10003; 11.3s</td>
+  <td class="fail" data-error="Validation failed for signals: springDamper1.v_rel, massWithStopAndFriction.mode" onclick="showError(this)">&#10007; 1.0s</td>
+  <td class="time">23.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.InitialConditions</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">5.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Oscillator</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 5.6s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">5.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.PreLoad</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 10.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">18.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Sensors</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.3s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.SignConvention</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">1.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.Vehicle</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.4s</td>
+  <td class="ok">&#10003; 9.5s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="time">18.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Mechanics.Translational.Examples.WhyArrows</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">0.8s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Media</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.IdealGasH2O</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 6.7s</td>
+  <td class="ok">&#10003; 4.5s</td>
+  <td class="fail" data-error="Validation failed for signals: der_p (not in the solution), der_T (not in the solution)" onclick="showError(this)">&#10007; 0.8s</td>
+  <td class="time">12.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.MixtureGases</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="ok">&#10003; 12.2s</td>
+  <td class="ok">&#10003; 13.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">28.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.MoistAir</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 3.5s</td>
+  <td class="ok">&#10003; 4.5s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">8.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.PsychrometricData</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 17.2s</td>
+  <td class="fail" data-error="The arguments u_min and u_max provided in the function call\n    solveOneNonlinearEquation(f,u_min,u_max)\ndo not bracket the root of the single non-linear equation 0=f(u):\n  u_min  = 190\n  u_max  = 647\n  fa = f(u_min) = 0.0322629\n  fb = f(u_max) = 2.20384e+07\nfa and fb must have opposite sign which is not the case" onclick="showError(this)">&#10007; 0.6s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">18.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.R134a.R134a1</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 63.7s</td>
+  <td class="ok">&#10003; 45.9s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">110.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.R134a.R134a2</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 206.8s</td>
+  <td class="fail" data-error="InterruptException:" onclick="showError(this)">&#10007; 392.4s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">600.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.DryAir1</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 8.7s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">16.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.DryAir2</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 9.7s</td>
+  <td class="ok">&#10003; 18.6s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">28.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.Inverse_sh_T</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 10.0s</td>
+  <td class="ok">&#10003; 9.3s</td>
+  <td class="ok">&#10003; 2.9s</td>
+  <td class="time">22.4s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.Inverse_sh_TX</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="fail" data-error="ModelicaAssertionError: assertion violated at time 0.0: Inverse for s not correctly computed
+  condition: abs(ifEq_tmp0 - s2) &lt; 0.001" onclick="showError(this)">&#10007; 6.3s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">19.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.MoistAir</td>
+  <td class="ok">&#10003; 2.0s</td>
+  <td class="ok">&#10003; 3.4s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">5.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.MoistAir1</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 136.6s</td>
+  <td class="ok">&#10003; 46.5s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">183.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.ReferenceAir.MoistAir2</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 105.4s</td>
+  <td class="ok">&#10003; 51.6s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">157.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.SimpleLiquidWater</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.SolveOneNonlinearEquation.InverseIncompressible_sh_T</td>
+  <td class="ok">&#10003; 1.2s</td>
+  <td class="ok">&#10003; 7.4s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">9.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.SolveOneNonlinearEquation.Inverse_sh_T</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">9.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.SolveOneNonlinearEquation.Inverse_sh_TX</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">9.0s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.SolveOneNonlinearEquation.Inverse_sine</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.9s</td>
+  <td class="ok">&#10003; 5.0s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="time">8.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.TwoPhaseWater.TestTwoPhaseStates</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 11.0s</td>
+  <td class="ok">&#10003; 9.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">21.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Examples.WaterIF97</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="ok">&#10003; 10.7s</td>
+  <td class="ok">&#10003; 11.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">22.5s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Media.Incompressible</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Media.Incompressible.Examples.TestGlycol</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 2.1s</td>
+  <td class="ok">&#10003; 1.0s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">4.0s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>StateGraph</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.ControlledTanks</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 25.4s</td>
+  <td class="fail" data-error="UnsupportedLowering: initialization equations that do not reduce to the states and parameters: var&quot;shut_reset[2]&quot;(t); var&quot;shut_reset[2]&quot;(t)" onclick="showError(this)">&#10007; 4.0s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">29.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.ExecutionPaths</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="ok">&#10003; 28.2s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">38.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.FirstExample</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">11.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.FirstExample_Variant2</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.8s</td>
+  <td class="ok">&#10003; 0.9s</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="time">9.9s</td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.FirstExample_Variant3</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 9.9s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">10.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.ShowCompositeStep</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 24.9s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="ok">&#10003; 0.2s</td>
+  <td class="time">26.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">StateGraph.Examples.ShowExceptions</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 27.7s</td>
+  <td class="ok">&#10003; 1.5s</td>
+  <td class="ok">&#10003; 0.3s</td>
+  <td class="time">29.7s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Thermal.FluidHeatFlow</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.IndirectCooling</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.6s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">9.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.OneMass</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.6s</td>
+  <td class="ok">&#10003; 7.7s</td>
+  <td class="ok">&#10003; 3.9s</td>
+  <td class="time">18.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.ParallelCooling</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 0.7s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">9.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.ParallelPumpDropOut</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.8s</td>
+  <td class="ok">&#10003; 8.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.PumpAndValve</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.5s</td>
+  <td class="ok">&#10003; 9.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">18.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.PumpDropOut</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 7.6s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">14.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.SimpleCooling</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.0s</td>
+  <td class="ok">&#10003; 0.6s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">7.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.TestCylinder</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="ok">&#10003; 9.1s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">16.7s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.TestOpenTank</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 11.4s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="time">20.2s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.TwoMass</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 7.2s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 8.5s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">15.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.TwoTanks</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 7.9s</td>
+  <td class="ok">&#10003; 9.1s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">17.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.FluidHeatFlow.Examples.WaterPump</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 8.9s</td>
+  <td class="fail" data-error="Simulation retcode: Unstable" onclick="showError(this)">&#10007; 15.3s</td>
+  <td class="na">&mdash;</td>
+  <td class="time">24.3s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Thermal.HeatTransfer</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.HeatTransfer.Examples.ControlledTemperature</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 8.3s</td>
+  <td class="ok">&#10003; 11.7s</td>
+  <td class="ok">&#10003; 0.5s</td>
+  <td class="time">20.5s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.HeatTransfer.Examples.GenerationOfFMUs</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 5.8s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">6.3s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.HeatTransfer.Examples.Motor</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 2.2s</td>
+  <td class="ok">&#10003; 6.1s</td>
+  <td class="ok">&#10003; 1.8s</td>
+  <td class="time">10.1s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Thermal.HeatTransfer.Examples.TwoMasses</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 1.3s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">1.4s</td>
+</tr>
+<tr class="domain-header">
+  <td colspan="6"><strong>Utilities</strong></td>
+</tr>
+<tr class="">
+  <td class="model-name">Utilities.Examples.ReadRealMatrixFromFile</td>
+  <td class="fail" data-error="ModelicaIO_readMatrixSizes failed: Not possible to open file &quot;/home/runner/work/OMLibraryTesting.jl/OMLibraryTesting.jl/OM.jl/OMLibraryTesting.jl/modelica://Modelica/Resources/Data/Utilities/Test_RealMatrix_v4.mat&quot;: No such file or directory
+" onclick="showError(this)">&#10007; 0.6s</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="na">&mdash;</td>
+  <td class="time">0.6s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Utilities.Examples.WriteRealMatrixToFile</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="ok">&#10003; 0.4s</td>
+  <td class="ok">&#10003; 1.4s</td>
+  <td class="ok">&#10003; 0.0s</td>
+  <td class="time">1.8s</td>
+</tr>
+<tr class="">
+  <td class="model-name">Utilities.Examples.readRealParameterModel</td>
+  <td class="ok">&#10003; 0.1s</td>
+  <td class="ok">&#10003; 2.9s</td>
+  <td class="ok">&#10003; 1.1s</td>
+  <td class="fail" data-error="Validation failed for signals: J (not in the solution), phi_rel0 (not in the solution), w_rel0 (not in the solution)" onclick="showError(this)">&#10007; 0.1s</td>
+  <td class="time">4.1s</td>
+</tr>
+
+</tbody>
+</table>
+<div id="error-modal">
+  <div id="error-modal-box">
+    <button id="error-modal-close" onclick="closeError()" title="Close">&times;</button>
+    <strong>Error detail</strong>
+    <pre id="error-modal-text"></pre>
+  </div>
+</div>
+<script>
+  function showError(td) {
+    var msg = td.getAttribute('data-error');
+    if (!msg) return;
+    document.getElementById('error-modal-text').textContent = msg;
+    document.getElementById('error-modal').classList.add('open');
+  }
+  function closeError() {
+    document.getElementById('error-modal').classList.remove('open');
+  }
+  document.getElementById('error-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeError();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeError();
+  });
+</script>
+</body>
+</html>
