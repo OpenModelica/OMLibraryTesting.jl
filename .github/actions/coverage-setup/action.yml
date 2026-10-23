@@ -59,11 +59,12 @@ runs:
       shell: bash
       run: julia --color=yes --project=OM.jl/OMLibraryTesting.jl -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 
-    # OMFrontend bundles MSL 3.2.3 and 4.0.0; another version is the installed
-    # library: Modelica, ModelicaServices and Complex (a single file in the
-    # repository, a folder with its package.mo when installed).
+    # OMFrontend bundles MSL 3.2.3 and 4.1.0 as single files; another version is
+    # the installed library: Modelica, ModelicaServices and Complex (a folder with
+    # its package.mo when installed). 4.1.0 is installed too: a bundle has no
+    # Resources (the files models read through modelica:// URIs).
     - name: Install MSL ${{ inputs.msl }}
-      if: inputs.msl != '3.2.3' && inputs.msl != '4.0.0'
+      if: inputs.msl != '3.2.3'
       shell: bash
       env:
         MSL_VERSION: ${{ inputs.msl }}

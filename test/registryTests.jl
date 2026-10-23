@@ -45,5 +45,5 @@ end
     @test all(e -> e["name"] in experiments, values(OLT.TOML.parsefile(OLT.default_models_path("4.1.0"))["models"]))
     #= Bundled versions by MSL_Version; others are installed libraries (not loaded here). =#
     @test OLT._msl_kwargs("MSL:3.2.3") == (; MSL_Version = "MSL:3.2.3")
-    @test OLT._msl_kwargs("MSL:4.0.0") == (; MSL_Version = "MSL:4.0.0")
+    @test OLT._msl_kwargs("MSL:4.1.0") == (; MSL_Version = "MSL:4.1.0")
 end

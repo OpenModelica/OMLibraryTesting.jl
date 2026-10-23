@@ -375,7 +375,7 @@ atol = 1.0
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes"
 reltol = 0.05
-solver = "FBDF"
+issue = "2026-10-22: the FBDF override (2026-05-22, Rodas5 Unstable at the diodes' switching) removed: FBDF stops with MaxIters, the default solver validates 3/3."
 
 [models.ChuaCircuit]
 atol = 5.0
@@ -778,3 +778,9 @@ name = "Modelica.Mechanics.MultiBody.Examples.Rotational3DEffects.BevelGear1D"
 domain = "Mechanics.MultiBody"
 stopTime = 0.4
 issue = "2026-10-13: the MSL 4.1.0 reference ends at 0.4 s (experiment StopTime 1): compared over the reference's span."
+
+[models.Mechanics_MultiBody_Examples_Elementary_PointGravityWithPointMasses2]
+name = "Modelica.Mechanics.MultiBody.Examples.Elementary.PointGravityWithPointMasses2"
+domain = "Mechanics.MultiBody"
+stopTime = 2.0
+issue = "2026-10-20: the MSL 4.1.0 reference ends at 2.0 s (experiment StopTime 3): compared over the reference's span."

@@ -91,3 +91,18 @@ end
     @test [r.spec.name for r in merged] == [s.name for s in specs]   # run_coverage's order (domain, name)
     @test_throws ErrorException OLT.merge_shards([result.(s1), result.(s1[1:1])])
 end
+
+#= A worker is recycled by the measure the footprint watchdog kills by (top's MEM on macOS), not ps's
+   resident size: they differ in both directions, and coverage 26's workers passed the 8 GB watchdog below
+   6 GB resident. =#
+@testset "workerMemoryGB: the footprint watchdog's measure" begin
+    local gb = OLT.workerMemoryGB(getpid())
+    @test 0.05 < gb < 1024
+    if Sys.isapple()
+        local top = strip(last(split(strip(read(`top -l 1 -pid $(getpid()) -stats mem`, String)), '\n')))
+        local m = match(r"([0-9.]+)([KMG])", top)
+        local topGB = parse(Float64, m[1]) * (m[2] == "G" ? 1.0 : m[2] == "M" ? 1 / 1024 : 1 / 2^20)
+        @test isapprox(gb, topGB; rtol = 0.2)
+    end
+    @test redirect_stderr(devnull) do; OLT.workerMemoryGB(999_999); end == 0.0
+end

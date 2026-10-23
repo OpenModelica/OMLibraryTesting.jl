@@ -717,8 +717,61 @@ function run_model(spec::ModelSpec, mgr::WorkerManager;
         return ModelResult(spec, PhaseResult[], BROKEN,
                           Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
     end
-    return run_on_worker(mgr, spec, effective_phases; timeout = timeout,
-                         check_sim_code = check_sim_code)
+    local result = run_on_worker(mgr, spec, effective_phases; timeout = timeout,
+                                 check_sim_code = check_sim_code)
+    recycleLargeWorker!(mgr)
+    return result
+end
+
+"""
+    recycleLargeWorker!(mgr)
+
+Restarts the worker of `mgr` before its next model when its memory (`workerMemoryGB`) is over
+`OMJL_COVERAGE_RECYCLE_GB` gigabytes (unset or 0: never). A worker keeps what the models before it
+left (compiled code, caches, freed memory the allocator holds), and a footprint watchdog killed it
+under whichever model came next (coverage 21: MSL QuasiStatic EddyCurrentLosses, under 3 GB in a
+fresh process).
+"""
+function recycleLargeWorker!(mgr::WorkerManager)::Nothing
+    local limit = something(tryparse(Float64, get(ENV, "OMJL_COVERAGE_RECYCLE_GB", "0")), 0.0)
+    (limit > 0 && mgr.os_pid !== nothing && mgr.pid !== nothing && mgr.pid in workers()) || return nothing
+    local gb = workerMemoryGB(mgr.os_pid)
+    if gb > limit
+        @info "Recycling worker $(mgr.pid): memory $(round(gb; digits = 1)) GB, over $(limit) GB"
+        kill_worker!(mgr)
+    end
+    return nothing
+end
+
+"""
+    workerMemoryGB(os_pid) -> Float64
+
+A process's memory in gigabytes as a footprint watchdog measures it: on macOS `top`'s MEM (the
+physical footprint), elsewhere `ps`'s resident size. On macOS the two differ in both directions
+(compressed pages count in the footprint, freed pages the allocator marked reusable do not; one
+process: 11.5 GB resident, 7.7 GB footprint), and recycling by the resident size let coverage 26's
+workers pass the 8 GB footprint watchdog below 6 GB resident (FullRobot,
+ThreePhaseTransformerWithRectifier killed; under 6 GB each alone). Freed memory from many medium
+arrays stays in the footprint (a worker at 0.6 GB live heap: 7.5 GB). 0 where neither reads.
+"""
+function workerMemoryGB(os_pid::Integer)::Float64
+    if Sys.isapple()
+        local top = try
+            read(`top -l 1 -pid $(os_pid) -stats mem`, String)
+        catch e
+            e isa InterruptException && rethrow()
+            ""
+        end
+        local m = match(r"([0-9.]+)([KMG])[+-]?\s*$", strip(top))
+        m === nothing || return parse(Float64, m[1]) * (m[2] == "G" ? 1.0 : m[2] == "M" ? 1 / 1024 : 1 / 2^20)
+    end
+    local kb = try
+        something(tryparse(Int, strip(read(`ps -o rss= -p $(os_pid)`, String))), 0)
+    catch e
+        e isa InterruptException && rethrow()
+        0
+    end
+    return kb / 2^20
 end
 
 """
