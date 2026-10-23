@@ -334,11 +334,12 @@ end
 # ---------------------------------------------------------------------------
 
 # Map an upstream loadModel version to the bundled MSL_Version the OM.jl
-# by-name pipeline understands. Only 3.2.x and 4.0.0 are bundled.
+# by-name pipeline understands. 3.2.3 and 4.1.0 are bundled; 4.0 is 4.1.0
+# (4.1.0 is backwards compatible with 4.0.0).
 function _bundled_msl_version(version::String)::Union{Nothing, String}
     isempty(version) && return nothing
     startswith(version, "3.2") && return "MSL:3.2.3"
-    startswith(version, "4.0") && return "MSL:4.0.0"
+    (startswith(version, "4.0") || startswith(version, "4.1")) && return "MSL:4.1.0"
     return nothing
 end
 

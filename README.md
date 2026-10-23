@@ -80,8 +80,8 @@ results = OMLibraryTesting.run_coverage(domain = "Thermal", msl_version = "MSL:3
 results = OMLibraryTesting.run_coverage(model = "Modelica.Thermal.HeatTransfer.Examples.TwoMasses")
 
 # MSL 4.1.0: its experiment list, registry (models/models_4.1.0.toml) and reference data
-# (reference/4.1.0/); OMFrontend bundles 3.2.3 and 4.0.0, so 4.1.0 is the installed library
-# (~/.openmodelica/libraries: Modelica, ModelicaServices and Complex 4.1.0)
+# (reference/4.1.0/); OMFrontend bundles 3.2.3 and 4.1.0 as single files (the resources a model
+# reads come from the installed library: ~/.openmodelica/libraries, Modelica 4.1.0)
 results = OMLibraryTesting.run_coverage(msl_version = "MSL:4.1.0")
 
 # Generate an HTML report
@@ -189,8 +189,8 @@ Selected keywords (`run_testsuite`):
 
 Notes and limitations:
 
-* `:omjl` mode only runs cases that load a **bundled** MSL version (3.2.x or 4.0.0)
-  and target a `Modelica.*` class. Cases using MSL 4.1.0/trunk, third-party libraries,
+* `:omjl` mode only runs cases that load a **bundled** MSL version (3.2.x, or 4.x as 4.1.0)
+  and target a `Modelica.*` class. Cases using MSL trunk, third-party libraries,
   or inline-defined models are reported as skipped with a reason. It stops at
   `SIMULATE` by default because the testsuite ships no validation CSVs in this harness.
 * `:rtest` mode needs `omc-diff` in the scaffolded OPENMODELICAHOME. `fetch_testsuite`

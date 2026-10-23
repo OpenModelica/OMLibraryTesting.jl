@@ -55,6 +55,14 @@ end
     #= Neither limit: a reset that did not happen. =#
     local noReset = OLT.compare_signal(SignalOf(t -> t <= 0.5 ? t : t + 0.1), ref, "x", 1.0; npoints = 5)
     @test !noReset.passed
+    #= 2026-10-22: the reference files store their times as Float32, an event at 0.099 as 0.098999995 (MSL
+       HBridge_RL's switching, 4.1.0): the event at the sample instant 0.099 all the same. =#
+    local t32 = Float64(Float32(0.099))
+    local stored = OLT.ReferenceData([0.0, 0.05, t32, t32, 0.1], Dict("x" => [0.0, 0.05, 0.099, -0.099, -0.1]))
+    @test t32 < 0.099
+    @test OLT._event_limits(stored.time, stored.signals["x"], 0.099) == (0.099, -0.099)
+    @test OLT._event_limits(stored.time, stored.signals["x"], 0.05) === nothing
+    @test OLT.compare_signal(SignalOf(t -> t <= 0.099 ? t : -t), stored, "x", 0.1; npoints = 1001).passed
 end
 
 @testset "comparison: a stopTime past the reference's end" begin

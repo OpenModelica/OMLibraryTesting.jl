@@ -161,11 +161,15 @@ end
     _event_limits(ref_time, ref_values, t) -> Union{Nothing, Tuple{Float64, Float64}}
 
 The values before and after an event the reference recorded at `t` (a time
-that appears more than once: a result file stores both), else `nothing`.
+that appears more than once: a result file stores both), else `nothing`. The
+reference files store their times as Float32: the event's time is `t` to
+Float32's rounding (MSL HBridge_RL's switching at t = 0.099 is stored as
+0.098999995, at 0.0996 as 0.099600002).
 """
 function _event_limits(ref_time::Vector{Float64}, ref_values::Vector{Float64}, t::Float64)
-    first_row = searchsortedfirst(ref_time, t)
-    last_row = searchsortedlast(ref_time, t)
+    local rounding = Float64(eps(Float32(max(abs(t), floatmin(Float32)))))
+    first_row = searchsortedfirst(ref_time, t - rounding)
+    last_row = searchsortedlast(ref_time, t + rounding)
     last_row > first_row || return nothing
     return (ref_values[first_row], ref_values[last_row])
 end
