@@ -550,6 +550,10 @@ end
 Run all phases for a model on the worker process with an escalating timeout:
 1. After `timeout` seconds: send SIGINT via `interrupt(pid)`
 2. After `timeout + grace_period` seconds: kill the worker (`kill_worker!`: SIGKILL, then `rmprocs`)
+
+and a memory limit (`memoryLimitGB`): a worker over it while the model runs is killed, and the
+model fails with its memory, instead of the machine running out (a CI runner's 16 GB: the runner
+shut down and its shard's results were lost, MSL 3.2.3 Rectifier6pulseFFT, 2026-10-24).
 """
 function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
                        phases_to_run::Vector{Phase};
@@ -595,6 +599,9 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
     t0 = time()
     interrupted = Ref(false)
     killed = Ref(false)
+    #= the worker's memory when the limit killed it; 0 while it did not =#
+    over_memory = Ref(0.0)
+    memory_limit = memoryLimitGB()
 
     _future_pending() = !istaskdone(fetcher)
 
@@ -618,8 +625,20 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         # Poll instead of blocking on fetch so Ctrl-C can be delivered between iterations.
         # Stop waiting once the worker is killed: kill_worker! only kills workers this
         # module spawned, so the fetcher of an adopted worker may never finish.
+        # The worker's memory is read every fourth poll (2 s).
+        polls = 0
         while _future_pending() && !killed[]
             sleep(0.5)
+            polls += 1
+            if memory_limit > 0 && polls % 4 == 0 && mgr.os_pid !== nothing
+                gb = workerMemoryGB(mgr.os_pid)
+                if gb > memory_limit && _future_pending()
+                    over_memory[] = gb
+                    killed[] = true
+                    @warn "  $(spec.name): worker memory $(round(gb, digits=1)) GB, over $(memory_limit) GB, killing..."
+                    try; kill_worker!(mgr); catch; end
+                end
+            end
         end
         raw = killed[] && _future_pending() ? ProcessExitedException(pid) : fetch(fetcher)
         raw isa Exception && throw(raw)
@@ -650,6 +669,16 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
             @warn "    $(spec.name): INTERRUPTED by user"
             kill_worker!(mgr)
             rethrow()
+        elseif over_memory[] > 0
+            msg = "Memory $(round(over_memory[], digits=1)) GB after $(round(elapsed, digits=1))s " *
+                  "(limit: $(memory_limit) GB) [worker killed]"
+            mgr.pid = nothing
+            mgr.ready = false
+            @warn "    $(spec.name): MEMORY: $msg"
+            phase = isempty(phases_to_run) ? BROKEN : phases_to_run[1]
+            phases = PhaseResult[PhaseResult(phase, false, elapsed, msg)]
+            return ModelResult(spec, phases, BROKEN,
+                              Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
         elseif interrupted[] || killed[]
             msg = "Timeout after $(round(elapsed, digits=1))s (limit: $(round(timeout, digits=0))s)"
             if killed[]
@@ -742,6 +771,14 @@ function recycleLargeWorker!(mgr::WorkerManager)::Nothing
     end
     return nothing
 end
+
+"""
+    memoryLimitGB() -> Float64
+
+The memory in gigabytes (`workerMemoryGB`) a worker may reach while it runs a model,
+`OMJL_COVERAGE_MEMORY_LIMIT_GB` (unset or 0: no limit); over it `run_on_worker` kills the worker.
+"""
+memoryLimitGB()::Float64 = max(something(tryparse(Float64, get(ENV, "OMJL_COVERAGE_MEMORY_LIMIT_GB", "0")), 0.0), 0.0)
 
 """
     workerMemoryGB(os_pid) -> Float64

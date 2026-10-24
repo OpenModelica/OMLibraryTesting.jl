@@ -20,6 +20,9 @@ Environment variables:
                             model goes through every phase (what really stops each one; as docs/COVERAGE.md).
     OMJL_COVERAGE_SHARD     "k/n": only the k-th of every n models (run_coverage's `shard`), for a run split
                             over n jobs; scripts/merge_coverage.jl joins their results (default "1/1").
+    OMJL_COVERAGE_MEMORY_LIMIT_GB  A worker over this many GB while it runs a model is killed and the model
+                            fails with its memory (run_on_worker; unset or 0: no limit).
+    OMJL_COVERAGE_RECYCLE_GB  A worker over this many GB is restarted before its next model (unset or 0: never).
 =#
 
 using Dates
