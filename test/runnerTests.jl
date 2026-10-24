@@ -52,6 +52,42 @@ end
     end
 end
 
+#= A worker over OMJL_COVERAGE_MEMORY_LIMIT_GB while it runs a model must be killed and the model
+   fail with its memory: past a CI runner's 16 GB the runner shut down and its shard's results were
+   lost (MSL 3.2.3 Rectifier6pulseFFT, 2026-10-24). Here the worker's _run_model_phases fills 10 MB
+   buffers until 4 GB, under a limit 0.5 GB above the worker's memory at the start. =#
+@testset "run_on_worker kills a worker over the memory limit" begin
+    spec = OLT.ModelSpec("Large.Model", "Large_Model", "Large", 1.0, OLT.SIMULATE,
+                         Dict{String, Float64}(), 0.0, 0.0, "", Dict{String, String}(), "",
+                         Set{OLT.Phase}())
+    mgr = OLT.WorkerManager()
+    try
+        pid = OLT.ensure_worker!(mgr)
+        Distributed.remotecall_eval(OLT, pid, quote
+            foreach(Base.delete_method, collect(methods(_run_model_phases)))
+            _run_model_phases(args...) = let buffers = Vector{UInt8}[]
+                for _ in 1:400
+                    push!(buffers, ones(UInt8, 10^7))
+                    sleep(0.05)
+                end
+                (Tuple{Int, Bool, Float64, Union{Nothing, String}}[], 0)
+            end
+        end)
+        limit = round(OLT.workerMemoryGB(mgr.os_pid) + 0.5; digits = 2)
+        elapsed = withenv("OMJL_COVERAGE_MEMORY_LIMIT_GB" => string(limit)) do
+            @elapsed global memoryResult = OLT.run_on_worker(mgr, spec, [OLT.SIMULATE]; timeout = 120.0)
+        end
+        @test memoryResult.highest == OLT.BROKEN
+        @test startswith(something(memoryResult.phases[1].error, ""), "Memory")
+        @test endswith(memoryResult.phases[1].error, "[worker killed]")
+        @test elapsed < 20.0
+        @test mgr.pid === nothing
+        @test withenv(OLT.memoryLimitGB, "OMJL_COVERAGE_MEMORY_LIMIT_GB" => nothing) == 0.0   # unset: no limit
+    finally
+        OLT.cleanup!(mgr)
+    end
+end
+
 #= A worker that cannot load the packages (a precompile of changed sources failed) must fail
    its model, not the run: the error left run_coverage, and every result of the run was lost.
    Here the worker starts in an empty project with a load path of only that project and the

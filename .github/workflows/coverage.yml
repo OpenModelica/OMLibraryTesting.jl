@@ -142,7 +142,12 @@ jobs:
           OMJL_COVERAGE_TIMEOUT: ${{ inputs.timeout || '600' }}
           # One thread per worker: OMLibraryTesting runs no parallel workloads.
           JULIA_NUM_THREADS: "1"
-        run: julia --color=yes --project=. scripts/run_full_coverage.jl
+        # A model whose worker passes its share of 11 GB fails with its memory (the limit is
+        # per worker: OMJL_COVERAGE_MEMORY_LIMIT_GB); past the runner's 16 GB the runner shut
+        # down and the shard's results were lost (MSL 3.2.3 Rectifier6pulseFFT, 2026-10-24).
+        run: |
+          export OMJL_COVERAGE_MEMORY_LIMIT_GB=$(awk -v w="$OMJL_COVERAGE_WORKERS" 'BEGIN { printf "%.1f", 11 / w }')
+          julia --color=yes --project=. scripts/run_full_coverage.jl
 
       - name: Upload the shard's results
         if: ${{ !cancelled() }}
