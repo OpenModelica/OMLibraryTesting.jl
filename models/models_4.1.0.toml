@@ -6,6 +6,10 @@
 # name, its solver and tolerance settings, inline reference and a stopTime shortened below the
 # experiment's. Status marks (expected, skipPhases, issue) are left out: they describe 3.2.3 runs.
 # The fields are documented in models/models.toml.
+#
+# 2026-10-27: the relaxed validation settings (atol/reltol above 0.01/3e-3, a stopTime short of the experiment's) are
+# off the 113 relaxed entries of models that validated: 95 validate strictly, 18 do not (their issue notes the
+# finding). A stopTime stays only where the reference ends before the experiment (ChuaCircuit, PointGravityWithPointMasses2).
 
 [meta]
 description = "OM.jl MSL 4.1.0 coverage model registry"
@@ -13,382 +17,264 @@ msl_version = "MSL:4.1.0"
 reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v4.1.0)"
 
 [models.Apr25_Blocks_Examples_BusUsage]
-atol = 2.0
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.BusUsage"
-reltol = 0.1
 
 [models.Apr25_Blocks_Examples_FilterWithDifferentiation]
-atol = 0.1
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.FilterWithDifferentiation"
-reltol = 0.05
 solver = "IDA"
-stopTime = 0.01
 
 [models.Apr25_Blocks_Examples_FilterWithRiseTime]
-atol = 0.1
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.FilterWithRiseTime"
-reltol = 0.1
-stopTime = 0.9
 
 [models.Apr25_Blocks_Examples_SlewRateLimiter]
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.SlewRateLimiter"
 solver = "IDA"
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_HeatingPNP_NORGate]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.HeatingPNP_NORGate"
-reltol = 0.01
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_InvertingAmp]
-atol = 0.1
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.InvertingAmp"
-reltol = 0.05
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_Comparator]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.Comparator"
-reltol = 0.01
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_Differentiator]
-atol = 0.5
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.Differentiator"
-reltol = 0.05
 solver = "FBDF"
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_HighPass]
-atol = 0.5
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.HighPass"
-reltol = 0.05
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_Integrator]
-atol = 0.5
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.Integrator"
-reltol = 0.05
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_LowPass]
-atol = 0.5
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.LowPass"
-reltol = 0.05
-stopTime = 0.01
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_Multivibrator]
-atol = 4.0
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.Multivibrator"
-reltol = 0.05
-stopTime = 0.01
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): disputed: c.v fails; a phase-sensitive oscillator, and omc misses the reference more than OM.jl. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_SchmittTrigger]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.SchmittTrigger"
-reltol = 0.01
-stopTime = 0.01
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's opAmp.out.v differs from the reference; omc matches it. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_SignalGenerator]
-atol = 12.0
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.SignalGenerator"
-reltol = 0.05
-stopTime = 0.5
 
 [models.Apr25_Electrical_Analog_Examples_OpAmps_VoltageFollower]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.VoltageFollower"
-reltol = 0.05
-stopTime = 0.01
 
 [models.Apr25_Electrical_Digital_Examples_Adder4]
-atol = 0.5
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.Adder4"
-reltol = 0.05
 
 [models.Apr25_Electrical_Digital_Examples_BUF3S]
-atol = 8.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.BUF3S"
-reltol = 0.5
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_Counter3]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.Counter3"
-reltol = 0.5
-stopTime = 1.0
 
 [models.Apr25_Electrical_Digital_Examples_DFFREG]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DFFREG"
-reltol = 0.5
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_DFFREGL]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DFFREGL"
-reltol = 0.5
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_DFFREGSRH]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DFFREGSRH"
-reltol = 0.5
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_DFFREGSRL]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DFFREGSRL"
-reltol = 0.5
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_DLATREG]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DLATREG"
-reltol = 0.5
 
 [models.Apr25_Electrical_Digital_Examples_DLATREGL]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DLATREGL"
-reltol = 0.5
 
 [models.Apr25_Electrical_Digital_Examples_DLATREGSRH]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DLATREGSRH"
-reltol = 0.5
 
 [models.Apr25_Electrical_Digital_Examples_DLATREGSRL]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.DLATREGSRL"
-reltol = 0.5
 
 [models.Apr25_Electrical_Digital_Examples_HalfAdder]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.HalfAdder"
-reltol = 0.5
 solver = "Rosenbrock23"
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's output lacks the reference's initial 'U'; omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_INV3S]
-atol = 2.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.INV3S"
-reltol = 0.5
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_MUX2x1]
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.MUX2x1"
-stopTime = 1.0
 
 [models.Apr25_Electrical_Digital_Examples_NRXFER]
-atol = 2.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.NRXFER"
-reltol = 0.5
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_NXFER]
-atol = 2.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.NXFER"
-reltol = 0.5
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Digital_Examples_RAM]
-atol = 1.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.RAM"
-reltol = 0.1
 
 [models.Apr25_Electrical_Digital_Examples_WiredX]
-atol = 5.0
 domain = "Electrical.Digital"
 name = "Modelica.Electrical.Digital.Examples.WiredX"
-reltol = 0.5
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's logic output differs from the reference ('U' where the reference and omc have '0', '1' or 'Z'); omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Electrical_Machines_Examples_ControlledDCDrives_CurrentControlledDCPM]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.ControlledDCDrives.CurrentControlledDCPM"
-reltol = 0.1
 
 [models.Apr25_Electrical_Machines_Examples_ControlledDCDrives_SpeedControlledDCPM]
-atol = 12.0
 domain = "Electrical.Machines"
 dtmax = 0.0001
 name = "Modelica.Electrical.Machines.Examples.ControlledDCDrives.SpeedControlledDCPM"
-reltol = 0.1
-stopTime = 0.5
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCEE_Start]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCEE_Start"
-reltol = 0.05
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_CurrentControlled]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_CurrentControlled"
-reltol = 0.1
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_Start]
-atol = 12.0
 domain = "Electrical.Machines"
 dtmax = 0.0001
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_Start"
-reltol = 0.05
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_Temperature]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_Temperature"
-reltol = 0.1
-stopTime = 2.0
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCPM_withLosses]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCPM_withLosses"
-reltol = 0.1
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCSE_SinglePhase]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCSE_SinglePhase"
-reltol = 0.05
 
 [models.Apr25_Electrical_Machines_Examples_DCMachines_DCSE_Start]
-atol = 12.0
 domain = "Electrical.Machines"
 name = "Modelica.Electrical.Machines.Examples.DCMachines.DCSE_Start"
-reltol = 0.1
 
 [models.Apr25_Electrical_Spice3_Examples_CoupledInductors]
-atol = 0.2
 domain = "Electrical.Spice3"
 name = "Modelica.Electrical.Spice3.Examples.CoupledInductors"
-reltol = 0.05
 
 [models.Apr25_Magnetic_FluxTubes_Examples_MovingCoilActuator_ForceCurrentBehaviour]
-atol = 0.5
 domain = "Magnetic.FluxTubes"
 name = "Modelica.Magnetic.FluxTubes.Examples.MovingCoilActuator.ForceCurrentBehaviour"
-reltol = 0.05
-stopTime = 0.5
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): disputed: pmActuator.coil.L_stat fails; omc also misses the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Magnetic_FluxTubes_Examples_MovingCoilActuator_ForceStrokeBehaviour]
-atol = 0.5
 domain = "Magnetic.FluxTubes"
 name = "Modelica.Magnetic.FluxTubes.Examples.MovingCoilActuator.ForceStrokeBehaviour"
-reltol = 0.05
-stopTime = 0.5
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_DoublePendulumInitTip]
-atol = 0.5
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.DoublePendulumInitTip"
-reltol = 0.3
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): disputed: revolute1.w and revolute2.w fail; omc also misses the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_PointGravity]
-atol = 0.5
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.PointGravity"
-reltol = 0.05
-stopTime = 1.0
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's body2.v_0 is off by up to 0.19 around the close approach; omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_SpringDamperSystem]
-atol = 0.5
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.SpringDamperSystem"
-reltol = 0.05
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_SpringWithMass]
-atol = 0.5
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.SpringWithMass"
-reltol = 0.05
 
 [models.Apr25_Mechanics_MultiBody_Examples_Elementary_UserDefinedGravityField]
-atol = 0.5
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.UserDefinedGravityField"
-reltol = 0.05
-stopTime = 1.1
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Engine1b]
-atol = 0.1
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1b"
-reltol = 0.05
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_Engine1b_analytic]
-atol = 0.1
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1b_analytic"
-reltol = 0.05
 
 [models.Apr25_Mechanics_MultiBody_Examples_Loops_PlanarFourbar]
-atol = 0.1
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.PlanarFourbar"
-reltol = 0.05
 
 [models.Blocks_RealNetwork1]
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.RealNetwork1"
-stopTime = 2.0
 
 [models.Blocks_Rectifier12pulseFFT]
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.Rectifier12pulseFFT"
-stopTime = 0.1
 
 [models.CharacteristicIdealDiodes]
-atol = 1.0
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes"
-reltol = 0.05
-issue = "2026-10-22: the FBDF override (2026-05-22, Rodas5 Unstable at the diodes' switching) removed: FBDF stops with MaxIters, the default solver validates 3/3."
+issue = "2026-10-27: validates strictly (atol 0.01, reltol 3e-3, the experiment's horizon): its relaxed settings removed. 2026-10-22: the FBDF override (2026-05-22, Rodas5 Unstable at the diodes' switching) removed: FBDF stops with MaxIters, the default solver validates 3/3."
 
 [models.ChuaCircuit]
-atol = 5.0
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.ChuaCircuit"
-reltol = 0.5
-stopTime = 5.0
+stopTime = 3000.0
 
 [models.CompareTransformers]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.CompareTransformers"
-reltol = 0.01
 
 [models.DifferenceAmplifier]
 domain = "Electrical.Analog"
@@ -398,51 +284,35 @@ solverAtol = 0.01
 solverReltol = 0.01
 
 [models.DoublePendulum]
-atol = 0.05
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.DoublePendulum"
-reltol = 0.01
-stopTime = 1.0
 
 [models.Engine1a]
-atol = 0.1
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.Engine1a"
-reltol = 0.05
-stopTime = 0.72
 
 [models.Filter]
-atol = 2.0
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.Filter"
-reltol = 0.1
 
 [models.FluidHeatFlow_OneMass]
-atol = 0.5
 domain = "Thermal.FluidHeatFlow"
 name = "Modelica.Thermal.FluidHeatFlow.Examples.OneMass"
-reltol = 0.05
-stopTime = 0.2
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl's heatCapacitor.T and pipe.T are off by 3-5 K; omc matches the reference. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.FluidHeatFlow_ParallelPumpDropOut]
-atol = 0.5
 domain = "Thermal.FluidHeatFlow"
 name = "Modelica.Thermal.FluidHeatFlow.Examples.ParallelPumpDropOut"
-reltol = 0.05
-stopTime = 0.3
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl goes Unstable after the pump drop-out (the old stopTime 0.3 s stopped before it); omc simulates the 2 s. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.FluidHeatFlow_PumpAndValve]
-atol = 0.5
 domain = "Thermal.FluidHeatFlow"
 name = "Modelica.Thermal.FluidHeatFlow.Examples.PumpAndValve"
-reltol = 0.05
 
 [models.FluidHeatFlow_PumpDropOut]
-atol = 0.5
 domain = "Thermal.FluidHeatFlow"
 name = "Modelica.Thermal.FluidHeatFlow.Examples.PumpDropOut"
-reltol = 0.05
-stopTime = 0.3
+issue = "2026-10-27 strict check (atol 0.01, reltol 3e-3, the experiment's horizon): OM.jl goes Unstable after the pump drop-out (the old stopTime 0.3 s stopped before it); omc simulates the 2 s. Its relaxed settings removed: it counts as failing until fixed."
 
 [models.Fluid_HeatExchangerSimulation]
 domain = "Fluid"
@@ -452,25 +322,19 @@ stopTime = 1.0
 [models.FreeBody]
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.FreeBody"
-stopTime = 1.0
 
 [models.HeatingRectifier]
-atol = 2.5
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.HeatingRectifier"
-reltol = 0.1
 
 [models.IdealTriacCircuit]
-atol = 5.0
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.IdealTriacCircuit"
-reltol = 0.1
 
 [models.InverseModel]
 atol = 0.01
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.InverseModel"
-reltol = 0.01
 
 [models.Magnetic_HysteresisModelComparison]
 domain = "Magnetic.FluxTubes"
@@ -481,96 +345,69 @@ stopTime = 1.0
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.CauerLowPassAnalog"
-reltol = 0.01
 
 [models.May2026_Analog_GenerationOfFMUs]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.GenerationOfFMUs"
-reltol = 0.01
 
 [models.May2026_Analog_ResonanceCircuits]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.ResonanceCircuits"
-reltol = 0.01
 
 [models.May2026_Electrical_Analog_Examples_OpAmps_LCOscillator]
-atol = 0.05
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OpAmps.LCOscillator"
-reltol = 0.05
 
 [models.May2026_Magnetic_FundamentalWave_SinglePhaseInductance]
-atol = 0.5
 domain = "Magnetic.FundamentalWave"
 name = "Modelica.Magnetic.FundamentalWave.Examples.Components.SinglePhaseInductance"
-reltol = 0.1
-stopTime = 1.0
 
 [models.May2026_Math_FastFourierTransform_RealFFT1]
-atol = 0.5
 domain = "Math.FastFourierTransform"
 name = "Modelica.Math.FastFourierTransform.Examples.RealFFT1"
-reltol = 0.1
 
 [models.May2026_Math_FastFourierTransform_RealFFT2]
-atol = 0.5
 domain = "Math.FastFourierTransform"
 name = "Modelica.Math.FastFourierTransform.Examples.RealFFT2"
-reltol = 0.1
 
 [models.May2026_Math_Random_GenerateRandomNumbers]
-atol = 5.0
 domain = "Math.Random"
 name = "Modelica.Math.Random.Examples.GenerateRandomNumbers"
-reltol = 0.3
-stopTime = 1.0
 
 [models.May2026_MultiBody_Surfaces]
-atol = 0.5
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.Surfaces"
-reltol = 0.1
-stopTime = 0.5
 
 [models.May2026_Translational_Sensors]
 atol = 0.01
 domain = "Mechanics.Translational"
 name = "Modelica.Mechanics.Translational.Examples.Sensors"
-reltol = 0.01
 
 [models.May2026_Utilities_WriteRealMatrixToFile]
-atol = 0.1
 domain = "Utilities"
 name = "Modelica.Utilities.Examples.WriteRealMatrixToFile"
-reltol = 0.05
 
 [models.Mechanics_Rotational_Examples_Backlash]
-atol = 50.0
 domain = "Mechanics.Rotational"
 name = "Modelica.Mechanics.Rotational.Examples.Backlash"
-reltol = 0.3
 
 [models.Media_DryAir1]
 domain = "Media"
 name = "Modelica.Media.Examples.ReferenceAir.DryAir1"
-stopTime = 1.0
 
 [models.Media_DryAir2]
 domain = "Media"
 name = "Modelica.Media.Examples.ReferenceAir.DryAir2"
-stopTime = 1.0
 
 [models.Media_TestGlycol]
 domain = "Media"
 name = "Modelica.Media.Incompressible.Examples.TestGlycol"
-stopTime = 1.0
 
 [models.Media_TestTwoPhaseStates]
 domain = "Media"
 name = "Modelica.Media.Examples.TwoPhaseWater.TestTwoPhaseStates"
-stopTime = 1.0
 
 [models.MultiBody_EngineV6]
 domain = "Mechanics.MultiBody"
@@ -580,7 +417,6 @@ stopTime = 1.0
 [models.MultiBody_EngineV6_analytic]
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Loops.EngineV6_analytic"
-stopTime = 1.0
 
 [models.MultiBody_PlanarLoops_analytic]
 domain = "Mechanics.MultiBody"
@@ -591,52 +427,39 @@ stopTime = 1.0
 atol = 0.01
 domain = "Mechanics.Translational"
 name = "Modelica.Mechanics.Translational.Examples.Oscillator"
-reltol = 0.01
 
 [models.OvervoltageProtection]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.OvervoltageProtection"
-reltol = 0.01
 
 [models.PID_Controller]
-atol = 0.1
 domain = "Blocks"
 name = "Modelica.Blocks.Examples.PID_Controller"
-reltol = 0.05
 solver = "FBDF"
 
 [models.Pendulum]
 atol = 0.01
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.Pendulum"
-reltol = 0.01
-stopTime = 1.0
 
 [models.Rotational_ElasticBearing]
-atol = 0.5
 domain = "Mechanics.Rotational"
 name = "Modelica.Mechanics.Rotational.Examples.ElasticBearing"
-reltol = 0.1
 
 [models.Rotational_First]
 atol = 0.01
 domain = "Mechanics.Rotational"
 name = "Modelica.Mechanics.Rotational.Examples.First"
-reltol = 0.01
 
 [models.Rotational_HeatLosses]
-atol = 1.0
 domain = "Mechanics.Rotational"
 name = "Modelica.Mechanics.Rotational.Examples.HeatLosses"
-reltol = 0.05
 
 [models.Rotational_LossyGearDemo1]
-atol = 1.0
 domain = "Mechanics.Rotational"
 initializealg = "BrownFullBasicInit"
 name = "Modelica.Mechanics.Rotational.Examples.LossyGearDemo1"
-reltol = 0.1
 
 [models.Rotational_OneWayClutchDisengaged]
 domain = "Mechanics.Rotational"
@@ -644,29 +467,23 @@ name = "Modelica.Mechanics.Rotational.Examples.OneWayClutchDisengaged"
 solverReltol = 1.0e-8
 
 [models.Rotational_RollingWheel]
-atol = 5.0
 domain = "Mechanics.Rotational"
 name = "Modelica.Mechanics.Rotational.Examples.RollingWheel"
-reltol = 0.05
-stopTime = 1.0
 
 [models.ShowSaturatingInductor]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.ShowSaturatingInductor"
-reltol = 0.01
 
 [models.ShowVariableResistor]
 atol = 0.01
 domain = "Electrical.Analog"
 name = "Modelica.Electrical.Analog.Examples.ShowVariableResistor"
-reltol = 0.01
 
 [models.SignConvention]
 atol = 0.01
 domain = "Mechanics.Translational"
 name = "Modelica.Mechanics.Translational.Examples.SignConvention"
-reltol = 0.01
 
 [models.SimpleTriacCircuit]
 domain = "Electrical.Analog"
@@ -676,46 +493,34 @@ solver = "IDA"
 [models.StateGraph_ExecutionPaths]
 domain = "StateGraph"
 name = "Modelica.StateGraph.Examples.ExecutionPaths"
-stopTime = 15.0
 
 [models.StateGraph_FirstExample]
 domain = "StateGraph"
 name = "Modelica.StateGraph.Examples.FirstExample"
-stopTime = 5.0
 
 [models.StateGraph_FirstExample_Variant2]
 domain = "StateGraph"
 name = "Modelica.StateGraph.Examples.FirstExample_Variant2"
-stopTime = 5.0
 
 [models.StateGraph_FirstExample_Variant3]
 domain = "StateGraph"
 name = "Modelica.StateGraph.Examples.FirstExample_Variant3"
-stopTime = 5.0
 
 [models.StateGraph_ShowCompositeStep]
 domain = "StateGraph"
 name = "Modelica.StateGraph.Examples.ShowCompositeStep"
-stopTime = 5.0
 
 [models.Thermal_ControlledTemperature]
-atol = 2.0
 domain = "Thermal.HeatTransfer"
 name = "Modelica.Thermal.HeatTransfer.Examples.ControlledTemperature"
-reltol = 0.2
-stopTime = 0.5
 
 [models.Thermal_GenerationOfFMUs]
-atol = 0.5
 domain = "Thermal.HeatTransfer"
 name = "Modelica.Thermal.HeatTransfer.Examples.GenerationOfFMUs"
-reltol = 0.05
 
 [models.Thermal_Motor]
-atol = 2.0
 domain = "Thermal.HeatTransfer"
 name = "Modelica.Thermal.HeatTransfer.Examples.Motor"
-stopTime = 2000.0
 
     [models.Thermal_Motor.reference]
     core_T = 323.766
@@ -724,7 +529,6 @@ stopTime = 2000.0
 [models.ThreeSprings]
 domain = "Mechanics.MultiBody"
 name = "Modelica.Mechanics.MultiBody.Examples.Elementary.ThreeSprings"
-stopTime = 1.0
 
 [models.Translational_Brake]
 domain = "Mechanics.Translational"
@@ -735,21 +539,15 @@ name = "Modelica.Mechanics.Translational.Examples.Brake"
 atol = 0.01
 domain = "Mechanics.Translational"
 name = "Modelica.Mechanics.Translational.Examples.Damper"
-reltol = 0.01
 
 [models.Translational_ElastoGap]
-atol = 5.0
 domain = "Mechanics.Translational"
 dtmax = 0.0001
 name = "Modelica.Mechanics.Translational.Examples.ElastoGap"
-reltol = 0.1
-stopTime = 1.0
 
 [models.Translational_InitialConditions]
-atol = 30.0
 domain = "Mechanics.Translational"
 name = "Modelica.Mechanics.Translational.Examples.InitialConditions"
-reltol = 0.2
 
 [models.Translational_PreLoad]
 domain = "Mechanics.Translational"
@@ -760,18 +558,14 @@ solver = "IDA"
 atol = 0.01
 domain = "Mechanics.Translational"
 name = "Modelica.Mechanics.Translational.Examples.WhyArrows"
-reltol = 0.01
 
 [models.TwoMasses]
-atol = 0.1
 domain = "Thermal.HeatTransfer"
 name = "Modelica.Thermal.HeatTransfer.Examples.TwoMasses"
-reltol = 0.01
 
 [models.Utilities_readRealParameterModel]
 domain = "Utilities"
 name = "Modelica.Utilities.Examples.readRealParameterModel"
-stopTime = 0.0
 
 [models.Mechanics_MultiBody_Examples_Rotational3DEffects_BevelGear1D]
 name = "Modelica.Mechanics.MultiBody.Examples.Rotational3DEffects.BevelGear1D"
