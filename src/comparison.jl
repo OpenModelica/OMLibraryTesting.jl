@@ -42,21 +42,6 @@ struct ReferenceData
 end
 
 """
-    SignalComparison
-
-Result of comparing one signal against its reference.
-"""
-struct SignalComparison
-    name::String
-    passed::Bool
-    max_abs_err::Float64
-    max_rel_err::Float64
-    worst_time::Float64
-    worst_actual::Float64
-    worst_expected::Float64
-end
-
-"""
     load_reference_csv(path) -> ReferenceData
 
 Load a reference CSV file (MAP-LIB format). The CSV has quoted column
@@ -244,13 +229,16 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
     worst_expected = 0.0
     passed = true
     times = range(0.0, stopTime, length = npoints)
+    local sampleTimes::Vector{Float64} = collect(times)
+    local expectedValues::Vector{Float64} = [interpolate_reference(ref.time, ref_values, t) for t in times]
+    local actualValues::Vector{Float64} = fill(NaN, npoints)
     #= At a reference discontinuity the sample instant carries both limits
        (set-valued jump); accept the actual value if it matches either
        one-sided reference limit within tolerance. =#
     knot_eps = length(ref.time) > 1 ?
         1.5 * (ref.time[end] - ref.time[1]) / (length(ref.time) - 1) : 0.0
-    for t in times
-        expected = interpolate_reference(ref.time, ref_values, t)
+    for (i, t) in enumerate(times)
+        expected = expectedValues[i]
         actual = try
             sol(t, idxs = resolved_sym)
         catch
@@ -264,12 +252,15 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
                 #= Not in the solution: not compared (passed = false, NaN errors), which fails the
                    validation (validate_against_reference). It passed, so a model validated on a
                    subset of its signals; and a sample after a failed one discarded that failure. =#
-                return SignalComparison(signal_name, false, NaN, NaN, t, NaN, expected)
+                return SignalComparison(signal_name, false, NaN, NaN, t, NaN, expected,
+                                        sampleTimes, expectedValues, actualValues)
             end
         end
+        actual isa Real && (actualValues[i] = Float64(actual))
         #= A non-finite value is a failure: NaN compared as never above the threshold. =#
         if !(actual isa Real) || !isfinite(actual)
-            return SignalComparison(signal_name, false, Inf, Inf, t, actual isa Real ? Float64(actual) : NaN, expected)
+            return SignalComparison(signal_name, false, Inf, Inf, t, actual isa Real ? Float64(actual) : NaN, expected,
+                                    sampleTimes, expectedValues, actualValues)
         end
         abs_err = abs(actual - expected)
         rel_err = abs(expected) > 1e-15 ? abs_err / abs(expected) : abs_err
@@ -302,7 +293,8 @@ function compare_signal(sol, ref::ReferenceData, signal_name::String,
         end
     end
     return SignalComparison(signal_name, passed, max_abs, max_rel,
-                            worst_t, worst_actual, worst_expected)
+                            worst_t, worst_actual, worst_expected,
+                            sampleTimes, expectedValues, actualValues)
 end
 
 """

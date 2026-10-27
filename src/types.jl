@@ -139,12 +139,47 @@ ModelSpec(name::AbstractString, key::AbstractString, domain::AbstractString,
               String(issue), skipPhases, String(solver), dtmax, String(initAlg),
               solverAtol, solverReltol, String[], 0.0)
 
+"""
+    SignalComparison
+
+Result of comparing one signal against its reference: the largest error and where, and the values
+compared (`expected`, the reference, and `actual`, OM.jl's, at `times`; `actual` is NaN after a sample
+where the comparison stopped: the signal is not in the solution, or a value is not finite).
+"""
+struct SignalComparison
+    name::String
+    passed::Bool
+    max_abs_err::Float64
+    max_rel_err::Float64
+    worst_time::Float64
+    worst_actual::Float64
+    worst_expected::Float64
+    times::Vector{Float64}
+    expected::Vector{Float64}
+    actual::Vector{Float64}
+end
+
+SignalComparison(name::String, passed::Bool, max_abs_err::Float64, max_rel_err::Float64,
+                 worst_time::Float64, worst_actual::Float64, worst_expected::Float64) =
+    SignalComparison(name, passed, max_abs_err, max_rel_err, worst_time, worst_actual, worst_expected,
+                     Float64[], Float64[], Float64[])
+
+"""
+    ModelResult
+
+A model's run: its phases' results, the highest phase it passed, when, and the signals its validation
+compared (`signals`, empty when it did not get to comparing them).
+"""
 struct ModelResult
     spec::ModelSpec
     phases::Vector{PhaseResult}
     highest::Phase
     timestamp::String
+    signals::Vector{SignalComparison}
 end
+
+ModelResult(spec::ModelSpec, phases::Vector{PhaseResult}, highest::Phase, timestamp::String) =
+    ModelResult(spec, phases, highest, timestamp, SignalComparison[])
 
 function status_symbol(result::ModelResult)
     if result.spec.expected == BROKEN

@@ -92,12 +92,15 @@ function publish_site(site::AbstractString, results::Vector{ModelResult};
     local dir = joinpath(here, "runs", string(date))
     mkpath(dir)
     isempty(report) || cp(report, joinpath(dir, "report.html"); force = true)
+    local hasSignals::Bool = write_signals(joinpath(dir, "signals.json"), results)
+    hasSignals || rm(joinpath(dir, "signals.json"); force = true)    # a replaced run's
     open(io -> TOML.print(io, run; sorted = true), joinpath(dir, "summary.toml"), "w")
     write(joinpath(dir, "index.html"), _site_run_page(run, isempty(analysis) ? "" : read(analysis, String),
-                                                      !isempty(report), library))
+                                                      !isempty(report), library, hasSignals))
     local history = filter(r -> r["date"] != run["date"], site_history(here))
     push!(history, run)
     sort!(history; by = r -> r["date"], rev = true)
+    _prune_signals!(here, history)
     open(io -> TOML.print(io, Dict("runs" => history); sorted = true), joinpath(here, "history.toml"), "w")
     local versions = _site_versions(site)
     _write_site_index(here, history, library, url, versions, folder)
@@ -109,6 +112,22 @@ function publish_site(site::AbstractString, results::Vector{ModelResult};
     end
     return dir
 end
+
+#= The compared signals stay with the latest SIGNAL_RUNS_KEPT runs of a version's `history` (newest
+   first): the older runs' signals.json is removed, and their pages no longer link it. =#
+function _prune_signals!(here::AbstractString, history::Vector{Dict{String, Any}})::Nothing
+    for run in history[(SIGNAL_RUNS_KEPT + 1):end]
+        local dir = joinpath(here, "runs", run["date"])
+        local path = joinpath(dir, "signals.json")
+        isfile(path) || continue
+        rm(path)
+        local page = joinpath(dir, "index.html")
+        isfile(page) && write(page, replace(read(page, String), _SIGNALS_LINK => ""))
+    end
+    return nothing
+end
+
+const _SIGNALS_LINK = "<a href=\"signals.json\">signals.json</a>"
 
 #= The MSL versions with runs on the site, as (label, folder) pairs: 3.2.3 at the root first,
    then the msl-<version> folders. =#
@@ -295,10 +314,11 @@ function _site_index_page(history::Vector{Dict{String, Any}}, library::AbstractS
     return _site_page("OM.jl coverage", String(take!(io)))
 end
 
-function _site_run_page(run, analysis, hasReport, library)
+function _site_run_page(run, analysis, hasReport, library, hasSignals::Bool = false)
     local io = IOBuffer()
     print(io, "<nav><a href=\"../../\">All runs</a>")
     hasReport && print(io, "<a href=\"report.html\">Per-model report</a>")
+    hasSignals && print(io, _SIGNALS_LINK)
     println(io, "<a href=\"summary.toml\">summary.toml</a></nav>")
     if !isempty(analysis)    # it names the note and the commits itself
         println(io, "<div class=\"analysis table-wrap\">", Markdown.html(Markdown.parse(analysis)), "</div>")

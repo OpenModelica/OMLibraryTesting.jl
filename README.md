@@ -44,6 +44,7 @@ OMLibraryTesting.jl/
 │   ├── analysis.jl           # Error categorization and analysis utilities
 │   ├── report.jl             # HTML report generation
 │   ├── site.jl               # Coverage site: one page per run, index, badges
+│   ├── signals.jl            # The compared signals as JSON (signals.json)
 │   └── testsuite.jl          # Fetch + run the upstream OpenModelica testsuite (rtest / OM.jl modes)
 ├── models/
 │   ├── models.toml           # Per-model overrides (atol, reltol, expected phase, signal mapping), MSL 3.2.3
@@ -103,7 +104,9 @@ that every model is there once) and passes them to the publisher. It also adds t
 coverage site, served by GitHub Pages from the `gh-pages` branch (`scripts/publish_site.jl`): `runs/<date>/` with
 the analysis and the per-model report, an index over all runs, and the badges (`badge.json`, models that
 validate; `badges/<phase>.json`); MSL 4.1.0 has the same in `msl-4.1.0/`, docs/COVERAGE_4.1.0.md and its own
-section above. The same by hand (`OMJL_COVERAGE_MSL`, default `MSL:3.2.3`, selects the version for all three):
+section above. A run's `signals.json` holds the signals each validation compared, OM.jl's values and the
+reference's at the comparison times, passed or not (`signals_json`); the latest 5 runs of a version keep it.
+`generate_report` writes the same next to the HTML report (`<report>.signals.json`). The same by hand (`OMJL_COVERAGE_MSL`, default `MSL:3.2.3`, selects the version for all three):
 
 ```bash
 OMJL_COVERAGE_NOSKIP=1 julia --project=. scripts/run_full_coverage.jl

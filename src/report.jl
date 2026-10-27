@@ -119,6 +119,11 @@ function generate_report(results::Vector{ModelResult};
 
     write(filepath, content)
     @info "Report saved to $filepath"
+    #= the compared signals next to it, for looking at how a model behaved (signals.jl) =#
+    if format === :html
+        local signalsPath = splitext(filepath)[1] * ".signals.json"
+        write_signals(signalsPath, results) && @info "Signals saved to $signalsPath"
+    end
     return filepath
 end
 
@@ -155,9 +160,10 @@ function _generate_html(results, filepath, ts, total, broken, tested,
         val_cell = phase_cell(r.phases, VALIDATE)
         total_model_time = sum(p.time_s for p in r.phases; init = 0.0)
         time_cell = isempty(r.phases) ? "&mdash;" : "$(round(total_model_time, digits=1))s"
+        local signals_link = isempty(r.signals) ? "" : _signals_link(r)
         print(rows, """
         <tr class="$row_class">
-          <td class="model-name">$name_short</td>
+          <td class="model-name">$name_short$signals_link</td>
           $fe_cell
           $be_cell
           $sim_cell
@@ -215,6 +221,7 @@ function _generate_html(results, filepath, ts, total, broken, tested,
       .broken-row { opacity: 0.5; }
       .broken-row td { font-style: italic; }
       .domain-header td { background: #e9ecef; font-size: 0.85em; padding: 6px 10px; }
+    $(_SIGNALS_CSS)
     </style>
     </head>
     <body>
@@ -250,7 +257,7 @@ function _generate_html(results, filepath, ts, total, broken, tested,
     <div id="error-modal">
       <div id="error-modal-box">
         <button id="error-modal-close" onclick="closeError()" title="Close">&times;</button>
-        <strong>Error detail</strong>
+        <strong id="error-modal-title">Error detail</strong>
         <pre id="error-modal-text"></pre>
       </div>
     </div>
@@ -258,6 +265,8 @@ function _generate_html(results, filepath, ts, total, broken, tested,
       function showError(td) {
         var msg = td.getAttribute('data-error');
         if (!msg) return;
+        document.getElementById('error-modal-title').textContent = 'Error detail';
+        document.getElementById('error-modal-text').className = '';
         document.getElementById('error-modal-text').textContent = msg;
         document.getElementById('error-modal').classList.add('open');
       }
@@ -271,10 +280,222 @@ function _generate_html(results, filepath, ts, total, broken, tested,
         if (e.key === 'Escape') closeError();
       });
     </script>
+    <script>
+    $(_SIGNALS_JS)
+    </script>
     </body>
     </html>
     """
 end
+
+#= A model's link to the signals its validation compared (signals.jl): how many passed of how many. =#
+function _signals_link(r::ModelResult)::String
+    local n::Int = length(r.signals)
+    local passed::Int = count(s -> s.passed, r.signals)
+    local cls::String = passed < n ? "sig-link sig-has-fail" : "sig-link"
+    return " <a class=\"$cls\" href=\"#\" data-model=\"$(html_escape(r.spec.name))\" " *
+           "onclick=\"return toggleSignals(this)\" title=\"The signals the validation compared\">signals $passed/$n</a>"
+end
+
+const _SIGNALS_CSS = raw"""
+      .sig-link { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                  font-size: 0.85em; margin-left: 0.6em; color: #0366d6; text-decoration: none; white-space: nowrap; }
+      .sig-link:hover { text-decoration: underline; }
+      .sig-link.sig-has-fail { color: #b31d28; font-weight: 600; }
+      .sig-row > td { background: #fafbfc; padding: 10px 12px; }
+      .sig-head { font-size: 0.85em; color: #555; margin-bottom: 8px; }
+      .sig-key-ref { color: #555; font-weight: 600; }
+      .sig-key-omjl { color: #0366d6; font-weight: 600; }
+      .sig-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+      .sig-card { border: 1px solid #ddd; border-radius: 4px; background: #fff; padding: 6px 8px; width: 376px; }
+      .sig-card.sig-fail { border-color: #e4a3a8; }
+      .sig-title { font-family: monospace; font-size: 0.85em; word-break: break-all; }
+      .sig-title a { color: #333; text-decoration: none; }
+      .sig-title a:hover { text-decoration: underline; }
+      .sig-mark-ok { color: #155724; }
+      .sig-mark-fail { color: #b31d28; font-weight: 600; }
+      .sig-stats, .sig-readout { font-size: 0.75em; color: #666; font-family: monospace; min-height: 1.3em; }
+      .sig-plot { display: block; max-width: 100%; height: auto; }
+      .sig-plot .frame { fill: none; stroke: #ddd; }
+      .sig-plot .band { fill: #e6e6e6; }
+      .sig-plot .ref { fill: none; stroke: #555; stroke-width: 1.5; }
+      .sig-plot .omjl { fill: none; stroke: #0366d6; stroke-width: 1.5; stroke-dasharray: 5 3; }
+      .sig-plot .worst { fill: none; stroke: #b31d28; stroke-width: 2; }
+      .sig-plot .cursor { stroke: #999; stroke-dasharray: 2 2; }
+      .sig-plot text { font-size: 10px; fill: #666; font-family: monospace; }
+      #error-modal-text.values { color: #333; }
+"""
+
+#= The viewer of a model's compared signals: the run's signals.json (on the site), or the report's
+   <name>.signals.json beside it, read on the first click; a report opened from disk cannot read a
+   file, so it asks for it. =#
+const _SIGNALS_JS = raw"""
+var SIGNALS = null, SIGNALS_LOADING = null, SVGNS = 'http://www.w3.org/2000/svg';
+function signalFiles() {
+  var page = location.pathname.split('/').pop() || 'report.html';
+  return [page.replace(/\.html?$/, '') + '.signals.json', 'signals.json'];
+}
+function loadSignals() {
+  if (SIGNALS) return Promise.resolve(SIGNALS);
+  if (SIGNALS_LOADING) return SIGNALS_LOADING;
+  SIGNALS_LOADING = signalFiles().reduce(function(p, f) {
+    return p.catch(function() {
+      return fetch(f).then(function(r) { if (!r.ok) throw new Error(f + ': ' + r.status); return r.json(); });
+    });
+  }, Promise.reject(new Error('none'))).then(function(d) { SIGNALS = d.models; return SIGNALS; });
+  SIGNALS_LOADING.catch(function() { SIGNALS_LOADING = null; });
+  return SIGNALS_LOADING;
+}
+function toggleSignals(a) {
+  var tr = a.closest('tr'), next = tr.nextElementSibling;
+  if (next && next.classList.contains('sig-row')) { next.remove(); return false; }
+  var row = document.createElement('tr'), td = document.createElement('td');
+  row.className = 'sig-row'; td.colSpan = 6; row.appendChild(td);
+  tr.parentNode.insertBefore(row, tr.nextSibling);
+  td.textContent = 'Loading the signals...';
+  var model = a.getAttribute('data-model');
+  loadSignals().then(function(models) { showModel(td, models, model); },
+                     function() { askForFile(td, model); });
+  return false;
+}
+function showModel(td, models, model) {
+  if (models[model]) renderSignals(td, models[model]);
+  else td.textContent = 'The signals file has no signals of ' + model + '.';
+}
+function askForFile(td, model) {
+  td.textContent = '';
+  var p = document.createElement('p');
+  p.textContent = 'The signals could not be read. The coverage site keeps them (signals.json) for the latest 5 runs ' +
+    'of a version; a report opened from disk cannot read the .signals.json beside it: choose that file here. ';
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json,application/json';
+  input.onchange = function() {
+    if (!input.files[0]) return;
+    input.files[0].text().then(function(t) { SIGNALS = JSON.parse(t).models; showModel(td, SIGNALS, model); });
+  };
+  p.appendChild(input); td.appendChild(p);
+}
+function fmt(x) {
+  if (x === null || x === undefined) return '—';
+  var a = Math.abs(x);
+  return (a !== 0 && (a >= 1e5 || a < 1e-3)) ? x.toExponential(3) : String(Number(x.toPrecision(6)));
+}
+function fmtAxis(x) {
+  var a = Math.abs(x);
+  return (a !== 0 && (a >= 1e5 || a < 1e-3)) ? x.toExponential(2) : String(Number(x.toPrecision(4)));
+}
+function sampleTimes(s, m) {
+  var T = s.time || m.time, n = T[2], t = [];
+  for (var i = 0; i < n; i++) t.push(n > 1 ? T[0] + i * (T[1] - T[0]) / (n - 1) : T[0]);
+  return t;
+}
+function renderSignals(td, m) {
+  td.textContent = '';
+  var sigs = m.signals.slice().sort(function(x, y) { return x.passed - y.passed; });   // failed first
+  var failed = sigs.filter(function(s) { return !s.passed; }).length;
+  var head = document.createElement('div');
+  head.className = 'sig-head';
+  head.innerHTML = '<span class="sig-key-ref">— reference</span> &nbsp; <span class="sig-key-omjl">- - OM.jl</span> &nbsp; ' +
+    'grey: the tolerance around the reference (atol ' + fmt(m.atol) + ', reltol ' + fmt(m.reltol) + '); values with 6 significant digits. ';
+  head.appendChild(document.createTextNode(sigs.length + ' signals compared, ' + failed + ' outside the tolerance' +
+    (m.validated ? '.' : '; the model did not validate.') + ' Point at a plot to read its values; click a name for all of them.'));
+  td.appendChild(head);
+  var grid = document.createElement('div');
+  grid.className = 'sig-grid';
+  sigs.forEach(function(s) { grid.appendChild(signalCard(s, m)); });
+  td.appendChild(grid);
+}
+function signalCard(s, m) {
+  var card = document.createElement('div'), title = document.createElement('div'), name = document.createElement('a');
+  var mark = document.createElement('span'), stats = document.createElement('div'), readout = document.createElement('div');
+  card.className = 'sig-card ' + (s.passed ? 'sig-pass' : 'sig-fail');
+  title.className = 'sig-title';
+  name.href = '#'; name.textContent = s.name; name.title = 'All compared values';
+  name.onclick = function() { showValues(s, m); return false; };
+  mark.className = s.passed ? 'sig-mark-ok' : 'sig-mark-fail';
+  mark.textContent = s.passed ? ' ✓' : ' ✗ outside the tolerance';
+  title.appendChild(name); title.appendChild(mark);
+  stats.className = 'sig-stats';
+  stats.textContent = s.max_abs_err === null ? 'not compared: no OM.jl value' :
+    'max |error| ' + fmt(s.max_abs_err) + ' (relative ' + fmt(s.max_rel_err) + ') at t = ' + fmt(s.worst_time);
+  readout.className = 'sig-readout';
+  card.appendChild(title); card.appendChild(stats); card.appendChild(signalPlot(s, m, readout)); card.appendChild(readout);
+  return card;
+}
+function svgEl(name, attrs) {
+  var e = document.createElementNS(SVGNS, name);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function svgText(svg, x, y, s, anchor) {
+  var t = svgEl('text', {x: x, y: y, 'text-anchor': anchor});
+  t.textContent = s; svg.appendChild(t);
+}
+function svgLine(svg, t, v, X, Y, cls) {   // one polyline per run of values (none where null)
+  var pts = [];
+  function flush() { if (pts.length) svg.appendChild(svgEl('polyline', {points: pts.join(' '), 'class': cls})); pts = []; }
+  for (var i = 0; i < t.length; i++) { if (v[i] === null) flush(); else pts.push(X(t[i]) + ',' + Y(v[i])); }
+  flush();
+}
+function signalPlot(s, m, readout) {
+  var W = 360, H = 160, L = 62, R = 8, T = 8, B = 20;
+  var t = sampleTimes(s, m), ref = s.reference, om = s.omjl, n = t.length, i;
+  var tol = ref.map(function(v) { return v === null ? null : m.atol + m.reltol * Math.abs(v); });
+  var ys = [];
+  for (i = 0; i < n; i++) {
+    if (ref[i] !== null) ys.push(ref[i] + tol[i], ref[i] - tol[i]);
+    if (om[i] !== null) ys.push(om[i]);
+  }
+  var y0 = ys.length ? Math.min.apply(null, ys) : 0, y1 = ys.length ? Math.max.apply(null, ys) : 1;
+  if (y1 - y0 <= 1e-12 * Math.max(1, Math.abs(y1))) { var c = y0, d = 1e-6 * Math.max(1, Math.abs(c)); y0 = c - d; y1 = c + d; }
+  var pad = 0.05 * (y1 - y0); y0 -= pad; y1 += pad;
+  var t0 = t[0], t1 = t[n - 1] > t0 ? t[n - 1] : t0 + 1;
+  function X(x) { return L + (x - t0) / (t1 - t0) * (W - L - R); }
+  function Y(y) { return T + (y1 - y) / (y1 - y0) * (H - T - B); }
+  var svg = svgEl('svg', {viewBox: '0 0 ' + W + ' ' + H, width: W, height: H, 'class': 'sig-plot'});
+  svg.appendChild(svgEl('rect', {x: L, y: T, width: W - L - R, height: H - T - B, 'class': 'frame'}));
+  var up = [], lo = [];
+  for (i = 0; i < n; i++) if (ref[i] !== null) { up.push(X(t[i]) + ',' + Y(ref[i] + tol[i])); lo.unshift(X(t[i]) + ',' + Y(ref[i] - tol[i])); }
+  if (up.length) svg.appendChild(svgEl('polygon', {points: up.concat(lo).join(' '), 'class': 'band'}));
+  svgLine(svg, t, ref, X, Y, 'ref');
+  svgLine(svg, t, om, X, Y, 'omjl');
+  if (!s.passed && s.worst_time !== null) {
+    var w = Math.round((s.worst_time - t0) / (t1 - t0) * (n - 1));
+    w = Math.max(0, Math.min(n - 1, w));
+    if (om[w] !== null) svg.appendChild(svgEl('circle', {cx: X(t[w]), cy: Y(om[w]), r: 4, 'class': 'worst'}));
+  }
+  svgText(svg, L - 4, T + 9, fmtAxis(y1 - pad), 'end');
+  svgText(svg, L - 4, H - B, fmtAxis(y0 + pad), 'end');
+  svgText(svg, L, H - 5, fmtAxis(t[0]), 'start');
+  svgText(svg, W - R, H - 5, 't = ' + fmtAxis(t[n - 1]), 'end');
+  var cursor = svgEl('line', {y1: T, y2: H - B, 'class': 'cursor', visibility: 'hidden'});
+  svg.appendChild(cursor);
+  var hit = svgEl('rect', {x: L, y: T, width: W - L - R, height: H - T - B, fill: 'transparent'});
+  hit.addEventListener('mousemove', function(ev) {
+    var box = svg.getBoundingClientRect(), x = (ev.clientX - box.left) * W / box.width;
+    var k = Math.max(0, Math.min(n - 1, Math.round((x - L) / (W - L - R) * (n - 1))));
+    cursor.setAttribute('x1', X(t[k])); cursor.setAttribute('x2', X(t[k])); cursor.setAttribute('visibility', 'visible');
+    readout.textContent = 't = ' + fmt(t[k]) + '  reference ' + fmt(ref[k]) + '  OM.jl ' + fmt(om[k]) +
+      (ref[k] !== null && om[k] !== null ? '  |diff| ' + fmt(Math.abs(om[k] - ref[k])) : '');
+  });
+  hit.addEventListener('mouseleave', function() { cursor.setAttribute('visibility', 'hidden'); readout.textContent = ''; });
+  svg.appendChild(hit);
+  return svg;
+}
+function showValues(s, m) {
+  var t = sampleTimes(s, m), lines = [];
+  function pad(text) { return (text + '                ').slice(0, 16); }
+  lines.push(pad('t') + pad('reference') + pad('OM.jl') + '|diff|');
+  for (var i = 0; i < t.length; i++) {
+    var r = s.reference[i], o = s.omjl[i];
+    lines.push(pad(fmt(t[i])) + pad(fmt(r)) + pad(fmt(o)) + (r !== null && o !== null ? fmt(Math.abs(o - r)) : '—'));
+  }
+  document.getElementById('error-modal-title').textContent = s.name + ': the compared values';
+  var pre = document.getElementById('error-modal-text');
+  pre.className = 'values'; pre.textContent = lines.join('\n');
+  document.getElementById('error-modal').classList.add('open');
+}
+"""
 
 function _generate_markdown(results, filepath, ts, total, broken, tested,
                             frontend_pass, backend_pass, simulate_pass, validate_pass,
