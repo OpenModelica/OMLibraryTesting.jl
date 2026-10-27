@@ -24,11 +24,10 @@ reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v3.2.3)"
 #                  atol/reltol do not apply to it. Use solverReltol /
 #                  solverAtol to loosen the integrator (e.g. near-singular
 #                  Jacobians that force dt below eps under default tolerances).
-#   observedFilter = ["regex", ...]                 ([] = OM.simulate default)
-#                  Retain alias/observed variables whose eliminated name matches
-#                  any pattern through structural_simplify, so validation can read
-#                  signals MTK would otherwise prune. Threaded to
-#                  OM.simulate(...; observedFilter = [...]).
+#   observedFilter = ["regex", ...]                 ([] = no filter)
+#                  Keep only the observed and alias variables whose name matches
+#                  a pattern (with what they, the system and the events read).
+#                  Threaded to OM.translate and OM.simulate(...; observedFilter = [...]).
 #
 # Use cases for initializealg:
 #   - DAE with rank-deficient algebraic Jacobian at t=0 (e.g. flow-state

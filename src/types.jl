@@ -80,9 +80,9 @@ struct ModelSpec
     # validation tolerances for trajectory comparison. 0.0 = use SciML default.
     solverAtol::Float64
     solverReltol::Float64
-    # OMBackend observedFilter regex patterns. Non-empty: passed to OM.simulate to retain
-    # matching alias/observed variables through structural_simplify so validation can read
-    # them. Empty = OM.simulate default (no explicit retention).
+    # OMBackend observedFilter regex patterns. Non-empty: passed to OM.translate and OM.simulate
+    # (the translation's observed equations and alias observations: those the patterns match and
+    # what they, the system and the events read). Empty = no filter.
     observedFilter::Vector{String}
     # Hard cap on integrator iterations, passed to OM.simulate as `maxiters`. 0.0 = use
     # the SciML default (1e5). A bounded value (e.g. 50000) lets a stiff / chattering

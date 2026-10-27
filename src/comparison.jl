@@ -383,8 +383,7 @@ function validate_against_reference(sol, spec,
     end
     #= Every listed signal is compared: one the solution lacks fails the validation (it was
        skipped, and a model validated on a subset: IdealGasH2O on 1 of 3 signals, MSL 4
-       CCCV_Stack on 1 of 13). The harness keeps the reference signals observable
-       (_reference_signal_filter). =#
+       CCCV_Stack on 1 of 13). =#
     if n_skipped > 0
         @warn "Validation: $n_skipped/$(length(signal_names)) reference signals are not in the solution"
     end

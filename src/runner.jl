@@ -285,40 +285,6 @@ function _resolve_solver(name::String)
     return NamedTuple()
 end
 
-# Escape regex metacharacters so signal names containing `.`, `[`, `]`, etc.
-# match literally inside OMBackend's `occursin(Regex(p), name)` filter.
-_escape_regex(s::AbstractString) =
-    replace(s, r"[\\.\[\]\(\)\+\*\?\^\$\|]" => sm -> "\\" * sm)
-
-# Read the reference CSV header and return regex patterns (anchored,
-# underscore-form) for every non-`time` column so OMBackend's observedFilter
-# preserves the alias-map entries the validate phase will look up.
-function _reference_signal_filter(ref_dir::String,
-                                   reference_file::String,
-                                   signal_mapping::Dict{String, String})::Vector{String}
-    isempty(reference_file) && return String[]
-    local csv_path = joinpath(ref_dir, "csv", reference_file * ".csv")
-    isfile(csv_path) || return String[]
-    local header_line = ""
-    try
-        open(csv_path) do io; header_line = readline(io); end
-    catch
-        return String[]
-    end
-    local patterns = String[]
-    local seen = Set{String}()
-    for col in split_csv_header(header_line)
-        local raw = strip(col, ['"', ' ', '\t', '\r', '\n'])
-        (isempty(raw) || raw == "time") && continue
-        local under = haskey(signal_mapping, String(raw)) ? signal_mapping[String(raw)] : modelica_to_omjl_name(String(raw))
-        if !(under in seen)
-            push!(seen, under)
-            push!(patterns, string("^", _escape_regex(under), "\$"))
-        end
-    end
-    return patterns
-end
-
 #= Cap the cost of `showerror`. Some exceptions (notably MTK's
    UnsolvableCallbackError / ExtraEquationsSystemException) render the entire
    equation / callback system — O(system size) — which can take many minutes to
@@ -400,6 +366,10 @@ function _run_model_phases(model_name::String,
 
     has_csv_ref = !isempty(reference_file)
     has_inline_ref = !isempty(reference)
+    #= A registry filter goes to the translate and the simulate alike: a simulate by name with another filter
+       translates again (OM._reusableTranslation). The reference header's signals as the filter, passed to the
+       simulate only, never applied (the backend phase's translation was reused) and none was missing. =#
+    local _of::NamedTuple = isempty(observed_filter) ? NamedTuple() : (; observedFilter = observed_filter)
 
     for phase_int in phase_ints
         if phase_int == Int(VALIDATE) && !has_csv_ref && !has_inline_ref
@@ -415,7 +385,7 @@ function _run_model_phases(model_name::String,
             if phase_int == Int(FRONTEND)
                 OM.flatten(model_name; msl...)
             elseif phase_int == Int(BACKEND)
-                OM.translate(model_name; msl...,
+                OM.translate(model_name; msl..., _of...,
                              checkSimCode = check_sim_code)
             elseif phase_int == Int(SIMULATE)
                 # Build kwargs: solver + dtmax (if non-zero) + initializealg (if specified).
@@ -423,11 +393,6 @@ function _run_model_phases(model_name::String,
                 local _sa = isempty(solver_name) ? NamedTuple() : _resolve_solver(solver_name)
                 local _extra = dtmax > 0.0 ? (; dtmax = dtmax) : NamedTuple()
                 local _ia = isempty(init_alg) ? NamedTuple() : _resolve_init_alg(init_alg)
-                #= The reference's signals stay observable (the backend drops eliminated array
-                   elements' aliases by default): a registry filter, else the reference header. =#
-                local _filter = isempty(observed_filter) ?
-                    _reference_signal_filter(ref_dir, reference_file, signal_mapping) : observed_filter
-                local _of = isempty(_filter) ? NamedTuple() : (; observedFilter = _filter)
                 local _mi = (; maxiters = maxiters > 0.0 ? round(Int, maxiters) : DEFAULT_MAXITERS)
                 local _tol = NamedTuple()
                 if solver_reltol > 0.0
