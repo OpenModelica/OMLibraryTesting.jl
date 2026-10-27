@@ -46,6 +46,7 @@ include("discovery.jl")
 include("runner.jl")
 include("analysis.jl")
 include("report.jl")
+include("signals.jl")
 include("site.jl")
 include("rerun_failed.jl")
 include("testsuite.jl")
@@ -59,6 +60,7 @@ export discover_experiments, record_experiments, merge_overrides!, clear_discove
 export run_coverage, run_coverage_and_report, run_model, WorkerManager, WorkerPool, ensure_pool!
 export shard_specs, merge_shards
 export generate_report, print_summary
+export signals_json, write_signals
 export coverage_funnel, publish_site, site_history
 export categorize_error, categorize_results, print_error_analysis
 export models_with_error, error_for_model, run_frontend_coverage

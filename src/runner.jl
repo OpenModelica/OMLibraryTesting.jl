@@ -366,12 +366,13 @@ end
 """
     _run_model_phases(model_name, msl_version, stop_time, reference_file,
                       reference, atol, reltol, signal_mapping, ref_dir,
-                      phase_ints) -> (results, highest)
+                      phase_ints) -> (results, highest, signals)
 
 Runs all phases for a single model. Intended to execute on a worker process.
 Returns primitive types to avoid Distributed.jl type identity issues.
 
-Each phase result is `(phase_int, success, time_s, error_or_nothing)`.
+Each phase result is `(phase_int, success, time_s, error_or_nothing)`; `signals` holds the reference
+signals the validation compared, passed or not, as the fields of a `SignalComparison` (`SIGNAL_TUPLE`).
 """
 function _run_model_phases(model_name::String,
                            msl_version::String,
@@ -394,6 +395,7 @@ function _run_model_phases(model_name::String,
     results = Tuple{Int, Bool, Float64, Union{Nothing, String}}[]
     highest = 0
     sol = nothing
+    signals = SIGNAL_TUPLE[]
 
     has_csv_ref = !isempty(reference_file)
     has_inline_ref = !isempty(reference)
@@ -448,6 +450,7 @@ function _run_model_phases(model_name::String,
                         Set{Phase}())
                     (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir;
                         terminatedAt = sol.retcode == ReturnCode.Terminated ? Float64(sol.t[end]) : nothing)
+                    signals = [_signal_tuple(c) for c in comparisons]
                     if !passed
                         failed = filter(c -> !c.passed, comparisons)
                         isempty(failed) &&
@@ -497,8 +500,16 @@ function _run_model_phases(model_name::String,
         @warn "    $(model_name): forgetModel failed" exception = e
     end
 
-    return (results, highest)
+    return (results, highest, signals)
 end
+
+#= A SignalComparison's fields, for a worker's result (plain types across processes). =#
+const SIGNAL_TUPLE = Tuple{String, Bool, Float64, Float64, Float64, Float64, Float64,
+                           Vector{Float64}, Vector{Float64}, Vector{Float64}}
+
+_signal_tuple(c::SignalComparison)::SIGNAL_TUPLE =
+    (c.name, c.passed, c.max_abs_err, c.max_rel_err, c.worst_time, c.worst_actual, c.worst_expected,
+     c.times, c.expected, c.actual)
 
 # ── Worker Execution with Timeout ───────────────────────────────────────
 
@@ -649,6 +660,9 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
             for pr in raw[1]
         ]
         highest = Phase(raw[2])
+        #= a worker of an older OMLibraryTesting returns no signals =#
+        local signals::Vector{SignalComparison} =
+            length(raw) >= 3 ? SignalComparison[SignalComparison(t...) for t in raw[3]] : SignalComparison[]
 
         # Log phase results
         for pr in phase_results
@@ -660,7 +674,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         end
 
         return ModelResult(spec, phase_results, highest,
-                          Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"))
+                          Dates.format(Dates.now(), "yyyy-mm-dd HH:MM"), signals)
     catch e
         elapsed = time() - t0
 
