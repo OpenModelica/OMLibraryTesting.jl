@@ -225,6 +225,10 @@ jobs:
         id: publish
         working-directory: OM.jl/OMLibraryTesting.jl
         run: |
+          # The README as the branch has it now, not as it was when the run was queued: another
+          # run's documentation commit may have landed since (runs wait in the concurrency group).
+          git fetch -q origin "${GITHUB_REF_NAME}"
+          git checkout -q FETCH_HEAD -- README.md
           results=$(ls -t logs/partial_ci_*.jls | head -1)
           julia --color=yes --project=. scripts/publish_coverage.jl "$results" "$GITHUB_WORKSPACE/commits.txt" "$NOTE"
           cat "$COVERAGE_MD" >> "$GITHUB_STEP_SUMMARY"
@@ -247,6 +251,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # On the branch's head as fetched for Publish: its files, this run's page and README section.
+          git reset -q FETCH_HEAD
           git add README.md "$COVERAGE_MD"
           if git diff --cached --quiet; then echo "Coverage unchanged"; exit 0; fi
           git commit -m "Coverage of $(date -u +%Y-%m-%d), MSL $MSL [skip ci]"
