@@ -18,6 +18,12 @@ Each model is tested through up to four pipeline phases:
 
 Results are compared against Dymola-generated reference trajectories from the MAP-LIB reference results repository.
 
+Each listed signal is compared as OpenModelica's library testing compares it (omc's `diffSimulationResults` with
+relTol 3e-3, relTolDiffMinMax 3e-3, rangeDelta 1e-3; ported to Julia as `tube_compare`, `src/tubes.jl`): OM.jl's
+values at every time of the reference must lie in a band around it, 0.1 % of the time span wide in time and 0.3 %
+of the value and of the signal's range high; a reference event is not compared. A value that is not finite fails.
+The report's signal viewer plots the band at 101 evenly spaced times.
+
 ## Latest coverage
 
 <!-- coverage:begin (scripts/publish_coverage.jl) -->

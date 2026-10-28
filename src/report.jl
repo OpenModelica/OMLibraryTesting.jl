@@ -321,6 +321,7 @@ const _SIGNALS_CSS = raw"""
       .sig-plot .ref { fill: none; stroke: #555; stroke-width: 1.5; }
       .sig-plot .omjl { fill: none; stroke: #0366d6; stroke-width: 1.5; stroke-dasharray: 5 3; }
       .sig-plot .worst { fill: none; stroke: #b31d28; stroke-width: 2; }
+      .sig-plot .worst-line { stroke: #b31d28; stroke-width: 1; stroke-dasharray: 3 2; }
       .sig-plot .cursor { stroke: #999; stroke-dasharray: 2 2; }
       .sig-plot text { font-size: 10px; fill: #666; font-family: monospace; }
       #error-modal-text.values { color: #333; }
@@ -395,9 +396,14 @@ function renderSignals(td, m) {
   var failed = sigs.filter(function(s) { return !s.passed; }).length;
   var head = document.createElement('div');
   head.className = 'sig-head';
+  var banded = sigs.some(function(s) { return s.low; });   // OpenModelica's comparison (older files: atol/reltol)
   head.innerHTML = '<span class="sig-key-ref">— reference</span> &nbsp; <span class="sig-key-omjl">- - OM.jl</span> &nbsp; ' +
-    'grey: the tolerance around the reference (atol ' + fmt(m.atol) + ', reltol ' + fmt(m.reltol) + '); values with 6 significant digits. ';
-  head.appendChild(document.createTextNode(sigs.length + ' signals compared, ' + failed + ' outside the tolerance' +
+    (banded ? 'grey: the band OM.jl must stay in, as OpenModelica\'s library testing compares (0.1 % of the time span wide ' +
+              'in time, 0.3 % of the value and of the signal\'s range high); checked at every time of the reference except ' +
+              'its events; red: where OM.jl is furthest outside it' :
+              'grey: the tolerance around the reference (atol ' + fmt(m.atol) + ', reltol ' + fmt(m.reltol) + ')') +
+    '; values with 6 significant digits. ';
+  head.appendChild(document.createTextNode(sigs.length + ' signals compared, ' + failed + ' failed' +
     (m.validated ? '.' : '; the model did not validate.') + ' Point at a plot to read its values; click a name for all of them.'));
   td.appendChild(head);
   var grid = document.createElement('div');
@@ -413,14 +419,26 @@ function signalCard(s, m) {
   name.href = '#'; name.textContent = s.name; name.title = 'All compared values';
   name.onclick = function() { showValues(s, m); return false; };
   mark.className = s.passed ? 'sig-mark-ok' : 'sig-mark-fail';
-  mark.textContent = s.passed ? ' ✓' : ' ✗ outside the tolerance';
+  mark.textContent = s.passed ? ' ✓' : (s.low ? ' ✗ outside the band' : ' ✗ outside the tolerance');
   title.appendChild(name); title.appendChild(mark);
   stats.className = 'sig-stats';
-  stats.textContent = s.max_abs_err === null ? 'not compared: no OM.jl value' :
-    'max |error| ' + fmt(s.max_abs_err) + ' (relative ' + fmt(s.max_rel_err) + ') at t = ' + fmt(s.worst_time);
+  stats.textContent = signalStats(s);
   readout.className = 'sig-readout';
   card.appendChild(title); card.appendChild(stats); card.appendChild(signalPlot(s, m, readout)); card.appendChild(readout);
   return card;
+}
+function signalStats(s) {
+  if (s.max_abs_err === null) return 'not compared: no OM.jl value';
+  var text = 'max |error| ' + fmt(s.max_abs_err) + ' (relative ' + fmt(s.max_rel_err) + ')';
+  if (s.compared === undefined) {   // older files: where the largest error is (0 when none)
+    if (s.worst_time !== null && s.worst_time !== undefined) text += ' at t = ' + fmt(s.worst_time);
+    return text;
+  }
+  return text + (s.outside ?
+    '; outside the band at ' + s.outside + ' of ' + s.compared + ' times, furthest at t = ' + fmt(s.worst_time) +
+      ' (OM.jl ' + fmt(s.worst_omjl) + ', reference ' + fmt(s.worst_reference) + ')' :
+    '; in the band at all ' + (s.compared - (s.events || 0)) + ' compared times' +
+      (s.events ? ' (' + s.events + ' at events, not compared)' : ''));
 }
 function svgEl(name, attrs) {
   var e = document.createElementNS(SVGNS, name);
@@ -441,11 +459,15 @@ function signalPlot(s, m, readout) {
   var W = 360, H = 160, L = 62, R = 8, T = 8, B = 20;
   var t = sampleTimes(s, m), ref = s.reference, om = s.omjl, n = t.length, i;
   var tol = ref.map(function(v) { return v === null ? null : m.atol + m.reltol * Math.abs(v); });
+  var high = s.high || ref.map(function(v, k) { return v === null ? null : v + tol[k]; });   // older files: atol/reltol
+  var low = s.low || ref.map(function(v, k) { return v === null ? null : v - tol[k]; });
   var ys = [];
   for (i = 0; i < n; i++) {
-    if (ref[i] !== null) ys.push(ref[i] + tol[i], ref[i] - tol[i]);
+    if (high[i] !== null && low[i] !== null) ys.push(high[i], low[i]);
     if (om[i] !== null) ys.push(om[i]);
   }
+  var worstOmjl = !s.passed && s.worst_omjl !== undefined && s.worst_omjl !== null;   // where it is, between samples too
+  if (worstOmjl) ys.push(s.worst_omjl);
   var y0 = ys.length ? Math.min.apply(null, ys) : 0, y1 = ys.length ? Math.max.apply(null, ys) : 1;
   if (y1 - y0 <= 1e-12 * Math.max(1, Math.abs(y1))) { var c = y0, d = 1e-6 * Math.max(1, Math.abs(c)); y0 = c - d; y1 = c + d; }
   var pad = 0.05 * (y1 - y0); y0 -= pad; y1 += pad;
@@ -455,11 +477,14 @@ function signalPlot(s, m, readout) {
   var svg = svgEl('svg', {viewBox: '0 0 ' + W + ' ' + H, width: W, height: H, 'class': 'sig-plot'});
   svg.appendChild(svgEl('rect', {x: L, y: T, width: W - L - R, height: H - T - B, 'class': 'frame'}));
   var up = [], lo = [];
-  for (i = 0; i < n; i++) if (ref[i] !== null) { up.push(X(t[i]) + ',' + Y(ref[i] + tol[i])); lo.unshift(X(t[i]) + ',' + Y(ref[i] - tol[i])); }
+  for (i = 0; i < n; i++) if (high[i] !== null && low[i] !== null) { up.push(X(t[i]) + ',' + Y(high[i])); lo.unshift(X(t[i]) + ',' + Y(low[i])); }
   if (up.length) svg.appendChild(svgEl('polygon', {points: up.concat(lo).join(' '), 'class': 'band'}));
   svgLine(svg, t, ref, X, Y, 'ref');
   svgLine(svg, t, om, X, Y, 'omjl');
-  if (!s.passed && s.worst_time !== null) {
+  if (worstOmjl && s.worst_time !== null) {
+    svg.appendChild(svgEl('line', {x1: X(s.worst_time), x2: X(s.worst_time), y1: T, y2: H - B, 'class': 'worst-line'}));
+    svg.appendChild(svgEl('circle', {cx: X(s.worst_time), cy: Y(s.worst_omjl), r: 4, 'class': 'worst'}));
+  } else if (!s.passed && s.worst_time !== null && s.worst_time !== undefined) {   // older files: the nearest sample
     var w = Math.round((s.worst_time - t0) / (t1 - t0) * (n - 1));
     w = Math.max(0, Math.min(n - 1, w));
     if (om[w] !== null) svg.appendChild(svgEl('circle', {cx: X(t[w]), cy: Y(om[w]), r: 4, 'class': 'worst'}));
@@ -485,10 +510,11 @@ function signalPlot(s, m, readout) {
 function showValues(s, m) {
   var t = sampleTimes(s, m), lines = [];
   function pad(text) { return (text + '                ').slice(0, 16); }
-  lines.push(pad('t') + pad('reference') + pad('OM.jl') + '|diff|');
+  lines.push(pad('t') + pad('reference') + pad('OM.jl') + pad('|diff|') + (s.low ? pad('band low') + 'band high' : ''));
   for (var i = 0; i < t.length; i++) {
     var r = s.reference[i], o = s.omjl[i];
-    lines.push(pad(fmt(t[i])) + pad(fmt(r)) + pad(fmt(o)) + (r !== null && o !== null ? fmt(Math.abs(o - r)) : '—'));
+    lines.push(pad(fmt(t[i])) + pad(fmt(r)) + pad(fmt(o)) + (r !== null && o !== null ? pad(fmt(Math.abs(o - r))) : pad('—')) +
+               (s.low ? pad(fmt(s.low[i])) + fmt(s.high[i]) : ''));
   }
   document.getElementById('error-modal-title').textContent = s.name + ': the compared values';
   var pre = document.getElementById('error-modal-text');

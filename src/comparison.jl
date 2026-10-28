@@ -93,9 +93,9 @@ function split_csv_header(line::AbstractString)::Vector{String}
     return fields
 end
 
-#= The instants a signal is compared at, evenly spaced over [0, stopTime]: 101, so a
-   periodic signal is not sampled at its zero crossings only (21 points put every sample of
-   Blocks.Modulation's sine.y on one). =#
+#= The plotted samples of a signal (signals.json), evenly spaced over [0, stopTime]: 101 (a signal is
+   compared at the reference's own times; until 2026-10-28 at these, and 21 put every sample of
+   Blocks.Modulation's sine.y on a zero crossing). =#
 const COMPARISON_POINTS = 101
 
 #= Whether a stopTime lies within a reference that ends at `ref_end`, up to
@@ -143,23 +143,6 @@ function interpolate_reference(ref_time::Vector{Float64},
 end
 
 """
-    _event_limits(ref_time, ref_values, t) -> Union{Nothing, Tuple{Float64, Float64}}
-
-The values before and after an event the reference recorded at `t` (a time
-that appears more than once: a result file stores both), else `nothing`. The
-reference files store their times as Float32: the event's time is `t` to
-Float32's rounding (MSL HBridge_RL's switching at t = 0.099 is stored as
-0.098999995, at 0.0996 as 0.099600002).
-"""
-function _event_limits(ref_time::Vector{Float64}, ref_values::Vector{Float64}, t::Float64)
-    local rounding = Float64(eps(Float32(max(abs(t), floatmin(Float32)))))
-    first_row = searchsortedfirst(ref_time, t - rounding)
-    last_row = searchsortedlast(ref_time, t + rounding)
-    last_row > first_row || return nothing
-    return (ref_values[first_row], ref_values[last_row])
-end
-
-"""
     modelica_to_omjl_name(name) -> String
 
 Convert Modelica dot-notation signal name to OM.jl underscore convention.
@@ -199,102 +182,147 @@ function _resolve_mtk_variable(sol, sym::Symbol)
 end
 
 """
-    compare_signal(sol, ref, signal_name, stopTime; reltol, atol, npoints, signalMapping) -> SignalComparison
+    compare_signal(sol, ref, signal_name, stopTime; startTime, npoints, signalMapping, refTime, refOffset) -> SignalComparison
 
-Compare an OM.jl solution signal against reference data at evenly spaced
-time points. Uses combined tolerance: the comparison passes at each point
-if |actual - expected| <= atol + reltol * |expected|.
+Compare an OM.jl solution signal against its reference as OpenModelica's library testing does (omc's
+`diffSimulationResults`, `tube_compare`): OM.jl's values at the reference's times up to `stopTime` must lie,
+at each that is not a reference event, in a band around the reference 0.1 % of the time span wide in time
+and 0.3 % of the value and of the signal's range high. So a switch or a steep edge may be off by up to
+0.1 % of the span (10 s: 0.01 s), and a deviation between plotted samples is seen. omc interpolates its
+result file onto the reference's times; OM.jl's values there come from the solution's interpolation.
+
+A value that is not finite fails the signal (omc's band lets NaN pass: it compares as never outside it).
+The result keeps the values and the band at `npoints` evenly spaced times for plotting.
+
+The reference is compared over what OM.jl simulated, its rows in [startTime, stopTime] (`comparison_rows`):
+omc extrapolates a result that ends before the reference, and a registry stopTime may stop early (MSL 4.1.0
+HysteresisModelComparison: stopTime 1, reference to 14). `startTime` is the experiment's (ForceStrokeBehaviour:
+-4).
+`refTime` is those rows' times, the vector the band changes in place (`tube_compare`), and `refOffset` their
+initial event rows counted before any change: `validate_against_reference` passes the same vector for all of
+a model's signals, as omc's one call does.
 
 `signalMapping` maps reference CSV signal names to OM.jl variable names.
 If a signal is not in the mapping, dot-to-underscore conversion is used.
 """
 function compare_signal(sol, ref::ReferenceData, signal_name::String,
                          stopTime::Float64;
-                         reltol::Float64 = 3e-3,
-                         atol::Float64 = 1e-4,
+                         startTime::Float64 = 0.0,
                          npoints::Int = 21,
-                         signalMapping::Dict{String, String} = Dict{String, String}())::SignalComparison
+                         signalMapping::Dict{String, String} = Dict{String, String}(),
+                         refTime::Vector{Float64} = ref.time[comparison_rows(ref.time, startTime, stopTime)],
+                         refOffset::Int = initial_event_rows(refTime))::SignalComparison
     if !haskey(ref.signals, signal_name)
-        return SignalComparison(signal_name, false, NaN, NaN, 0.0, NaN, NaN)
+        return SignalComparison(signal_name, false, NaN, NaN, NaN, NaN, NaN)
     end
     ref_values = ref.signals[signal_name]
     omjl_name = get(signalMapping, signal_name, modelica_to_omjl_name(signal_name))
     omjl_sym = Symbol(omjl_name)
     # Try to resolve the symbolic variable for MTK observed variable access
     resolved_sym = _resolve_mtk_variable(sol, omjl_sym)
+    local sampleTimes::Vector{Float64} = collect(range(startTime, stopTime, length = npoints))
+    local expectedValues::Vector{Float64} = [interpolate_reference(ref.time, ref_values, t) for t in sampleTimes]
+    local actualValues::Vector{Float64} = fill(NaN, npoints)
+    #= OM.jl's result: its values at the reference's times it simulated, as omc's result file is
+       interpolated onto them. =#
+    local rows::UnitRange{Int} = comparison_rows(ref.time, startTime, stopTime)
+    local actualTime::Vector{Float64} = ref.time[rows]
+    local m::Int = length(actualTime)
+    local values::Vector = try
+        _solution_values(sol, resolved_sym, vcat(actualTime, sampleTimes))
+    catch e
+        @warn "Signal $omjl_name not found in solution (eliminated by alias/simplification?)"
+        #= Not in the solution: not compared (passed = false, NaN errors), which fails the
+           validation (validate_against_reference). It passed, so a model validated on a
+           subset of its signals; and a sample after a failed one discarded that failure. =#
+        return SignalComparison(signal_name, false, NaN, NaN, sampleTimes[1], NaN, expectedValues[1],
+                                sampleTimes, expectedValues, actualValues)
+    end
+    local finite(v)::Bool = v isa Real && isfinite(v)
+    #= A non-finite value is a failure, at the first time it occurs; the plotted values up to it. =#
+    local bad::Union{Nothing, Int} = findfirst(k -> !finite(values[k]), eachindex(values))
+    local tBad::Float64 = Inf
+    if bad !== nothing
+        tBad = minimum(k -> k <= m ? actualTime[k] : sampleTimes[k - m], filter(k -> !finite(values[k]), eachindex(values)))
+    end
+    for i in 1:npoints
+        local v = values[m + i]
+        sampleTimes[i] <= tBad && v isa Real && (actualValues[i] = Float64(v))
+    end
+    if bad !== nothing
+        local kBad::Int = something(findfirst(k -> !finite(values[k]) &&
+                                              (k <= m ? actualTime[k] : sampleTimes[k - m]) == tBad, eachindex(values)), bad)
+        local vBad = values[kBad]
+        return SignalComparison(signal_name, false, Inf, Inf, tBad, vBad isa Real ? Float64(vBad) : NaN,
+                                interpolate_reference(ref.time, ref_values, tBad), sampleTimes, expectedValues, actualValues)
+    end
+    local tube::TubeComparison = tube_compare(refTime, ref_values[rows], actualTime, Float64.(values[1:m]); refOffset)
+    local n::Int = length(tube.time)
     max_abs = 0.0
     max_rel = 0.0
-    worst_t = 0.0
-    worst_actual = 0.0
-    worst_expected = 0.0
-    passed = true
-    times = range(0.0, stopTime, length = npoints)
-    local sampleTimes::Vector{Float64} = collect(times)
-    local expectedValues::Vector{Float64} = [interpolate_reference(ref.time, ref_values, t) for t in times]
-    local actualValues::Vector{Float64} = fill(NaN, npoints)
-    #= At a reference discontinuity the sample instant carries both limits
-       (set-valued jump); accept the actual value if it matches either
-       one-sided reference limit within tolerance. =#
-    knot_eps = length(ref.time) > 1 ?
-        1.5 * (ref.time[end] - ref.time[1]) / (length(ref.time) - 1) : 0.0
-    for (i, t) in enumerate(times)
-        expected = expectedValues[i]
-        actual = try
-            sol(t, idxs = resolved_sym)
-        catch
-            # Fallback: try accessing as array variable
-            try
-                vals = sol[resolved_sym]
-                sol_times = sol.t
-                interpolate_reference(sol_times, vals, t)
-            catch e
-                @warn "Signal $omjl_name not found in solution (eliminated by alias/simplification?)"
-                #= Not in the solution: not compared (passed = false, NaN errors), which fails the
-                   validation (validate_against_reference). It passed, so a model validated on a
-                   subset of its signals; and a sample after a failed one discarded that failure. =#
-                return SignalComparison(signal_name, false, NaN, NaN, t, NaN, expected,
-                                        sampleTimes, expectedValues, actualValues)
-            end
+    local worst::Int = 0
+    for i in 1:n
+        isnan(tube.error[i]) && continue          # a reference event: not compared
+        local d::Float64 = abs(tube.actual[i] - tube.reference[i])
+        if d > max_abs
+            max_abs = d
+            max_rel = abs(tube.reference[i]) > 1e-15 ? d / abs(tube.reference[i]) : d
         end
-        actual isa Real && (actualValues[i] = Float64(actual))
-        #= A non-finite value is a failure: NaN compared as never above the threshold. =#
-        if !(actual isa Real) || !isfinite(actual)
-            return SignalComparison(signal_name, false, Inf, Inf, t, actual isa Real ? Float64(actual) : NaN, expected,
-                                    sampleTimes, expectedValues, actualValues)
-        end
-        abs_err = abs(actual - expected)
-        rel_err = abs(expected) > 1e-15 ? abs_err / abs(expected) : abs_err
-        threshold = atol + reltol * abs(expected)
-        #= An event the reference recorded at t (its time repeated): the
-           values before and after it are its own one-sided limits. =#
-        limits = _event_limits(ref.time, ref_values, t)
-        if abs_err > threshold && limits !== nothing &&
-           any(v -> abs(actual - v) <= atol + reltol * abs(v), limits)
-            continue
-        end
-        if abs_err > threshold && knot_eps > 0.0
-            expected_lo = interpolate_reference(ref.time, ref_values, t - knot_eps)
-            expected_hi = interpolate_reference(ref.time, ref_values, t + knot_eps)
-            if abs(expected_hi - expected_lo) > threshold &&
-               (abs(actual - expected_lo) <= atol + reltol * abs(expected_lo) ||
-                abs(actual - expected_hi) <= atol + reltol * abs(expected_hi))
-                continue
-            end
-        end
-        if abs_err > threshold
-            passed = false
-        end
-        if abs_err > max_abs
-            max_abs = abs_err
-            max_rel = rel_err
-            worst_t = t
-            worst_actual = actual
-            worst_expected = expected
-        end
+        tube.error[i] > 0.0 && (worst == 0 || tube.error[i] > tube.error[worst]) && (worst = i)
     end
-    return SignalComparison(signal_name, passed, max_abs, max_rel,
-                            worst_t, worst_actual, worst_expected,
-                            sampleTimes, expectedValues, actualValues)
+    #= The band at the plotted samples, on the reference's own times (the band moved an event's repeated
+       times apart): at an event the value after it, as the plotted reference. =#
+    local bandTime::Vector{Float64} = actualTime[1:n]
+    local low::Vector{Float64} = [interpolate_reference(bandTime, tube.low, t) for t in sampleTimes]
+    local high::Vector{Float64} = [interpolate_reference(bandTime, tube.high, t) for t in sampleTimes]
+    return SignalComparison(signal_name, tube.passed, max_abs, max_rel,
+                            worst == 0 ? NaN : tube.time[worst], worst == 0 ? NaN : tube.actual[worst],
+                            worst == 0 ? NaN : tube.reference[worst],
+                            sampleTimes, expectedValues, actualValues, low, high,
+                            n, count(isnan, tube.error), count(>(0.0), tube.error))
+end
+
+"""
+    comparison_rows(time, startTime, stopTime) -> UnitRange{Int}
+
+The reference's rows a result simulated from `startTime` to `stopTime` is compared at: those in
+[startTime, stopTime], all of them when fewer than two are (a reference too coarse for the interval).
+"""
+function comparison_rows(time::Vector{Float64}, startTime::Float64, stopTime::Float64)::UnitRange{Int}
+    local rows::UnitRange{Int} = searchsortedfirst(time, startTime):searchsortedlast(time, stopTime)
+    return length(rows) >= 2 ? rows : (1:length(time))
+end
+
+"""
+    _solution_values(sol, sym, times) -> Vector
+
+OM.jl's values of `sym` at `times`: the solution interpolated at all of them in one call (0.4 µs a time,
+against 85-750 µs for a call per time: MSL 4.1.0 PolyphaseTwoLevel_RL, 2026-10-28), else
+`_solution_value` at each. Throws when the solution has neither.
+"""
+function _solution_values(sol, sym, times::Vector{Float64})::Vector
+    local all = try
+        sol(times; idxs = sym)
+    catch
+        nothing
+    end
+    local values = all !== nothing && hasproperty(all, :u) ? all.u : all
+    values isa AbstractVector && length(values) == length(times) && return collect(values)
+    return [_solution_value(sol, sym, t) for t in times]
+end
+
+"""
+    _solution_value(sol, sym, t) -> value
+
+OM.jl's value of `sym` at `t`: the solution's interpolation, else (a variable it does not interpolate) its
+saved values interpolated linearly. Throws when the solution has neither.
+"""
+function _solution_value(sol, sym, t::Float64)
+    try
+        return sol(t, idxs = sym)
+    catch
+        return interpolate_reference(sol.t, sol[sym], t)
+    end
 end
 
 """
@@ -331,8 +359,6 @@ function validate_against_reference(sol, spec,
     else
         collect(keys(ref.signals))
     end
-    reltol = spec.reltol
-    atol = spec.atol
     #= A listed signal the reference does not have is an error of the reference data or of
        its reading (a header split inside a quoted name), not a pass. =#
     missing_ref = filter(n -> !haskey(ref.signals, n), signal_names)
@@ -340,11 +366,17 @@ function validate_against_reference(sol, spec,
         error("Reference $ref_name has no column for the listed signals: $(join(missing_ref, ", "))")
     comparisons = SignalComparison[]
     all_passed = true
+    #= One reference time vector for all signals, in their order, as omc's diffSimulationResults reads the
+       reference once per call (OpenModelica's library testing calls it with all of a model's signals): the
+       band moves an event's repeated times apart in it, so a signal's verdict can depend on the ones before it
+       (the 4.1.0 references with altered copies of themselves: up to 7 of 3979 signals, 2026-10-28). =#
+    local sharedTime::Vector{Float64} = ref.time[comparison_rows(ref.time, spec.startTime, compareStop)]
+    local refOffset::Int = initial_event_rows(sharedTime)
     n_skipped = 0
     for name in signal_names
-        cmp = compare_signal(sol, ref, name, compareStop;
-                              reltol = reltol, atol = atol, npoints = COMPARISON_POINTS,
-                              signalMapping = spec.signalMapping)
+        cmp = compare_signal(sol, ref, name, compareStop; startTime = spec.startTime,
+                              npoints = COMPARISON_POINTS, signalMapping = spec.signalMapping,
+                              refTime = sharedTime, refOffset = refOffset)
         push!(comparisons, cmp)
         isnan(cmp.max_abs_err) && (n_skipped += 1)
         cmp.passed || (all_passed = false)

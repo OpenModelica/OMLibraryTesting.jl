@@ -33,7 +33,7 @@
     discover_experiments(; library, version, omc_path, filter) -> Vector{ModelSpec}
 
 Use omc to enumerate all experiment models in a Modelica library.
-Returns a ModelSpec for each model with stopTime from the experiment annotation.
+Returns a ModelSpec for each model with stopTime, Tolerance and startTime from the experiment annotation.
 Without omc on the path (a CI runner), the list recorded from omc in `models/`
 (`record_experiments`) is used instead.
 """
@@ -85,12 +85,14 @@ function discover_experiments(; library::String = "Modelica",
         #= The experiment's Tolerance is the solver's relative tolerance, as
            in the tools that produced the references (default 1e-6). =#
         tolerance = length(parts) >= 3 ? something(tryparse(Float64, parts[3]), 0.0) : 0.0
+        #= The experiment's StartTime (lists recorded before 2026-10-28 have none: 0). =#
+        startTime = length(parts) >= 4 ? something(tryparse(Float64, parts[4]), 0.0) : 0.0
         domain = _extract_domain(name)
         key = _name_to_key(name)
         push!(specs, ModelSpec(name, key, domain, stopTime,
                                UNKNOWN, Dict{String, Float64}(),
                                0.01, 3e-3, "", Dict{String, String}(), "",
-                               Set{Phase}(), "", 0.0, "", 0.0, tolerance))
+                               Set{Phase}(), "", 0.0, "", 0.0, tolerance, String[], 0.0, startTime))
     end
     sort!(specs, by = s -> (s.domain, s.name))
     if cache
@@ -103,7 +105,7 @@ function discover_experiments(; library::String = "Modelica",
     return specs
 end
 
-#= The experiment models of a library as omc lists them: one `name|stopTime|tolerance` line each. =#
+#= The experiment models of a library as omc lists them: one `name|stopTime|tolerance|startTime` line each. =#
 function _omc_experiments(library::String, version::String, omc_path::String)::String
     script = """
     loadModel($library, {"$version"});
@@ -111,7 +113,7 @@ function _omc_experiments(library::String, version::String, omc_path::String)::S
     for n in names loop
       if isExperiment(n) then
         (startTime, stopTime, tolerance, numberOfIntervals, interval) := getSimulationOptions(n);
-        print(typeNameString(n) + "|" + String(stopTime) + "|" + String(tolerance) + "\\n");
+        print(typeNameString(n) + "|" + String(stopTime) + "|" + String(tolerance) + "|" + String(startTime) + "\\n");
       end if;
     end for;
     """
@@ -265,7 +267,7 @@ function merge_overrides!(specs::Vector{ModelSpec},
                                 atol, reltol, referenceFile,
                                 sig_map, issue, skip, solverName, dtmaxVal, initAlgName,
                                 solverAtolVal, solverReltolVal, observedFilterVal,
-                                maxitersVal))
+                                maxitersVal, spec.startTime))
     end
     n_broken = count(s -> s.expected == BROKEN, merged)
     n_skipped = count(s -> !isempty(s.skipPhases), merged)
@@ -316,7 +318,7 @@ function auto_detect_references!(specs::Vector{ModelSpec},
                                      spec.signalMapping, spec.issue, spec.skipPhases,
                                      spec.solver, spec.dtmax, spec.initAlg,
                                      spec.solverAtol, spec.solverReltol, spec.observedFilter,
-                                     spec.maxiters))
+                                     spec.maxiters, spec.startTime))
         else
             push!(result, spec)
         end

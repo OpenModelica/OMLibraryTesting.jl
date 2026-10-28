@@ -391,7 +391,8 @@ function _run_model_phases(model_name::String,
                            solver_atol::Float64 = 0.0,
                            solver_reltol::Float64 = 0.0,
                            observed_filter::Vector{String} = String[],
-                           maxiters::Float64 = 0.0)
+                           maxiters::Float64 = 0.0,
+                           start_time::Float64 = 0.0)
     results = Tuple{Int, Bool, Float64, Union{Nothing, String}}[]
     highest = 0
     sol = nothing
@@ -435,7 +436,7 @@ function _run_model_phases(model_name::String,
                 if solver_atol > 0.0
                     _tol = (; _tol..., abstol = solver_atol)
                 end
-                sol = OM.simulate(model_name; msl..., stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _mi..., _tol...)
+                sol = OM.simulate(model_name; msl..., startTime = start_time, stopTime = stop_time, _sa..., _extra..., _ia..., _of..., _mi..., _tol...)
                 #= Terminated is a successful end per Modelica semantics: a model
                    calling terminate() completed its intended scenario. =#
                 if sol.retcode != ReturnCode.Success && sol.retcode != ReturnCode.Terminated
@@ -447,7 +448,7 @@ function _run_model_phases(model_name::String,
                     temp_spec = ModelSpec(
                         model_name, "", "", stop_time, UNKNOWN,
                         reference, atol, reltol, reference_file, signal_mapping, "",
-                        Set{Phase}())
+                        Set{Phase}(), "", 0.0, "", 0.0, 0.0, String[], 0.0, start_time)
                     (passed, comparisons) = validate_against_reference(sol, temp_spec, ref_dir;
                         terminatedAt = sol.retcode == ReturnCode.Terminated ? Float64(sol.t[end]) : nothing)
                     signals = [_signal_tuple(c) for c in comparisons]
@@ -505,11 +506,12 @@ end
 
 #= A SignalComparison's fields, for a worker's result (plain types across processes). =#
 const SIGNAL_TUPLE = Tuple{String, Bool, Float64, Float64, Float64, Float64, Float64,
-                           Vector{Float64}, Vector{Float64}, Vector{Float64}}
+                           Vector{Float64}, Vector{Float64}, Vector{Float64},
+                           Vector{Float64}, Vector{Float64}, Int, Int, Int}
 
 _signal_tuple(c::SignalComparison)::SIGNAL_TUPLE =
     (c.name, c.passed, c.max_abs_err, c.max_rel_err, c.worst_time, c.worst_actual, c.worst_expected,
-     c.times, c.expected, c.actual)
+     c.times, c.expected, c.actual, c.low, c.high, c.n_compared, c.n_events, c.n_outside)
 
 # ── Worker Execution with Timeout ───────────────────────────────────────
 
@@ -593,7 +595,7 @@ function run_on_worker(mgr::WorkerManager, spec::ModelSpec,
         spec.referenceFile, spec.reference, spec.atol, spec.reltol,
         spec.signalMapping, mgr.ref_dir, phase_ints, check_sim_code,
         spec.solver, spec.dtmax, spec.initAlg,
-        spec.solverAtol, spec.solverReltol, spec.observedFilter, spec.maxiters)
+        spec.solverAtol, spec.solverReltol, spec.observedFilter, spec.maxiters, spec.startTime)
 
     #= Wait for the result in a local task and poll that task. isready(future) asks
        the worker, and a worker running code that never yields (a pegged solve or

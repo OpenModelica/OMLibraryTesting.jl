@@ -41,6 +41,7 @@ import OMFrontend
 
 include("types.jl")
 include("registry.jl")
+include("tubes.jl")
 include("comparison.jl")
 include("discovery.jl")
 include("runner.jl")
