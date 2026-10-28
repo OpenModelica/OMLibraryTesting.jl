@@ -17,8 +17,11 @@ reference_source = "MAP-LIB_ReferenceResults (Dymola, branch v3.2.3)"
 #                                                  (default = solver default)
 #   solverReltol   = <float>                       (default: the experiment's Tolerance)
 #   solverAtol     = <float>                       (0.0 = SciML default ~1e-6)
-#                  Note: distinct from atol/reltol above which are validation
-#                  tolerances for trajectory comparison. Use solverReltol /
+#                  Note: distinct from atol/reltol, the tolerances of an inline
+#                  `reference` (final values). A reference trajectory (CSV) is
+#                  compared as OpenModelica's library testing does (tube_compare:
+#                  relTol 3e-3, relTolDiffMinMax 3e-3, rangeDelta 1e-3, 2026-10-28);
+#                  atol/reltol do not apply to it. Use solverReltol /
 #                  solverAtol to loosen the integrator (e.g. near-singular
 #                  Jacobians that force dt below eps under default tolerances).
 #   observedFilter = ["regex", ...]                 ([] = OM.simulate default)

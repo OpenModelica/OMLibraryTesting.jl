@@ -11,7 +11,7 @@ import OMLibraryTesting as OLT
 struct ValuesOf{F}
     f::F
 end
-(s::ValuesOf)(t; idxs = nothing) = s.f(t)
+(s::ValuesOf)(t::Real; idxs = nothing) = s.f(t)
 
 @testset "Compared signals" begin
     local ref = OLT.ReferenceData([0.0, 0.5, 1.0], Dict("x" => [0.0, 1.0, 2.0]))
@@ -26,6 +26,14 @@ end
     @test all(isnan, stopped.actual[4:5]) && stopped.expected ≈ ok.expected
     #= A signal the reference does not have: nothing compared. =#
     @test isempty(OLT.compare_signal(ValuesOf(t -> 2t), ref, "y", 1.0; npoints = 5).times)
+
+    #= No sample counted an error: no time of the largest. =#
+    @test ok.max_abs_err == 0.0 && isnan(ok.worst_time)
+
+    #= An event the reference recorded: its rows are not compared. =#
+    local eventRef = OLT.ReferenceData([0.0, 0.5, 0.5, 1.0], Dict("p" => [0.0, 0.0, 1.0, 1.0]))
+    local atEvent = OLT.compare_signal(ValuesOf(t -> t <= 0.5 ? 0.0 : 1.0), eventRef, "p", 1.0; npoints = 5)
+    @test atEvent.passed && atEvent.n_compared == 4 && atEvent.n_events == 2
 
     #= A worker returns the comparisons as plain tuples; the parent rebuilds them. =#
     local back = OLT.SignalComparison(OLT._signal_tuple(stopped)...)
@@ -46,6 +54,17 @@ end
     @test occursin("\"B\":{\"validated\":false,", json) && occursin("\"omjl\":[0.0,0.5,null,null,null]", json)
     @test !occursin("\"C\"", json)
     @test count(==('{'), json) == count(==('}'), json) && count(==('['), json) == count(==(']'), json)
+    #= Inside the band: no worst time or values; how many times were compared; the band at the samples. =#
+    @test occursin("\"worst_time\":null,\"compared\":3,\"events\":0,\"outside\":0,\"reference\"", json)
+    @test occursin("\"low\":[", json) && occursin("\"high\":[", json)
+    local eventJson = OLT.signals_json([OLT.ModelResult(spec("D"), OLT.PhaseResult[], OLT.VALIDATE, "", [atEvent])])
+    @test occursin("\"compared\":4,\"events\":2,\"outside\":0,", eventJson)
+    #= A counted error: where, and the two values there (a reference with rows every 0.05: compared there
+       too, and its steps too short to accept the error as a time shift). =#
+    local fine = OLT.ReferenceData(collect(0.0:0.05:1.0), Dict("x" => 2 .* collect(0.0:0.05:1.0)))
+    local off = OLT.compare_signal(ValuesOf(t -> 2t + (t == 0.75 ? 0.5 : 0.0)), fine, "x", 1.0; npoints = 5)
+    local offJson = OLT.signals_json([OLT.ModelResult(spec("E"), OLT.PhaseResult[], OLT.SIMULATE, "", [off])])
+    @test !off.passed && occursin("\"worst_time\":0.75,\"worst_omjl\":2.0,\"worst_reference\":1.5,\"compared\":21,\"events\":0,\"outside\":1,", offJson)
 
     mktempdir() do dir
         @test !OLT.write_signals(joinpath(dir, "none.json"), [none]) && !isfile(joinpath(dir, "none.json"))
@@ -57,6 +76,7 @@ end
         @test occursin("data-model=\"A.&quot;quoted&quot;\"", page) && occursin(">signals 1/1</a>", page)
         @test occursin("class=\"sig-link sig-has-fail\" href=\"#\" data-model=\"B\"", page)
         @test !occursin("data-model=\"C\"", page) && occursin("function toggleSignals", page)
+        @test occursin("function signalStats", page)
 
         #= The site: signals.json with each run, linked from its page, kept for the latest runs only. =#
         local site = joinpath(dir, "site")

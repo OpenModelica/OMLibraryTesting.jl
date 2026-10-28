@@ -42,6 +42,11 @@ end
     @test OLT.load_registry_meta(OLT.default_models_path("4.1.0"))["msl_version"] == "MSL:4.1.0"
     #= Every 4.1.0 entry is an experiment of 4.1.0. =#
     local experiments = Set(first(split(l, '|')) for l in eachline(joinpath(models, "experiments_Modelica_4.1.0.txt")))
+    #= The recorded experiment lists carry the experiment's StartTime (2026-10-28; MSL ForceStrokeBehaviour: -4,
+       simulated and compared from 0 before). =#
+    local forceStroke = only(filter(s -> endswith(s.name, ".ForceStrokeBehaviour"),
+                                    OLT.discover_experiments(; version = "4.1.0", cache = false)))
+    @test forceStroke.startTime == -4.0 && forceStroke.stopTime == 4.0
     @test all(e -> e["name"] in experiments, values(OLT.TOML.parsefile(OLT.default_models_path("4.1.0"))["models"]))
     #= Bundled versions by MSL_Version; others are installed libraries (not loaded here). =#
     @test OLT._msl_kwargs("MSL:3.2.3") == (; MSL_Version = "MSL:3.2.3")
