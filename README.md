@@ -27,7 +27,7 @@ The report's signal viewer plots the band at 101 evenly spaced times.
 ## Latest coverage
 
 <!-- coverage:begin (scripts/publish_coverage.jl) -->
-Measured 2026-10-28 on 425 MSL 3.2.3 example models: frontend 422 (99.3 %), backend 422 (99.3 %), simulate 406 (95.5 %), validate 371 (87.3 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
+Measured 2026-10-28 on 425 MSL 3.2.3 example models: frontend 422 (99.3 %), backend 422 (99.3 %), simulate 404 (95.1 %), validate 372 (87.5 %). Per domain and what stops the rest: [docs/COVERAGE.md](docs/COVERAGE.md).
 <!-- coverage:end -->
 
 <!-- coverage-4.1.0:begin (scripts/publish_coverage.jl) -->
