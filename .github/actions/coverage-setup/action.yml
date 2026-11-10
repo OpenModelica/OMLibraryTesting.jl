@@ -30,11 +30,6 @@ runs:
         exclude: OMLibraryTesting
         line: ${{ inputs.line }}
 
-    - uses: actions/setup-java@v4  # ANTLR, if the parser is built from source
-      with:
-        distribution: zulu
-        java-version: "21"
-
     - uses: julia-actions/setup-julia@v2
       with:
         version: ${{ inputs.julia }}
@@ -44,12 +39,6 @@ runs:
       with:
         cache-name: julia-cache;workflow=${{ github.workflow }}
         include-matrix: false
-
-    - name: OMParser library
-      shell: bash
-      env:
-        PACKAGE: OMLibraryTesting
-      run: OM.jl/ci/build-parser.sh
 
     - name: Set up OM.jl
       shell: bash
