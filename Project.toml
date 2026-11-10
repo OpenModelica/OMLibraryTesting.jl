@@ -37,7 +37,7 @@ ListUtil = "0.4.1"
 MetaModelica = "0.4.2, 0.5"
 OM = "0.10"
 OMBackend = "0.9"
-OMFrontend = "1.9"
+OMFrontend = "2"
 OMParser = "1"
 
 [extras]
