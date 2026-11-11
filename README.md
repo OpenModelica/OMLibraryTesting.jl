@@ -234,4 +234,4 @@ Reference trajectories come from the MAP-LIB Dymola reference results (branch v3
 
 ## License
 
-GPL v3 / OSMC Public License 1.2. See `LICENSE.md`.
+AGPL v3 / OSMC Public License 1.8. See `LICENSE.md`.

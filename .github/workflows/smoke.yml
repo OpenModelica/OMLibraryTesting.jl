@@ -28,7 +28,6 @@ jobs:
     timeout-minutes: 120
     env:
       JULIA_PKG_PRECOMPILE_AUTO: "0"
-      LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
       # One thread: OMLibraryTesting runs no parallel workloads.
       JULIA_NUM_THREADS: "1"
       # One model per domain for the bundled MSL; one for an installed one.

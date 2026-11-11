@@ -84,7 +84,6 @@ jobs:
         shard: [1, 2]
     env:
       JULIA_PKG_PRECOMPILE_AUTO: "0"
-      LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
       # The MSL version: the input, 4.1.0 for the every-third-day schedule, else 3.2.3.
       MSL: ${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }}
       OMJL_COVERAGE_MSL: MSL:${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }}
@@ -168,7 +167,6 @@ jobs:
     timeout-minutes: 90
     env:
       JULIA_PKG_PRECOMPILE_AUTO: "0"
-      LD_LIBRARY_PATH: ${{ github.workspace }}/OM.jl/OMRuntimeExternalC.jl/lib/ext/shared/x86_64-linux-gnu
       MSL: ${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }}
       OMJL_COVERAGE_MSL: MSL:${{ inputs.msl || (github.event.schedule == '0 14 */3 * *' && '4.1.0') || '3.2.3' }}
       OMJL_COVERAGE_TAG: ci
