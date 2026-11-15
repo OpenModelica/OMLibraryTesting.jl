@@ -1,5 +1,14 @@
 [[runs]]
 backend = 422
+commits = ["OM.jl fcebe90", "ImmutableList.jl c884860", "MetaModelica.jl 906748a", "OMBackend.jl 5d7e448", "OMFrontend.jl ca8ecc7", "OMLibraryTesting.jl 54a639c", "OMParser.jl 89f20a7", "OMRuntimeExternalC.jl 25f8986"]
+date = "2026-11-15"
+frontend = 422
+models = 425
+note = "No-skip run on GitHub Actions (ubuntu-latest, Julia 1.13), 2 shards of 1 workers, 600 s per model"
+simulate = 404
+validate = 372
+[[runs]]
+backend = 422
 commits = ["OM.jl 4f85dc6", "Absyn.jl d9295b0", "ArrayUtil.jl 45ec370", "DAE.jl 29da583", "DoubleEnded.jl 3955cc5", "ImmutableList.jl 132055a", "ListUtil.jl 3d2d0c3", "MetaModelica.jl 3814d38", "OMBackend.jl a595740", "OMFrontend.jl 5b164be", "OMLibraryTesting.jl 2e48754", "OMParser.jl ea4149f", "OMRuntimeExternalC.jl 1983a3d", "SCode.jl 86e7838"]
 date = "2026-11-08"
 frontend = 422
