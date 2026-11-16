@@ -1,6 +1,6 @@
 name = "OMLibraryTesting"
 uuid = "4866894a-ca78-4bef-9a5c-0d35f2f81ce1"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["John Tinnerholm <john.tinnerholm@liu.se>"]
 
 [deps]
@@ -21,8 +21,8 @@ OMFrontend     = { path = "../OMFrontend.jl" }
 
 [compat]
 julia = "1.13"
-OM = "0.10"
-OMBackend = "0.9, 0.10"
+OM = "0.10, 0.11"
+OMBackend = "0.9, 0.10, 0.11"
 OMFrontend = "2"
 
 [extras]
