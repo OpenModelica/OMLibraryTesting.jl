@@ -33,7 +33,7 @@ pre { background: var(--bar); padding: 10px 12px; border-radius: 4px; overflow-x
 <nav><a href="../">MSL 3.2.3</a><strong>MSL 4.1.0</strong></nav>
 <h1>OM.jl coverage of the MSL 4.1.0 examples</h1>
 <p class="lead">Each experiment model goes through OM.jl's pipeline: flatten (frontend), translate (backend), simulate, and validate against the reference trajectories. Measured by <a href="https://github.com/OpenModelica/OMLibraryTesting.jl">OMLibraryTesting.jl</a>.</p>
-<h2>Latest: <a href="runs/2026-11-18/">2026-11-18</a>, 534 models</h2>
+<h2>Latest: <a href="runs/2026-11-19/">2026-11-19</a>, 534 models</h2>
 <div class="funnel">
 <div>frontend</div><div class="track"><div class="fill" style="width: 99.6%; background: var(--frontend)"></div></div><div class="num">532 · 99.6 %</div>
 <div>backend</div><div class="track"><div class="fill" style="width: 99.1%; background: var(--backend)"></div></div><div class="num">529 · 99.1 %</div>
@@ -48,81 +48,87 @@ pre { background: var(--bar); padding: 10px 12px; border-radius: 4px; overflow-x
 <line x1="40" x2="888" y1="56.0" y2="56.0" style="stroke: var(--line)"/><text x="34" y="60.0" text-anchor="end">75%</text>
 <line x1="40" x2="888" y1="10.0" y2="10.0" style="stroke: var(--line)"/><text x="34" y="14.0" text-anchor="end">100%</text>
 <text x="40.0" y="212" text-anchor="start">2026-10-12</text>
-<text x="161.14285714285714" y="212" text-anchor="middle">2026-10-19</text>
-<text x="282.2857142857143" y="212" text-anchor="middle">2026-10-23</text>
-<text x="403.42857142857144" y="212" text-anchor="middle">2026-10-27</text>
-<text x="524.5714285714286" y="212" text-anchor="middle">2026-10-31</text>
-<text x="645.7142857142857" y="212" text-anchor="middle">2026-11-04</text>
-<text x="766.8571428571429" y="212" text-anchor="middle">2026-11-13</text>
-<text x="888.0" y="212" text-anchor="end">2026-11-18</text>
-<polyline points="40.0,10.3 100.6,10.3 161.1,11.0 221.7,11.0 282.3,10.3 342.9,10.3 403.4,10.3 464.0,10.7 524.6,10.3 585.1,10.3 645.7,10.7 706.3,11.0 766.9,10.3 827.4,10.7 888.0,10.7" style="fill: none; stroke: var(--frontend); stroke-width: 2"/>
+<text x="153.06666666666666" y="212" text-anchor="middle">2026-10-19</text>
+<text x="266.1333333333333" y="212" text-anchor="middle">2026-10-23</text>
+<text x="379.2" y="212" text-anchor="middle">2026-10-27</text>
+<text x="492.26666666666665" y="212" text-anchor="middle">2026-10-31</text>
+<text x="605.3333333333334" y="212" text-anchor="middle">2026-11-04</text>
+<text x="718.4" y="212" text-anchor="middle">2026-11-13</text>
+<text x="831.4666666666667" y="212" text-anchor="middle">2026-11-18</text>
+<text x="888.0" y="212" text-anchor="end">2026-11-19</text>
+<polyline points="40.0,10.3 96.5,10.3 153.1,11.0 209.6,11.0 266.1,10.3 322.7,10.3 379.2,10.3 435.7,10.7 492.3,10.3 548.8,10.3 605.3,10.7 661.9,11.0 718.4,10.3 774.9,10.7 831.5,10.7 888.0,10.7" style="fill: none; stroke: var(--frontend); stroke-width: 2"/>
 <circle cx="40.0" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-12 frontend 533/534</title></circle>
-<circle cx="100.6" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-13 frontend 533/534</title></circle>
-<circle cx="161.1" cy="11.0" r="3" style="fill: var(--frontend)"><title>2026-10-19 frontend 531/534</title></circle>
-<circle cx="221.7" cy="11.0" r="3" style="fill: var(--frontend)"><title>2026-10-22 frontend 531/534</title></circle>
-<circle cx="282.3" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-23 frontend 533/534</title></circle>
-<circle cx="342.9" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-25 frontend 533/534</title></circle>
-<circle cx="403.4" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-27 frontend 533/534</title></circle>
-<circle cx="464.0" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-10-28 frontend 532/534</title></circle>
-<circle cx="524.6" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-31 frontend 533/534</title></circle>
-<circle cx="585.1" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-11-01 frontend 533/534</title></circle>
-<circle cx="645.7" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-04 frontend 532/534</title></circle>
-<circle cx="706.3" cy="11.0" r="3" style="fill: var(--frontend)"><title>2026-11-07 frontend 531/534</title></circle>
-<circle cx="766.9" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-11-13 frontend 533/534</title></circle>
-<circle cx="827.4" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-16 frontend 532/534</title></circle>
-<circle cx="888.0" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-18 frontend 532/534</title></circle>
-<polyline points="40.0,43.8 100.6,43.4 161.1,12.4 221.7,12.4 282.3,11.4 342.9,10.7 403.4,10.7 464.0,11.0 524.6,10.7 585.1,10.7 645.7,11.0 706.3,11.4 766.9,10.7 827.4,11.0 888.0,11.7" style="fill: none; stroke: var(--backend); stroke-width: 2"/>
+<circle cx="96.5" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-13 frontend 533/534</title></circle>
+<circle cx="153.1" cy="11.0" r="3" style="fill: var(--frontend)"><title>2026-10-19 frontend 531/534</title></circle>
+<circle cx="209.6" cy="11.0" r="3" style="fill: var(--frontend)"><title>2026-10-22 frontend 531/534</title></circle>
+<circle cx="266.1" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-23 frontend 533/534</title></circle>
+<circle cx="322.7" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-25 frontend 533/534</title></circle>
+<circle cx="379.2" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-27 frontend 533/534</title></circle>
+<circle cx="435.7" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-10-28 frontend 532/534</title></circle>
+<circle cx="492.3" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-10-31 frontend 533/534</title></circle>
+<circle cx="548.8" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-11-01 frontend 533/534</title></circle>
+<circle cx="605.3" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-04 frontend 532/534</title></circle>
+<circle cx="661.9" cy="11.0" r="3" style="fill: var(--frontend)"><title>2026-11-07 frontend 531/534</title></circle>
+<circle cx="718.4" cy="10.3" r="3" style="fill: var(--frontend)"><title>2026-11-13 frontend 533/534</title></circle>
+<circle cx="774.9" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-16 frontend 532/534</title></circle>
+<circle cx="831.5" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-18 frontend 532/534</title></circle>
+<circle cx="888.0" cy="10.7" r="3" style="fill: var(--frontend)"><title>2026-11-19 frontend 532/534</title></circle>
+<polyline points="40.0,43.8 96.5,43.4 153.1,12.4 209.6,12.4 266.1,11.4 322.7,10.7 379.2,10.7 435.7,11.0 492.3,10.7 548.8,10.7 605.3,11.0 661.9,11.4 718.4,10.7 774.9,11.0 831.5,11.7 888.0,11.7" style="fill: none; stroke: var(--backend); stroke-width: 2"/>
 <circle cx="40.0" cy="43.8" r="3" style="fill: var(--backend)"><title>2026-10-12 backend 436/534</title></circle>
-<circle cx="100.6" cy="43.4" r="3" style="fill: var(--backend)"><title>2026-10-13 backend 437/534</title></circle>
-<circle cx="161.1" cy="12.4" r="3" style="fill: var(--backend)"><title>2026-10-19 backend 527/534</title></circle>
-<circle cx="221.7" cy="12.4" r="3" style="fill: var(--backend)"><title>2026-10-22 backend 527/534</title></circle>
-<circle cx="282.3" cy="11.4" r="3" style="fill: var(--backend)"><title>2026-10-23 backend 530/534</title></circle>
-<circle cx="342.9" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-10-25 backend 532/534</title></circle>
-<circle cx="403.4" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-10-27 backend 532/534</title></circle>
-<circle cx="464.0" cy="11.0" r="3" style="fill: var(--backend)"><title>2026-10-28 backend 531/534</title></circle>
-<circle cx="524.6" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-10-31 backend 532/534</title></circle>
-<circle cx="585.1" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-11-01 backend 532/534</title></circle>
-<circle cx="645.7" cy="11.0" r="3" style="fill: var(--backend)"><title>2026-11-04 backend 531/534</title></circle>
-<circle cx="706.3" cy="11.4" r="3" style="fill: var(--backend)"><title>2026-11-07 backend 530/534</title></circle>
-<circle cx="766.9" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-11-13 backend 532/534</title></circle>
-<circle cx="827.4" cy="11.0" r="3" style="fill: var(--backend)"><title>2026-11-16 backend 531/534</title></circle>
-<circle cx="888.0" cy="11.7" r="3" style="fill: var(--backend)"><title>2026-11-18 backend 529/534</title></circle>
-<polyline points="40.0,66.2 100.6,65.5 161.1,31.0 221.7,31.0 282.3,16.5 342.9,16.2 403.4,15.9 464.0,16.2 524.6,16.5 585.1,16.2 645.7,16.2 706.3,29.0 766.9,15.5 827.4,15.5 888.0,15.2" style="fill: none; stroke: var(--simulate); stroke-width: 2"/>
+<circle cx="96.5" cy="43.4" r="3" style="fill: var(--backend)"><title>2026-10-13 backend 437/534</title></circle>
+<circle cx="153.1" cy="12.4" r="3" style="fill: var(--backend)"><title>2026-10-19 backend 527/534</title></circle>
+<circle cx="209.6" cy="12.4" r="3" style="fill: var(--backend)"><title>2026-10-22 backend 527/534</title></circle>
+<circle cx="266.1" cy="11.4" r="3" style="fill: var(--backend)"><title>2026-10-23 backend 530/534</title></circle>
+<circle cx="322.7" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-10-25 backend 532/534</title></circle>
+<circle cx="379.2" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-10-27 backend 532/534</title></circle>
+<circle cx="435.7" cy="11.0" r="3" style="fill: var(--backend)"><title>2026-10-28 backend 531/534</title></circle>
+<circle cx="492.3" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-10-31 backend 532/534</title></circle>
+<circle cx="548.8" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-11-01 backend 532/534</title></circle>
+<circle cx="605.3" cy="11.0" r="3" style="fill: var(--backend)"><title>2026-11-04 backend 531/534</title></circle>
+<circle cx="661.9" cy="11.4" r="3" style="fill: var(--backend)"><title>2026-11-07 backend 530/534</title></circle>
+<circle cx="718.4" cy="10.7" r="3" style="fill: var(--backend)"><title>2026-11-13 backend 532/534</title></circle>
+<circle cx="774.9" cy="11.0" r="3" style="fill: var(--backend)"><title>2026-11-16 backend 531/534</title></circle>
+<circle cx="831.5" cy="11.7" r="3" style="fill: var(--backend)"><title>2026-11-18 backend 529/534</title></circle>
+<circle cx="888.0" cy="11.7" r="3" style="fill: var(--backend)"><title>2026-11-19 backend 529/534</title></circle>
+<polyline points="40.0,66.2 96.5,65.5 153.1,31.0 209.6,31.0 266.1,16.5 322.7,16.2 379.2,15.9 435.7,16.2 492.3,16.5 548.8,16.2 605.3,16.2 661.9,29.0 718.4,15.5 774.9,15.5 831.5,15.2 888.0,15.2" style="fill: none; stroke: var(--simulate); stroke-width: 2"/>
 <circle cx="40.0" cy="66.2" r="3" style="fill: var(--simulate)"><title>2026-10-12 simulate 371/534</title></circle>
-<circle cx="100.6" cy="65.5" r="3" style="fill: var(--simulate)"><title>2026-10-13 simulate 373/534</title></circle>
-<circle cx="161.1" cy="31.0" r="3" style="fill: var(--simulate)"><title>2026-10-19 simulate 473/534</title></circle>
-<circle cx="221.7" cy="31.0" r="3" style="fill: var(--simulate)"><title>2026-10-22 simulate 473/534</title></circle>
-<circle cx="282.3" cy="16.5" r="3" style="fill: var(--simulate)"><title>2026-10-23 simulate 515/534</title></circle>
-<circle cx="342.9" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-10-25 simulate 516/534</title></circle>
-<circle cx="403.4" cy="15.9" r="3" style="fill: var(--simulate)"><title>2026-10-27 simulate 517/534</title></circle>
-<circle cx="464.0" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-10-28 simulate 516/534</title></circle>
-<circle cx="524.6" cy="16.5" r="3" style="fill: var(--simulate)"><title>2026-10-31 simulate 515/534</title></circle>
-<circle cx="585.1" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-11-01 simulate 516/534</title></circle>
-<circle cx="645.7" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-11-04 simulate 516/534</title></circle>
-<circle cx="706.3" cy="29.0" r="3" style="fill: var(--simulate)"><title>2026-11-07 simulate 479/534</title></circle>
-<circle cx="766.9" cy="15.5" r="3" style="fill: var(--simulate)"><title>2026-11-13 simulate 518/534</title></circle>
-<circle cx="827.4" cy="15.5" r="3" style="fill: var(--simulate)"><title>2026-11-16 simulate 518/534</title></circle>
-<circle cx="888.0" cy="15.2" r="3" style="fill: var(--simulate)"><title>2026-11-18 simulate 519/534</title></circle>
-<polyline points="40.0,76.5 100.6,75.8 161.1,43.4 221.7,43.4 282.3,22.1 342.9,21.7 403.4,26.5 464.0,24.8 524.6,25.2 585.1,24.8 645.7,24.8 706.3,37.6 766.9,23.4 827.4,23.4 888.0,18.6" style="fill: none; stroke: var(--validate); stroke-width: 2"/>
+<circle cx="96.5" cy="65.5" r="3" style="fill: var(--simulate)"><title>2026-10-13 simulate 373/534</title></circle>
+<circle cx="153.1" cy="31.0" r="3" style="fill: var(--simulate)"><title>2026-10-19 simulate 473/534</title></circle>
+<circle cx="209.6" cy="31.0" r="3" style="fill: var(--simulate)"><title>2026-10-22 simulate 473/534</title></circle>
+<circle cx="266.1" cy="16.5" r="3" style="fill: var(--simulate)"><title>2026-10-23 simulate 515/534</title></circle>
+<circle cx="322.7" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-10-25 simulate 516/534</title></circle>
+<circle cx="379.2" cy="15.9" r="3" style="fill: var(--simulate)"><title>2026-10-27 simulate 517/534</title></circle>
+<circle cx="435.7" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-10-28 simulate 516/534</title></circle>
+<circle cx="492.3" cy="16.5" r="3" style="fill: var(--simulate)"><title>2026-10-31 simulate 515/534</title></circle>
+<circle cx="548.8" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-11-01 simulate 516/534</title></circle>
+<circle cx="605.3" cy="16.2" r="3" style="fill: var(--simulate)"><title>2026-11-04 simulate 516/534</title></circle>
+<circle cx="661.9" cy="29.0" r="3" style="fill: var(--simulate)"><title>2026-11-07 simulate 479/534</title></circle>
+<circle cx="718.4" cy="15.5" r="3" style="fill: var(--simulate)"><title>2026-11-13 simulate 518/534</title></circle>
+<circle cx="774.9" cy="15.5" r="3" style="fill: var(--simulate)"><title>2026-11-16 simulate 518/534</title></circle>
+<circle cx="831.5" cy="15.2" r="3" style="fill: var(--simulate)"><title>2026-11-18 simulate 519/534</title></circle>
+<circle cx="888.0" cy="15.2" r="3" style="fill: var(--simulate)"><title>2026-11-19 simulate 519/534</title></circle>
+<polyline points="40.0,76.5 96.5,75.8 153.1,43.4 209.6,43.4 266.1,22.1 322.7,21.7 379.2,26.5 435.7,24.8 492.3,25.2 548.8,24.8 605.3,24.8 661.9,37.6 718.4,23.4 774.9,23.4 831.5,18.6 888.0,18.6" style="fill: none; stroke: var(--validate); stroke-width: 2"/>
 <circle cx="40.0" cy="76.5" r="3" style="fill: var(--validate)"><title>2026-10-12 validate 341/534</title></circle>
-<circle cx="100.6" cy="75.8" r="3" style="fill: var(--validate)"><title>2026-10-13 validate 343/534</title></circle>
-<circle cx="161.1" cy="43.4" r="3" style="fill: var(--validate)"><title>2026-10-19 validate 437/534</title></circle>
-<circle cx="221.7" cy="43.4" r="3" style="fill: var(--validate)"><title>2026-10-22 validate 437/534</title></circle>
-<circle cx="282.3" cy="22.1" r="3" style="fill: var(--validate)"><title>2026-10-23 validate 499/534</title></circle>
-<circle cx="342.9" cy="21.7" r="3" style="fill: var(--validate)"><title>2026-10-25 validate 500/534</title></circle>
-<circle cx="403.4" cy="26.5" r="3" style="fill: var(--validate)"><title>2026-10-27 validate 486/534</title></circle>
-<circle cx="464.0" cy="24.8" r="3" style="fill: var(--validate)"><title>2026-10-28 validate 491/534</title></circle>
-<circle cx="524.6" cy="25.2" r="3" style="fill: var(--validate)"><title>2026-10-31 validate 490/534</title></circle>
-<circle cx="585.1" cy="24.8" r="3" style="fill: var(--validate)"><title>2026-11-01 validate 491/534</title></circle>
-<circle cx="645.7" cy="24.8" r="3" style="fill: var(--validate)"><title>2026-11-04 validate 491/534</title></circle>
-<circle cx="706.3" cy="37.6" r="3" style="fill: var(--validate)"><title>2026-11-07 validate 454/534</title></circle>
-<circle cx="766.9" cy="23.4" r="3" style="fill: var(--validate)"><title>2026-11-13 validate 495/534</title></circle>
-<circle cx="827.4" cy="23.4" r="3" style="fill: var(--validate)"><title>2026-11-16 validate 495/534</title></circle>
-<circle cx="888.0" cy="18.6" r="3" style="fill: var(--validate)"><title>2026-11-18 validate 509/534</title></circle>
+<circle cx="96.5" cy="75.8" r="3" style="fill: var(--validate)"><title>2026-10-13 validate 343/534</title></circle>
+<circle cx="153.1" cy="43.4" r="3" style="fill: var(--validate)"><title>2026-10-19 validate 437/534</title></circle>
+<circle cx="209.6" cy="43.4" r="3" style="fill: var(--validate)"><title>2026-10-22 validate 437/534</title></circle>
+<circle cx="266.1" cy="22.1" r="3" style="fill: var(--validate)"><title>2026-10-23 validate 499/534</title></circle>
+<circle cx="322.7" cy="21.7" r="3" style="fill: var(--validate)"><title>2026-10-25 validate 500/534</title></circle>
+<circle cx="379.2" cy="26.5" r="3" style="fill: var(--validate)"><title>2026-10-27 validate 486/534</title></circle>
+<circle cx="435.7" cy="24.8" r="3" style="fill: var(--validate)"><title>2026-10-28 validate 491/534</title></circle>
+<circle cx="492.3" cy="25.2" r="3" style="fill: var(--validate)"><title>2026-10-31 validate 490/534</title></circle>
+<circle cx="548.8" cy="24.8" r="3" style="fill: var(--validate)"><title>2026-11-01 validate 491/534</title></circle>
+<circle cx="605.3" cy="24.8" r="3" style="fill: var(--validate)"><title>2026-11-04 validate 491/534</title></circle>
+<circle cx="661.9" cy="37.6" r="3" style="fill: var(--validate)"><title>2026-11-07 validate 454/534</title></circle>
+<circle cx="718.4" cy="23.4" r="3" style="fill: var(--validate)"><title>2026-11-13 validate 495/534</title></circle>
+<circle cx="774.9" cy="23.4" r="3" style="fill: var(--validate)"><title>2026-11-16 validate 495/534</title></circle>
+<circle cx="831.5" cy="18.6" r="3" style="fill: var(--validate)"><title>2026-11-18 validate 509/534</title></circle>
+<circle cx="888.0" cy="18.6" r="3" style="fill: var(--validate)"><title>2026-11-19 validate 509/534</title></circle>
 </svg>
 <div class="legend muted"><span><i style="background: var(--frontend)"></i>frontend</span><span><i style="background: var(--backend)"></i>backend</span><span><i style="background: var(--simulate)"></i>simulate</span><span><i style="background: var(--validate)"></i>validate</span></div>
 
 <div class="table-wrap"><table><tr><th>Date</th><th>Models</th><th>frontend</th><th>backend</th><th>simulate</th><th>validate</th><th></th></tr>
+<tr><td><a href="runs/2026-11-19/">2026-11-19</a></td><td>534</td><td>532 <span class="muted">(99.6 %)</span></td><td>529 <span class="muted">(99.1 %)</span></td><td>519 <span class="muted">(97.2 %)</span></td><td>509 <span class="muted">(95.3 %)</span></td><td><a href="runs/2026-11-19/report.html">per model</a></td></tr>
 <tr><td><a href="runs/2026-11-18/">2026-11-18</a></td><td>534</td><td>532 <span class="muted">(99.6 %)</span></td><td>529 <span class="muted">(99.1 %)</span></td><td>519 <span class="muted">(97.2 %)</span></td><td>509 <span class="muted">(95.3 %)</span></td><td><a href="runs/2026-11-18/report.html">per model</a></td></tr>
 <tr><td><a href="runs/2026-11-16/">2026-11-16</a></td><td>534</td><td>532 <span class="muted">(99.6 %)</span></td><td>531 <span class="muted">(99.4 %)</span></td><td>518 <span class="muted">(97.0 %)</span></td><td>495 <span class="muted">(92.7 %)</span></td><td><a href="runs/2026-11-16/report.html">per model</a></td></tr>
 <tr><td><a href="runs/2026-11-13/">2026-11-13</a></td><td>534</td><td>533 <span class="muted">(99.8 %)</span></td><td>532 <span class="muted">(99.6 %)</span></td><td>518 <span class="muted">(97.0 %)</span></td><td>495 <span class="muted">(92.7 %)</span></td><td><a href="runs/2026-11-13/report.html">per model</a></td></tr>
