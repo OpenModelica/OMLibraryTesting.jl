@@ -2,6 +2,7 @@
 
 [![MSL coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fopenmodelica.github.io%2FOMLibraryTesting.jl%2Fbadge.json)](https://openmodelica.github.io/OMLibraryTesting.jl/)
 [![MSL 4.1.0 coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fopenmodelica.github.io%2FOMLibraryTesting.jl%2Fmsl-4.1.0%2Fbadge.json)](https://openmodelica.github.io/OMLibraryTesting.jl/msl-4.1.0/)
+[![Code coverage](https://img.shields.io/endpoint?url=https://openmodelica.github.io/OMLibraryTesting.jl/coverage.json)](https://github.com/OpenModelica/OMLibraryTesting.jl/actions/workflows/smoke.yml?query=branch%3Amaster)
 
 A Julia package for running MSL (Modelica Standard Library) coverage tests against [OM.jl](https://github.com/OpenModelica/OM.jl). It auto-discovers all experiment models in the MSL using `omc`, runs each through the OM.jl pipeline (flatten -> translate -> simulate -> validate), and generates HTML coverage reports.
 

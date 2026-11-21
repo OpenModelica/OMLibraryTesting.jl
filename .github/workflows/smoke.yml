@@ -42,6 +42,9 @@ jobs:
     name: Package tests and smoke models, Julia 1.13
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      contents: write  # the coverage badge file on gh-pages
+      actions: write  # julia-actions/cache deletes the caches it replaces
     env:
       JULIA_PKG_PRECOMPILE_AUTO: "0"
       # One thread: OMLibraryTesting runs no parallel workloads.
@@ -71,7 +74,22 @@ jobs:
 
       - name: Package tests
         working-directory: OM.jl/OMLibraryTesting.jl
-        run: julia --color=yes --project=. -e 'using Pkg; Pkg.test()'
+        # coverage of the package's directory only (Pkg.test's --code-coverage=@<package>)
+        run: julia --color=yes --project=. -e 'using Pkg; Pkg.test(; coverage = true)'
+
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: OM.jl/OMLibraryTesting.jl/src
+
+      # The package tests' coverage in the job summary and, on master, coverage.json on gh-pages for the README's
+      # badge (no external service; the action is shared by the OM.jl packages). The smoke models run without it.
+      - name: Coverage
+        uses: JKRT/OM.jl/.github/actions/coverage@master
+        with:
+          name: OMLibraryTesting.jl/src
+          label: code coverage
+          path: OM.jl/OMLibraryTesting.jl
+          publish: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
 
       - name: Reference data of the smoke models
         working-directory: OM.jl/OMLibraryTesting.jl/reference
