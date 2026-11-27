@@ -134,7 +134,7 @@ julia --project=. scripts/publish_site.jl <gh-pages checkout> logs/partial_full_
 Another library: `OMJL_COVERAGE_LIBRARY=Name@version` (`coverage_target`) runs the experiment models of
 `models/experiments_<Name>_<version>.txt` instead of the MSL's, the library loaded with the libraries its `uses`
 names, up to simulate, or up to validate for a library with reference results (`REFERENCE_LIBRARIES`:
-ModelicaTest). `scripts/install_library.py <Name> <version>` installs it and the
+ModelicaTest, ScalableTestSuite, PowerSystems, PowerGrids, Buildings; see Reference Data). `scripts/install_library.py <Name> <version>` installs it and the
 libraries it uses from OpenModelica's package index, as omc's package manager does, where there is no omc. The
 same scripts merge and publish the run: docs/COVERAGE_<Name>_<version>.md (no README section) and the site
 folder `lib-<Name>-<version>/` (`library_site_folder`), listed after the MSL versions in every page's
@@ -249,10 +249,24 @@ Reference CSVs use Modelica dot notation (e.g., `rev.phi`). OM.jl uses underscor
 
 ## Reference Data
 
-Reference trajectories come from the MAP-LIB Dymola reference results (branch v3.2.3, and v4.1.0 for MSL 4.1.0). Run `reference/download_refs.sh` (MSL 3.2.3) or `reference/download_refs.sh --msl 4.1.0` to fetch or refresh them. ModelicaTest's are on the branch of its MSL version (v4.1.0):
-`download_references(coverage_target(; library = "ModelicaTest@4.1.0+maint.om"))` fetches the 608 models of its
-experiment list (about 1 GB) into `reference/ModelicaTest_4.1.0+maint.om/`; `download_reference(model, dir; branch)`
-fetches one. A library run with `OMJL_COVERAGE_LIBRARY` fetches those of its models itself.
+Reference trajectories come from the MAP-LIB Dymola reference results (branch v3.2.3, and v4.1.0 for MSL 4.1.0). Run `reference/download_refs.sh` (MSL 3.2.3) or `reference/download_refs.sh --msl 4.1.0` to fetch or refresh them.
+
+Other libraries' references come from where OpenModelica's library testing takes them (`reference_source`):
+
+| Library | Source | Format | Experiment models with a reference |
+|---|---|---|---|
+| ModelicaTest 4.1.0 | MAP-LIB_ReferenceResults, branch v4.1.0 | CSV + comparisonSignals.txt | 608 of 608 |
+| ScalableTestSuite 2.3.0 | casella/ScalableTestSuite-ref, master | `<model>_res.mat` | 257 of 263 |
+| PowerSystems 2.0.0 | rfranke/PowerSystems_ReferenceResults, master | `<model>.mat.xz` | 128 of 128 |
+| PowerGrids 1.0.3 | PowerGrids/PowerGrids-ref, master | `<model>_res.mat` | 69 of 71 |
+| Buildings 13.0.0 | the installed library, Resources/ReferenceResults/Dymola | BuildingsPy `<key>.txt` | 1800 of 1805 |
+
+`download_references(coverage_target(; library = "ModelicaTest@4.1.0+maint.om"))` fetches a library's into
+`reference/<Name>_<version>/` (csv/, mat/ or txt/, by key); `download_reference(model, dir, source)` fetches one.
+A library run with `OMJL_COVERAGE_LIBRARY` fetches those of its models itself. `load_reference` reads all three
+formats: MAP-LIB CSV, MAT v4 result files (OpenModelica's and Dymola's, binTrans and binNormal; trajectories only)
+and BuildingsPy files. Without a comparisonSignals.txt every trajectory is compared except Dymola's own
+variables and `der(...)` (`default_comparison_signals`).
 
 ## License
 

@@ -72,10 +72,10 @@ end
 """
     REFERENCE_LIBRARIES
 
-The libraries other than the MSL with reference results: those in MAP-LIB_ReferenceResults, on the branch
-of the MSL version they test (`reference/download_refs.sh --library`).
+The libraries other than the MSL with reference results (`reference_source`): ModelicaTest (MAP-LIB),
+ScalableTestSuite, PowerSystems, PowerGrids (their reference repositories) and Buildings (the results it ships).
 """
-const REFERENCE_LIBRARIES = ("ModelicaTest",)
+const REFERENCE_LIBRARIES = ("ModelicaTest", "ScalableTestSuite", "PowerSystems", "PowerGrids", "Buildings")
 
 """
     msl_library_version(msl_version) -> String

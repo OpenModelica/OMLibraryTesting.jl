@@ -294,26 +294,18 @@ end
 _escape_regex(s::AbstractString) =
     replace(s, r"[\\.\[\]\(\)\+\*\?\^\$\|]" => sm -> "\\" * sm)
 
-# Read the reference CSV header and return regex patterns (anchored,
-# underscore-form) for every non-`time` column so OMBackend's observedFilter
-# preserves the alias-map entries the validate phase will look up.
+# The reference result's signals (reference_signal_names) as regex patterns (anchored,
+# underscore-form), so OMBackend's observedFilter preserves the alias-map entries the
+# validate phase will look up.
 function _reference_signal_filter(ref_dir::String,
                                    reference_file::String,
                                    signal_mapping::Dict{String, String})::Vector{String}
     isempty(reference_file) && return String[]
-    local csv_path = joinpath(ref_dir, "csv", reference_file * ".csv")
-    isfile(csv_path) || return String[]
-    local header_line = ""
-    try
-        open(csv_path) do io; header_line = readline(io); end
-    catch
-        return String[]
-    end
+    local path::String = reference_path(ref_dir, reference_file)
+    isempty(path) && return String[]
     local patterns = String[]
     local seen = Set{String}()
-    for col in split_csv_header(header_line)
-        local raw = strip(col, ['"', ' ', '\t', '\r', '\n'])
-        (isempty(raw) || raw == "time") && continue
+    for raw in reference_signal_names(path)
         local under = haskey(signal_mapping, String(raw)) ? signal_mapping[String(raw)] : modelica_to_omjl_name(String(raw))
         if !(under in seen)
             push!(seen, under)
@@ -885,8 +877,8 @@ Optionally filter by `domain` regex, single `model` name, or general `filter` re
 `shard = (k, n)` runs the `k`-th of every `n` of those models (`shard_specs`), for a run split
 over `n` processes or CI jobs; `merge_shards` joins their results.
 
-`download = true` first fetches the MAP-LIB reference results of the models run that are not in the
-reference data yet (`download_references`, the branch of `version`).
+`download = true` first fetches the reference results of the models run that are not in the
+reference data yet (`download_references` from `reference_source(library, version)`).
 
 Use `from_phase` and `to_phase` to restrict which phases are run. For example,
 `from_phase=BACKEND` skips the frontend phase (useful when frontend is 100% pass).
@@ -943,8 +935,8 @@ function run_coverage(; library::String = "Modelica",
         specs = shard_specs(specs, shard)
         @info "Shard $(shard[1]) of $(shard[2]): $(length(specs)) of $n_all models"
     end
-    download && download_references(String[s.name for s in specs if isempty(s.referenceFile)], ref_dir;
-                                    branch = maplib_branch(version))
+    download && download_references(String[s.name for s in specs if isempty(s.referenceFile)], ref_dir,
+                                    reference_source(library, version))
     specs = auto_detect_references!(specs, ref_dir)
     n_broken = count(s -> s.expected == BROKEN, specs)
     n_active = length(specs) - n_broken

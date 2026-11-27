@@ -40,6 +40,7 @@ using Dates
 using Distributed
 using Markdown
 import Downloads
+import p7zip_jll
 import OM
 import OMBackend
 import OMFrontend
@@ -48,6 +49,7 @@ include("types.jl")
 include("registry.jl")
 include("tubes.jl")
 include("comparison.jl")
+include("resultFiles.jl")
 include("discovery.jl")
 include("references.jl")
 include("runner.jl")
@@ -63,6 +65,7 @@ export PhaseResult, ModelSpec, ModelResult
 export ReferenceData, SignalComparison
 export load_models, load_models_by_domain, list_domains, load_registry_meta
 export load_reference_csv, load_comparison_signals, validate_against_reference
+export load_reference, load_reference_mat, load_reference_buildingspy, read_matv4, reference_path
 export discover_experiments, record_experiments, merge_overrides!, clear_discovery_cache!, auto_detect_references!
 export run_coverage, run_coverage_and_report, run_model, WorkerManager, WorkerPool, ensure_pool!
 export shard_specs, merge_shards
@@ -71,6 +74,7 @@ export signals_json, write_signals
 export coverage_funnel, publish_site, site_history, site_folder, library_site_folder
 export CoverageTarget, coverage_target, coverage_target_from_env
 export download_reference, download_references, maplib_reference_path, maplib_branch
+export ReferenceSource, ReferenceLayout, reference_source, installed_library_dir
 export categorize_error, categorize_results, print_error_analysis
 export models_with_error, error_for_model, run_frontend_coverage
 export subcategorize_meta_errors

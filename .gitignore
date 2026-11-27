@@ -15,11 +15,13 @@ reports/
 logs/
 *.mat
 
-# Reference CSVs and signals (large binary/text data, fetched by download_refs.sh)
+# Reference results (large binary/text data, fetched by download_refs.sh and download_references)
 reference/csv/
 reference/signals/
 reference/*/csv/
 reference/*/signals/
+reference/*/mat/
+reference/*/txt/
 
 # Editor and OS artifacts
 .DS_Store

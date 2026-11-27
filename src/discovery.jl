@@ -297,15 +297,12 @@ end
 """
     auto_detect_references!(specs, ref_dir) -> specs
 
-For models without an explicit referenceFile, check if a matching CSV
-exists in the reference directory using the naming convention.
+For models without an explicit referenceFile, check if a matching reference result
+(`reference_path`: csv/, mat/ or txt/) exists in the reference directory.
 """
 function auto_detect_references!(specs::Vector{ModelSpec},
                                   ref_dir::String)::Vector{ModelSpec}
-    csv_dir = joinpath(ref_dir, "csv")
-    if !isdir(csv_dir)
-        return specs
-    end
+    any(f -> isdir(joinpath(ref_dir, first(f))), REFERENCE_FORMATS) || return specs
     n_detected = 0
     result = ModelSpec[]
     for spec in specs
@@ -314,8 +311,7 @@ function auto_detect_references!(specs::Vector{ModelSpec},
             continue
         end
         ref_key = _model_name_to_ref_key(spec.name)
-        csv_path = joinpath(csv_dir, ref_key * ".csv")
-        if isfile(csv_path)
+        if !isempty(reference_path(ref_dir, ref_key))
             n_detected += 1
             push!(result, ModelSpec(spec.name, spec.key, spec.domain,
                                      spec.stopTime, spec.expected, spec.reference,

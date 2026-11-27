@@ -13,6 +13,7 @@ OM = "2f925a0b-2436-437b-858e-49aee461894b"
 OMBackend = "9400bd5f-7561-42f6-8760-03756753da50"
 OMFrontend = "b10394b5-f439-4073-a0c5-e09cb00cf46c"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+p7zip_jll = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # Sibling OM.jl packages live in-tree. Resolve against the working copies.
 [sources]
