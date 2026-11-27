@@ -39,6 +39,7 @@ using TOML
 using Dates
 using Distributed
 using Markdown
+import Downloads
 import OM
 import OMBackend
 import OMFrontend
@@ -48,6 +49,7 @@ include("registry.jl")
 include("tubes.jl")
 include("comparison.jl")
 include("discovery.jl")
+include("references.jl")
 include("runner.jl")
 include("analysis.jl")
 include("report.jl")
@@ -68,6 +70,7 @@ export generate_report, print_summary
 export signals_json, write_signals
 export coverage_funnel, publish_site, site_history, site_folder, library_site_folder
 export CoverageTarget, coverage_target, coverage_target_from_env
+export download_reference, download_references, maplib_reference_path, maplib_branch
 export categorize_error, categorize_results, print_error_analysis
 export models_with_error, error_for_model, run_frontend_coverage
 export subcategorize_meta_errors

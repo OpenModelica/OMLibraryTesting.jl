@@ -867,7 +867,7 @@ end
 
 """
     run_coverage(; library, version, domain, model, filter, overrides, timeout,
-                   phases, from_phase, to_phase, n_workers) -> Vector{ModelResult}
+                   phases, from_phase, to_phase, n_workers, shard, download) -> Vector{ModelResult}
 
 Run the full MSL coverage suite. Models are discovered automatically via omc.
 TOML overrides (reference files, known broken, signal mappings) are merged in.
@@ -884,6 +884,9 @@ installed libraries to load, `"LIB:Buildings@13.0.0,Modelica@4.1.0,..."` (`insta
 Optionally filter by `domain` regex, single `model` name, or general `filter` regex.
 `shard = (k, n)` runs the `k`-th of every `n` of those models (`shard_specs`), for a run split
 over `n` processes or CI jobs; `merge_shards` joins their results.
+
+`download = true` first fetches the MAP-LIB reference results of the models run that are not in the
+reference data yet (`download_references`, the branch of `version`).
 
 Use `from_phase` and `to_phase` to restrict which phases are run. For example,
 `from_phase=BACKEND` skips the frontend phase (useful when frontend is 100% pass).
@@ -912,7 +915,8 @@ function run_coverage(; library::String = "Modelica",
                         to_phase::Phase = VALIDATE,
                         check_sim_code::Bool = false,
                         n_workers::Int = max(1, nprocs() - 1),
-                        shard::Tuple{Int, Int} = (1, 1))::Vector{ModelResult}
+                        shard::Tuple{Int, Int} = (1, 1),
+                        download::Bool = false)::Vector{ModelResult}
     t_start = time()
     n_workers >= 1 || throw(ArgumentError("n_workers must be >= 1, got $n_workers"))
     phases = Base.filter(p -> Int(from_phase) <= Int(p) <= Int(to_phase), phases)
@@ -920,8 +924,7 @@ function run_coverage(; library::String = "Modelica",
     @info "Starting coverage run (phases: $phase_names, n_workers: $n_workers)"
     specs = discover_experiments(; library = library, version = version, filter = filter)
     specs = merge_overrides!(specs, overrides)
-    ref_dir = reference_dir(overrides, version)
-    specs = auto_detect_references!(specs, ref_dir)
+    ref_dir = reference_dir(overrides, version; library = library)
     if !isempty(model)
         specs = Base.filter(s -> s.name == model, specs)
         if isempty(specs)
@@ -940,6 +943,9 @@ function run_coverage(; library::String = "Modelica",
         specs = shard_specs(specs, shard)
         @info "Shard $(shard[1]) of $(shard[2]): $(length(specs)) of $n_all models"
     end
+    download && download_references(String[s.name for s in specs if isempty(s.referenceFile)], ref_dir;
+                                    branch = maplib_branch(version))
+    specs = auto_detect_references!(specs, ref_dir)
     n_broken = count(s -> s.expected == BROKEN, specs)
     n_active = length(specs) - n_broken
     total_models = length(specs)

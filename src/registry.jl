@@ -53,16 +53,29 @@ function default_models_path(version::String)::String
 end
 
 """
-    reference_dir(models_path, version) -> String
+    reference_dir(models_path, version; library = "Modelica") -> String
 
-The reference data of MSL `version` for the registry at `models_path`: `reference/` beside the
-registry's folder, its subfolder `version` for a version other than 3.2.3.
+The reference data for the registry at `models_path`: `reference/` beside the registry's folder. MSL
+`version`: that folder for 3.2.3, its subfolder `version` for another version. Another `library`: its
+subfolder `<library>_<version>` (`reference/download_refs.sh --library`).
 """
-function reference_dir(models_path::String, version::String)::String
-    local dir = joinpath(dirname(models_path), "..", "reference")
-    version == TOP_LEVEL_MSL_VERSION || (dir = joinpath(dir, version))
+function reference_dir(models_path::String, version::String; library::String = "Modelica")::String
+    local dir::String = joinpath(dirname(models_path), "..", "reference")
+    if library != "Modelica"
+        dir = joinpath(dir, "$(library)_$(version)")
+    elseif version != TOP_LEVEL_MSL_VERSION
+        dir = joinpath(dir, version)
+    end
     return abspath(dir)
 end
+
+"""
+    REFERENCE_LIBRARIES
+
+The libraries other than the MSL with reference results: those in MAP-LIB_ReferenceResults, on the branch
+of the MSL version they test (`reference/download_refs.sh --library`).
+"""
+const REFERENCE_LIBRARIES = ("ModelicaTest",)
 
 """
     msl_library_version(msl_version) -> String
@@ -82,7 +95,8 @@ What a coverage run measures: the experiment models of the MSL in one version, o
 - `registry`: its registry of overrides (it need not exist: no overrides).
 - `label`: its name on reports and the site (`"MSL 4.1.0"`, `"Buildings 13.0.0"`).
 - `folder`: its folder of the coverage site (`site_folder`, `library_site_folder`).
-- `references`: whether reference results exist for it (the MSL only), so that its models can reach validate.
+- `references`: whether reference results exist for it (the MSL, `REFERENCE_LIBRARIES`), so that its models
+  can reach validate.
 """
 struct CoverageTarget
     library::String
@@ -118,7 +132,7 @@ function coverage_target(; msl::String = "MSL:3.2.3", library::String = "")::Cov
     local version::String = String(parts[2])
     local registry::String = joinpath(@__DIR__, "..", "models", "models_$(name)_$(version).toml") |> abspath
     return CoverageTarget(name, version, "LIB:$name@$version", registry, "$name $version",
-                          library_site_folder(name, version), false)
+                          library_site_folder(name, version), name in REFERENCE_LIBRARIES)
 end
 
 """

@@ -284,8 +284,9 @@ end
 """
     _model_name_to_ref_key(name) -> String
 
-Convert a qualified Modelica name to the reference file key.
-E.g. "Modelica.Blocks.Examples.BusUsage" -> "Blocks_Examples_BusUsage"
+Convert a qualified Modelica name to the reference file key: dots to underscores, without the MSL's
+`Modelica.`. E.g. "Modelica.Blocks.Examples.BusUsage" -> "Blocks_Examples_BusUsage",
+"ModelicaTest.Blocks.Limiters" -> "ModelicaTest_Blocks_Limiters".
 """
 function _model_name_to_ref_key(name::String)::String
     # Strip "Modelica." prefix, replace dots with underscores

@@ -16,4 +16,5 @@ using Test
     include("runnerTests.jl")
     include("siteTests.jl")
     include("signalsTests.jl")
+    include("referencesTests.jl")
 end

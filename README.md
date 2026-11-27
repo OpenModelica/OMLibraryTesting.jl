@@ -133,7 +133,8 @@ julia --project=. scripts/publish_site.jl <gh-pages checkout> logs/partial_full_
 
 Another library: `OMJL_COVERAGE_LIBRARY=Name@version` (`coverage_target`) runs the experiment models of
 `models/experiments_<Name>_<version>.txt` instead of the MSL's, the library loaded with the libraries its `uses`
-names, up to simulate (no reference results). `scripts/install_library.py <Name> <version>` installs it and the
+names, up to simulate, or up to validate for a library with reference results (`REFERENCE_LIBRARIES`:
+ModelicaTest). `scripts/install_library.py <Name> <version>` installs it and the
 libraries it uses from OpenModelica's package index, as omc's package manager does, where there is no omc. The
 same scripts merge and publish the run: docs/COVERAGE_<Name>_<version>.md (no README section) and the site
 folder `lib-<Name>-<version>/` (`library_site_folder`), listed after the MSL versions in every page's
@@ -248,7 +249,10 @@ Reference CSVs use Modelica dot notation (e.g., `rev.phi`). OM.jl uses underscor
 
 ## Reference Data
 
-Reference trajectories come from the MAP-LIB Dymola reference results (branch v3.2.3, and v4.1.0 for MSL 4.1.0). Run `reference/download_refs.sh` (MSL 3.2.3) or `reference/download_refs.sh --msl 4.1.0` to fetch or refresh them.
+Reference trajectories come from the MAP-LIB Dymola reference results (branch v3.2.3, and v4.1.0 for MSL 4.1.0). Run `reference/download_refs.sh` (MSL 3.2.3) or `reference/download_refs.sh --msl 4.1.0` to fetch or refresh them. ModelicaTest's are on the branch of its MSL version (v4.1.0):
+`download_references(coverage_target(; library = "ModelicaTest@4.1.0+maint.om"))` fetches the 608 models of its
+experiment list (about 1 GB) into `reference/ModelicaTest_4.1.0+maint.om/`; `download_reference(model, dir; branch)`
+fetches one. A library run with `OMJL_COVERAGE_LIBRARY` fetches those of its models itself.
 
 ## License
 
