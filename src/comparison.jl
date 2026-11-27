@@ -339,12 +339,10 @@ function validate_against_reference(sol, spec,
                                      ref_dir::String;
                                      terminatedAt::Union{Nothing, Float64} = nothing)::Tuple{Bool, Vector{SignalComparison}}
     ref_name = spec.referenceFile
-    csv_path = joinpath(ref_dir, "csv", ref_name * ".csv")
+    local ref_path::String = reference_path(ref_dir, ref_name)
     signals_path = joinpath(ref_dir, "signals", ref_name * ".txt")
-    if !isfile(csv_path)
-        error("Reference CSV not found: $csv_path")
-    end
-    ref = load_reference_csv(csv_path)
+    isempty(ref_path) && error("No reference result for $ref_name in $ref_dir (csv/, mat/, txt/)")
+    ref = load_reference(ref_path)
     #= The reference covers the experiment, [0, StopTime]: a sample past its
        end would be compared with its last value, frozen (interpolate_reference
        clamps). A registry stopTime past it is an error in the registry. =#
@@ -358,11 +356,7 @@ function validate_against_reference(sol, spec,
     end
     stoptime_within_reference(compareStop, ref.time[end]) ||
         error("stopTime $(compareStop) is past the end of reference $ref_name ($(ref.time[end]))")
-    signal_names = if isfile(signals_path)
-        load_comparison_signals(signals_path)
-    else
-        collect(keys(ref.signals))
-    end
+    signal_names = isfile(signals_path) ? load_comparison_signals(signals_path) : default_comparison_signals(ref)
     #= A listed signal the reference does not have is an error of the reference data or of
        its reading (a header split inside a quoted name), not a pass. =#
     missing_ref = filter(n -> !haskey(ref.signals, n), signal_names)
@@ -377,10 +371,18 @@ function validate_against_reference(sol, spec,
     local sharedTime::Vector{Float64} = ref.time[comparison_rows(ref.time, spec.startTime, compareStop)]
     local refOffset::Int = initial_event_rows(sharedTime)
     n_skipped = 0
+    local n_constant::Int = 0
     for name in signal_names
         cmp = compare_signal(sol, ref, name, compareStop; startTime = spec.startTime,
                               npoints = COMPARISON_POINTS, signalMapping = spec.signalMapping,
                               refTime = sharedTime, refOffset = refOffset)
+        #= Without a list of signals (default_comparison_signals), one the solution lacks that is constant in
+           the reference is not compared, as in OpenModelica's library testing (constantsInReference): a
+           constant the result leaves out. =#
+        if !isfile(signals_path) && isnan(cmp.max_abs_err) && allequal(ref.signals[name])
+            n_constant += 1
+            continue
+        end
         push!(comparisons, cmp)
         isnan(cmp.max_abs_err) && (n_skipped += 1)
         cmp.passed || (all_passed = false)
@@ -392,5 +394,6 @@ function validate_against_reference(sol, spec,
     if n_skipped > 0
         @warn "Validation: $n_skipped/$(length(signal_names)) reference signals are not in the solution"
     end
+    n_constant > 0 && @info "Validation: $n_constant reference signals constant and not in the solution, not compared"
     return (all_passed, comparisons)
 end

@@ -12,7 +12,8 @@ Environment variables:
                             a version OMFrontend does not bundle (e.g. "MSL:4.1.0") is the installed library.
     OMJL_COVERAGE_LIBRARY   Optional "Name@version": the experiment models of that installed library instead of the
                             MSL's (models/experiments_<Name>_<version>.txt), loaded with the libraries it uses;
-                            no reference results, so the models go up to simulate (coverage_target).
+                            up to simulate, or validate for a library with reference results (REFERENCE_LIBRARIES;
+                            coverage_target): the run downloads those of its models first (download_references).
     OMJL_COVERAGE_TIMEOUT   Per-model timeout seconds (default: 1500).
     OMJL_COVERAGE_DOMAIN    Optional domain regex filter.
     OMJL_COVERAGE_MODEL     Optional single model name.
@@ -96,7 +97,8 @@ results = try
         to_phase    = TOPHASE,
         overrides   = OVERRIDES,
         n_workers   = WORKERS,
-        shard       = SHARD)
+        shard       = SHARD,
+        download    = TARGET.references && TARGET.library != "Modelica")
 catch e
     @error "run_coverage threw" exception=(e, catch_backtrace())
     OMLibraryTesting.ModelResult[]

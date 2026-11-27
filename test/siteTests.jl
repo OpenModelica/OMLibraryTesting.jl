@@ -79,6 +79,8 @@ end
     @test (lib.library, lib.version, lib.msl_version, lib.label, lib.references) ==
           ("ThermofluidStream", "1.4.0", "LIB:ThermofluidStream@1.4.0", "ThermofluidStream 1.4.0", false)
     @test basename(lib.registry) == "models_ThermofluidStream_1.4.0.toml"
+    #= ModelicaTest has MAP-LIB reference results (REFERENCE_LIBRARIES): up to validate. =#
+    @test OLT.coverage_target(; library = "ModelicaTest@4.1.0+maint.om").references
     @test_throws ArgumentError OLT.coverage_target(; library = "Buildings")
     @test_throws ArgumentError OLT.coverage_target(; library = "Modelica@4.1.0")
     @test withenv(() -> OLT.coverage_target_from_env().folder, "OMJL_COVERAGE_LIBRARY" => "PNlib@3.0.0") == "lib-PNlib-3.0.0"

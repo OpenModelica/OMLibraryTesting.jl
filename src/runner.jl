@@ -294,26 +294,18 @@ end
 _escape_regex(s::AbstractString) =
     replace(s, r"[\\.\[\]\(\)\+\*\?\^\$\|]" => sm -> "\\" * sm)
 
-# Read the reference CSV header and return regex patterns (anchored,
-# underscore-form) for every non-`time` column so OMBackend's observedFilter
-# preserves the alias-map entries the validate phase will look up.
+# The reference result's signals (reference_signal_names) as regex patterns (anchored,
+# underscore-form), so OMBackend's observedFilter preserves the alias-map entries the
+# validate phase will look up.
 function _reference_signal_filter(ref_dir::String,
                                    reference_file::String,
                                    signal_mapping::Dict{String, String})::Vector{String}
     isempty(reference_file) && return String[]
-    local csv_path = joinpath(ref_dir, "csv", reference_file * ".csv")
-    isfile(csv_path) || return String[]
-    local header_line = ""
-    try
-        open(csv_path) do io; header_line = readline(io); end
-    catch
-        return String[]
-    end
+    local path::String = reference_path(ref_dir, reference_file)
+    isempty(path) && return String[]
     local patterns = String[]
     local seen = Set{String}()
-    for col in split_csv_header(header_line)
-        local raw = strip(col, ['"', ' ', '\t', '\r', '\n'])
-        (isempty(raw) || raw == "time") && continue
+    for raw in reference_signal_names(path)
         local under = haskey(signal_mapping, String(raw)) ? signal_mapping[String(raw)] : modelica_to_omjl_name(String(raw))
         if !(under in seen)
             push!(seen, under)
@@ -867,7 +859,7 @@ end
 
 """
     run_coverage(; library, version, domain, model, filter, overrides, timeout,
-                   phases, from_phase, to_phase, n_workers) -> Vector{ModelResult}
+                   phases, from_phase, to_phase, n_workers, shard, download) -> Vector{ModelResult}
 
 Run the full MSL coverage suite. Models are discovered automatically via omc.
 TOML overrides (reference files, known broken, signal mappings) are merged in.
@@ -884,6 +876,9 @@ installed libraries to load, `"LIB:Buildings@13.0.0,Modelica@4.1.0,..."` (`insta
 Optionally filter by `domain` regex, single `model` name, or general `filter` regex.
 `shard = (k, n)` runs the `k`-th of every `n` of those models (`shard_specs`), for a run split
 over `n` processes or CI jobs; `merge_shards` joins their results.
+
+`download = true` first fetches the reference results of the models run that are not in the
+reference data yet (`download_references` from `reference_source(library, version)`).
 
 Use `from_phase` and `to_phase` to restrict which phases are run. For example,
 `from_phase=BACKEND` skips the frontend phase (useful when frontend is 100% pass).
@@ -912,7 +907,8 @@ function run_coverage(; library::String = "Modelica",
                         to_phase::Phase = VALIDATE,
                         check_sim_code::Bool = false,
                         n_workers::Int = max(1, nprocs() - 1),
-                        shard::Tuple{Int, Int} = (1, 1))::Vector{ModelResult}
+                        shard::Tuple{Int, Int} = (1, 1),
+                        download::Bool = false)::Vector{ModelResult}
     t_start = time()
     n_workers >= 1 || throw(ArgumentError("n_workers must be >= 1, got $n_workers"))
     phases = Base.filter(p -> Int(from_phase) <= Int(p) <= Int(to_phase), phases)
@@ -920,8 +916,7 @@ function run_coverage(; library::String = "Modelica",
     @info "Starting coverage run (phases: $phase_names, n_workers: $n_workers)"
     specs = discover_experiments(; library = library, version = version, filter = filter)
     specs = merge_overrides!(specs, overrides)
-    ref_dir = reference_dir(overrides, version)
-    specs = auto_detect_references!(specs, ref_dir)
+    ref_dir = reference_dir(overrides, version; library = library)
     if !isempty(model)
         specs = Base.filter(s -> s.name == model, specs)
         if isempty(specs)
@@ -940,6 +935,9 @@ function run_coverage(; library::String = "Modelica",
         specs = shard_specs(specs, shard)
         @info "Shard $(shard[1]) of $(shard[2]): $(length(specs)) of $n_all models"
     end
+    download && download_references(String[s.name for s in specs if isempty(s.referenceFile)], ref_dir,
+                                    reference_source(library, version))
+    specs = auto_detect_references!(specs, ref_dir)
     n_broken = count(s -> s.expected == BROKEN, specs)
     n_active = length(specs) - n_broken
     total_models = length(specs)

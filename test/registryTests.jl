@@ -39,6 +39,10 @@ end
     @test normpath(OLT.default_models_path("4.1.0")) == joinpath(models, "models_4.1.0.toml")
     @test OLT.reference_dir(OLT.default_models_path("3.2.3"), "3.2.3") == reference
     @test OLT.reference_dir(OLT.default_models_path("4.1.0"), "4.1.0") == joinpath(reference, "4.1.0")
+    local mt = OLT.coverage_target(; library = "ModelicaTest@4.1.0+maint.om")
+    @test OLT.reference_dir(mt.registry, mt.version; library = mt.library) ==
+          joinpath(reference, "ModelicaTest_4.1.0+maint.om")
+    @test OLT._model_name_to_ref_key("ModelicaTest.Blocks.Limiters") == "ModelicaTest_Blocks_Limiters"
     @test OLT.load_registry_meta(OLT.default_models_path("4.1.0"))["msl_version"] == "MSL:4.1.0"
     #= Every 4.1.0 entry is an experiment of 4.1.0. =#
     local experiments = Set(first(split(l, '|')) for l in eachline(joinpath(models, "experiments_Modelica_4.1.0.txt")))
