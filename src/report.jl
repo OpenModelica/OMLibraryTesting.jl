@@ -64,12 +64,13 @@ end
 
 """
     generate_report(results; format=:html, dir, changelog, msl_version, total_time,
-                    filename="", name_tag="") -> String
+                    filename="", name_tag="", library="Modelica") -> String
 
 Generate a timestamped coverage report and save it to `dir`.
 
 `format` must be `:html` or `:markdown`.
 `changelog` is an optional string describing changes since the last run.
+`library` and `msl_version` name the library and its version in the title (`"Buildings"`, `"13.0.0"`).
 
 Filename resolution (first non-empty wins):
   1. `filename` — absolute override. If it has no extension, the format extension is appended.
@@ -85,7 +86,8 @@ function generate_report(results::Vector{ModelResult};
                          msl_version::String = "3.2.3",
                          total_time::Float64 = 0.0,
                          filename::String = "",
-                         name_tag::String = "")
+                         name_tag::String = "",
+                         library::String = "Modelica")
     if format !== :html && format !== :markdown
         error("Invalid format $(repr(format)). Must be :html or :markdown.")
     end
@@ -114,7 +116,7 @@ function generate_report(results::Vector{ModelResult};
     content = if format === :html
         _generate_html(results, filepath, ts, total, broken, tested,
                        frontend_pass, backend_pass, simulate_pass, validate_pass,
-                       has_ref, pct, changelog, msl_version, total_time)
+                       has_ref, pct, changelog, msl_version, total_time, library)
     else
         _generate_markdown(results, filepath, ts, total, broken, tested,
                            frontend_pass, backend_pass, simulate_pass, validate_pass,
@@ -133,7 +135,7 @@ end
 
 function _generate_html(results, filepath, ts, total, broken, tested,
                         frontend_pass, backend_pass, simulate_pass, validate_pass,
-                        has_ref, pct, changelog, msl_version, total_time)
+                        has_ref, pct, changelog, msl_version, total_time, library::String = "Modelica")
     timestamp = Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS")
     time_str = if total_time > 0
         mins = floor(Int, total_time / 60)
@@ -188,7 +190,7 @@ function _generate_html(results, filepath, ts, total, broken, tested,
     <html>
     <head>
     <meta charset="utf-8">
-    <title>Modelica $msl_version - OM.jl Pipeline Test Results</title>
+    <title>$library $msl_version - OM.jl Pipeline Test Results</title>
     <style>
       body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
              margin: 2em; background: #fff; color: #333; }
@@ -229,7 +231,7 @@ function _generate_html(results, filepath, ts, total, broken, tested,
     </style>
     </head>
     <body>
-    <h1>Modelica $msl_version - OM.jl Pipeline Test Results</h1>
+    <h1>$library $msl_version - OM.jl Pipeline Test Results</h1>
     <div class="meta">
       Generated: $timestamp$(isempty(time_str) ? "" : " | Total runtime: $time_str") | $total models ($broken known broken)
     </div>

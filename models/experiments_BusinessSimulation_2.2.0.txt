@@ -1,0 +1,13 @@
+BusinessSimulation.Converters.DiscreteDelay.DelayInformation|10|1e-06|0
+BusinessSimulation.Examples.AssemblyLine|25|1e-06|0
+BusinessSimulation.Examples.HealTheWorld|10|1e-06|0
+BusinessSimulation.Examples.LookupFunctions|10|1e-06|0
+BusinessSimulation.Examples.LotkaVolterraEquationsRevisited|140|1e-06|0
+BusinessSimulation.Examples.LotkaVolterraSystems|100|1e-06|0
+BusinessSimulation.Examples.LoveHateDynamics|10|1e-06|0
+BusinessSimulation.Examples.ManagingEmployment|10|1e-06|0
+BusinessSimulation.Examples.SIR|100|1e-06|0
+BusinessSimulation.Examples.SimpleProductionChainIII|120|1e-06|0
+BusinessSimulation.Examples.SimpleProductionChainII|60|1e-06|0
+BusinessSimulation.Examples.SimpleProductionChain|60|1e-06|0
+BusinessSimulation.Examples.SoftwareReleaseProject|10|1e-06|0

@@ -10,6 +10,9 @@ Environment variables:
     OMJL_COVERAGE_MSL       MSL version (default: "MSL:3.2.3"). Its experiment list, registry and reference data
                             (models/experiments_Modelica_<version>.txt, default_models_path(version), reference_dir);
                             a version OMFrontend does not bundle (e.g. "MSL:4.1.0") is the installed library.
+    OMJL_COVERAGE_LIBRARY   Optional "Name@version": the experiment models of that installed library instead of the
+                            MSL's (models/experiments_<Name>_<version>.txt), loaded with the libraries it uses;
+                            no reference results, so the models go up to simulate (coverage_target).
     OMJL_COVERAGE_TIMEOUT   Per-model timeout seconds (default: 1500).
     OMJL_COVERAGE_DOMAIN    Optional domain regex filter.
     OMJL_COVERAGE_MODEL     Optional single model name.
@@ -34,13 +37,13 @@ import OMLibraryTesting
 using OMLibraryTesting: FRONTEND, BACKEND, SIMULATE, VALIDATE, phase_from_string
 
 const TAG       = get(ENV, "OMJL_COVERAGE_TAG", "full_msl")
-const MSL       = get(ENV, "OMJL_COVERAGE_MSL", "MSL:3.2.3")
-const LIBRARY_VERSION = OMLibraryTesting.msl_library_version(MSL)
+const TARGET    = OMLibraryTesting.coverage_target_from_env()
+const MSL       = TARGET.msl_version
 const TIMEOUT   = parse(Float64, get(ENV, "OMJL_COVERAGE_TIMEOUT", "1500"))
 const DOMAIN    = get(ENV, "OMJL_COVERAGE_DOMAIN", "")
 const MODEL     = get(ENV, "OMJL_COVERAGE_MODEL",  "")
 const FROMPHASE = phase_from_string(get(ENV, "OMJL_COVERAGE_FROMPHASE", "frontend"))
-const TOPHASE   = phase_from_string(get(ENV, "OMJL_COVERAGE_TOPHASE",   "validate"))
+const TOPHASE   = phase_from_string(get(ENV, "OMJL_COVERAGE_TOPHASE",   TARGET.references ? "validate" : "simulate"))
 const WORKERS   = parse(Int, get(ENV, "OMJL_COVERAGE_WORKERS", string(max(1, nprocs() - 1))))
 WORKERS >= 1 || error("OMJL_COVERAGE_WORKERS must be >= 1, got $WORKERS")
 const NOSKIP    = lowercase(get(ENV, "OMJL_COVERAGE_NOSKIP", "")) in ("1", "true", "yes")
@@ -61,7 +64,7 @@ mkpath(LOG_DIR)
 #= A copy of the registry without skips and broken marks, next to a link to the reference data
    (run_coverage reads the reference beside the registry it is given). =#
 function noskip_registry()::String
-    local reg = TOML.parsefile(OMLibraryTesting.default_models_path(LIBRARY_VERSION))
+    local reg = TOML.parsefile(TARGET.registry)
     for table in (get(reg, "models", Dict()), get(reg, "domain_overrides", Dict())), (_, e) in table
         delete!(e, "skipPhases")
         get(e, "expected", "") == "broken" && delete!(e, "expected")
@@ -74,15 +77,17 @@ function noskip_registry()::String
     open(io -> TOML.print(io, reg), path, "w")
     return path
 end
-const OVERRIDES = NOSKIP ? noskip_registry() : OMLibraryTesting.default_models_path(LIBRARY_VERSION)
+const OVERRIDES = NOSKIP && isfile(TARGET.registry) ? noskip_registry() : TARGET.registry
 
-@info "Coverage run starting" tag=TAG msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS noskip=NOSKIP shard=SHARD
+@info "Coverage run starting" tag=TAG target=TARGET.label msl=MSL timeout=TIMEOUT ts=RUN_TS from=FROMPHASE to=TOPHASE workers=WORKERS noskip=NOSKIP shard=SHARD
 @info "Report directory: $REPORT_DIR"
 @info "Partial-results snapshot: $PARTIAL_PATH"
 
 t0 = time()
 results = try
     OMLibraryTesting.run_coverage(;
+        library     = TARGET.library,
+        version     = TARGET.version,
         msl_version = MSL,
         timeout     = TIMEOUT,
         domain      = DOMAIN,
@@ -114,7 +119,7 @@ else
     fname = "coverage_$(TAG)_start_$(RUN_TS)_end_$(report_end_ts).html"
     changelog = string(
         "Run tag: ", TAG, ". ",
-        "MSL: ", MSL, ". ",
+        "Library: ", TARGET.label, ". ",
         "Start: ", Dates.format(RUN_START, "yyyy-mm-dd HH:MM:SS"), ". ",
         "End: ", Dates.format(Dates.now(), "yyyy-mm-dd HH:MM:SS"), ". ",
         "Timeout per model: ", Int(round(TIMEOUT)), "s. ",
@@ -126,7 +131,8 @@ else
     path = OMLibraryTesting.generate_report(results;
         filename    = fname,
         dir         = REPORT_DIR,
-        msl_version = replace(MSL, "MSL:" => ""),
+        msl_version = TARGET.version,
+        library     = TARGET.library,
         total_time  = total_time,
         changelog   = changelog)
     @info "Report generated" path=path
@@ -135,7 +141,8 @@ else
         format      = :markdown,
         filename    = md_fname,
         dir         = REPORT_DIR,
-        msl_version = replace(MSL, "MSL:" => ""),
+        msl_version = TARGET.version,
+        library     = TARGET.library,
         total_time  = total_time,
         changelog   = changelog)
     @info "Markdown report generated" path=md_path

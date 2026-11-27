@@ -56,7 +56,7 @@ OMLibraryTesting.jl/
 ├── models/
 │   ├── models.toml           # Per-model overrides (atol, reltol, expected phase, signal mapping), MSL 3.2.3
 │   ├── models_4.1.0.toml     # The same for MSL 4.1.0
-│   └── experiments_<library>_<version>.txt # The experiment models omc lists (record_experiments): Modelica, Buildings
+│   └── experiments_<library>_<version>.txt # The experiment models omc lists (record_experiments): Modelica, Buildings, ...
 ├── reference/
 │   ├── csv/                  # Dymola reference CSVs (MAP-LIB, MSL 3.2.3)
 │   ├── signals/              # Per-model comparisonSignals.txt files
@@ -130,6 +130,15 @@ OMJL_COVERAGE_NOSKIP=1 julia --project=. scripts/run_full_coverage.jl
 julia --project=. scripts/publish_coverage.jl logs/partial_full_msl_<timestamp>.jls [commits.txt] ["how the run was made"]
 julia --project=. scripts/publish_site.jl <gh-pages checkout> logs/partial_full_msl_<timestamp>.jls reports/<report>.html docs/COVERAGE.md [commits.txt] ["how the run was made"]
 ```
+
+Another library: `OMJL_COVERAGE_LIBRARY=Name@version` (`coverage_target`) runs the experiment models of
+`models/experiments_<Name>_<version>.txt` instead of the MSL's, the library loaded with the libraries its `uses`
+names, up to simulate (no reference results). `scripts/install_library.py <Name> <version>` installs it and the
+libraries it uses from OpenModelica's package index, as omc's package manager does, where there is no omc. The
+same scripts merge and publish the run: docs/COVERAGE_<Name>_<version>.md (no README section) and the site
+folder `lib-<Name>-<version>/` (`library_site_folder`), listed after the MSL versions in every page's
+navigation, without a README badge. `models/` has the lists omc 1.27.1 records for 20 libraries
+(`record_experiments(library = "Buildings", version = "13.0.0")`).
 
 ## Hot Validation Loop (`scripts/warm_validate.jl`)
 

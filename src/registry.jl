@@ -72,6 +72,64 @@ The library version of an `MSL_Version` string: `"MSL:4.1.0"` -> `"4.1.0"`.
 msl_library_version(msl_version::String)::String = replace(msl_version, "MSL:" => "")
 
 """
+    CoverageTarget
+
+What a coverage run measures: the experiment models of the MSL in one version, or of another installed library.
+
+- `library`, `version`: the library and its version (`"Modelica"`, `"4.1.0"`; `"Buildings"`, `"13.0.0"`).
+- `msl_version`: how `run_coverage` loads it (`"MSL:4.1.0"`; `"LIB:Buildings@13.0.0"`, the libraries it uses
+  loaded from its `uses` annotation).
+- `registry`: its registry of overrides (it need not exist: no overrides).
+- `label`: its name on reports and the site (`"MSL 4.1.0"`, `"Buildings 13.0.0"`).
+- `folder`: its folder of the coverage site (`site_folder`, `library_site_folder`).
+- `references`: whether reference results exist for it (the MSL only), so that its models can reach validate.
+"""
+struct CoverageTarget
+    library::String
+    version::String
+    msl_version::String
+    registry::String
+    label::String
+    folder::String
+    references::Bool
+end
+
+"""
+    coverage_target(; msl = "MSL:3.2.3", library = "") -> CoverageTarget
+
+The target of a coverage run: `library` as `"Name@version"`, an installed library other than the MSL (as
+OpenModelica's package manager installs it), else the MSL of `msl`.
+
+```julia
+coverage_target(; msl = "MSL:4.1.0").folder                 # "msl-4.1.0"
+coverage_target(; library = "Buildings@13.0.0").msl_version  # "LIB:Buildings@13.0.0"
+```
+"""
+function coverage_target(; msl::String = "MSL:3.2.3", library::String = "")::CoverageTarget
+    if isempty(library)
+        local mslVersion::String = msl_library_version(msl)
+        return CoverageTarget("Modelica", mslVersion, msl, default_models_path(mslVersion), "MSL $mslVersion",
+                              site_folder(mslVersion), true)
+    end
+    local parts::Vector{SubString{String}} = split(library, '@')
+    (length(parts) == 2 && all(!isempty, parts) && parts[1] != "Modelica") ||
+        throw(ArgumentError("a library other than the MSL as Name@version, got $(repr(library))"))
+    local name::String = String(parts[1])
+    local version::String = String(parts[2])
+    local registry::String = joinpath(@__DIR__, "..", "models", "models_$(name)_$(version).toml") |> abspath
+    return CoverageTarget(name, version, "LIB:$name@$version", registry, "$name $version",
+                          library_site_folder(name, version), false)
+end
+
+"""
+    coverage_target_from_env() -> CoverageTarget
+
+The scripts' `coverage_target`: `OMJL_COVERAGE_LIBRARY` (default none) and `OMJL_COVERAGE_MSL` (default `"MSL:3.2.3"`).
+"""
+coverage_target_from_env()::CoverageTarget =
+    coverage_target(; msl = get(ENV, "OMJL_COVERAGE_MSL", "MSL:3.2.3"), library = get(ENV, "OMJL_COVERAGE_LIBRARY", ""))
+
+"""
     load_registry_meta(path) -> Dict{String, Any}
 
 Read the `[meta]` section from a models TOML file.

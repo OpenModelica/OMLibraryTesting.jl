@@ -1,0 +1,11 @@
+VehicleInterfaces.Examples.ConventionalAutomaticVehicleExternalDriver|10|1e-06|0
+VehicleInterfaces.Examples.ConventionalAutomaticVehicle|10|1e-06|0
+VehicleInterfaces.Examples.ConventionalManualVehicle|10|1e-06|0
+VehicleInterfaces.Examples.ConventionalVehicle_AltNames|10|1e-06|0
+VehicleInterfaces.Examples.FrontWheelDriveManualVehicle|10|1e-06|0
+VehicleInterfaces.Examples.PowerSplitHybrid|10|1e-06|0
+VehicleInterfaces.Examples.RearWheelDriveAutomaticVehicle|10|1e-06|0
+VehicleInterfaces.Examples.SeriesHybrid|10|1e-06|0
+VehicleInterfaces.Roads.Examples.CheckContactCalculation|6.2|1e-06|0
+VehicleInterfaces.Roads.Examples.CheckFunctionDifferentiation_CircleRoads|1|1e-06|0
+VehicleInterfaces.Roads.Examples.CheckFunctionDifferentiation_FlatRoads|1|1e-06|0

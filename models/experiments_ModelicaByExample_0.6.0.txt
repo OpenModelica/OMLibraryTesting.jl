@@ -1,0 +1,14 @@
+ModelicaByExample.Architectures.SensorComparison.Examples.FlatSystem_Variation1|4|1e-06|0
+ModelicaByExample.Architectures.SensorComparison.Examples.FlatSystem|4|1e-06|0
+ModelicaByExample.BasicEquations.SimpleExample.FirstOrderExperiment|8|1e-06|0
+ModelicaByExample.Components.LotkaVolterra.Examples.ClassicLotkaVolterra|100|1e-06|0
+ModelicaByExample.Components.LotkaVolterra.Examples.ThirdSpecies|100|1e-06|0
+ModelicaByExample.Components.LotkaVolterra.Examples.ThreeSpecies_Quiescent|100|1e-06|0
+ModelicaByExample.Components.SpeedMeasurement.Examples.PlantWithIntervalMeasure|10|1e-06|0
+ModelicaByExample.Components.SpeedMeasurement.Examples.PlantWithPulseCounter|10|1e-06|0
+ModelicaByExample.Components.SpeedMeasurement.Examples.PlantWithSampleHold|10|1e-06|0
+ModelicaByExample.Components.SpeedMeasurement.Examples.Plant|10|1e-06|0
+ModelicaByExample.Functions.Interpolation.IntegrateInterpolatedExternalVector|6|1e-06|0
+ModelicaByExample.Functions.Interpolation.IntegrateInterpolatedVector|6|1e-06|0
+ModelicaByExample.Subsystems.LotkaVolterra.Examples.UnconnectedPopulations|40|1e-06|0
+ModelicaByExample.Subsystems.Pendula.System|54|1e-08|0

@@ -1,0 +1,16 @@
+PhotoVoltaics.ComponentTesting.PolyphaseVoltageControlledConverter|180|1e-06|0
+PhotoVoltaics.ComponentTesting.SinglePhaseVoltageControlledConverter|180|1e-06|0
+PhotoVoltaics.ComponentTesting.TestIrradiance|3.1536e+07|1e-06|0
+PhotoVoltaics.Examples.SimpleCellIrradianceCharacteristic|1|1e-06|0
+PhotoVoltaics.Examples.SimpleCellTemperatureCharacteristic|1|1e-06|0
+PhotoVoltaics.Examples.SimpleCellVoltageSource|1|1e-06|0
+PhotoVoltaics.Examples.SimpleCell|1|1e-06|0
+PhotoVoltaics.Examples.SimpleModuleMP3|300|1e-06|0
+PhotoVoltaics.Examples.SimpleModuleMPDC|86400|1e-06|0
+PhotoVoltaics.Examples.SimpleModuleMP|300|1e-06|0
+PhotoVoltaics.Examples.SimpleModulePolyphase|5|1e-06|0
+PhotoVoltaics.Examples.SimpleModuleShadow|1|1e-06|0
+PhotoVoltaics.Examples.SimpleModuleSymmetric|1|1e-06|0
+PhotoVoltaics.Examples.SimpleModule|1|1e-06|0
+PhotoVoltaics.Examples.SimplePlantSymmetric|1|1e-06|0
+PhotoVoltaics.Examples.SolarPyramidBatteryCharge|500|1e-06|0

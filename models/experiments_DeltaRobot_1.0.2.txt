@@ -1,0 +1,9 @@
+DeltaRobot.Scenarios.DeltaRobot_IdealActPos_PositionValidation|0.5026|1e-06|0
+DeltaRobot.Scenarios.DeltaRobot_IdealActPos_Scenario1|5|1e-06|0
+DeltaRobot.Scenarios.DeltaRobot_IdealActVel_Scenario1|3|1e-06|0
+DeltaRobot.Scenarios.DeltaRobot_IdealActVel_VelocityValidation|1.5|1e-06|0
+DeltaRobot.Tests.IdealActuatorPos_test|5|1e-06|0
+DeltaRobot.Tests.IdealActuatorVel_test|5|1e-06|0
+DeltaRobot.Tests.ServoMotor_test|5|1e-06|0
+DeltaRobot.Tests.Switch2_test|5|1e-06|0
+DeltaRobot.Tests.Trajectory_test|4|1e-06|0

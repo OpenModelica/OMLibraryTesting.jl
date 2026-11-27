@@ -66,7 +66,8 @@ export run_coverage, run_coverage_and_report, run_model, WorkerManager, WorkerPo
 export shard_specs, merge_shards
 export generate_report, print_summary
 export signals_json, write_signals
-export coverage_funnel, publish_site, site_history
+export coverage_funnel, publish_site, site_history, site_folder, library_site_folder
+export CoverageTarget, coverage_target, coverage_target_from_env
 export categorize_error, categorize_results, print_error_analysis
 export models_with_error, error_for_model, run_frontend_coverage
 export subcategorize_meta_errors

@@ -12,6 +12,8 @@ run started; [note] is one line on how the run was made (e.g. "no-skip, 3 worker
 OMJL_COVERAGE_MSL (default "MSL:3.2.3", as scripts/run_full_coverage.jl) is the run's MSL version:
 3.2.3 writes docs/COVERAGE.md and the README section between the coverage markers, another version
 docs/COVERAGE_<version>.md and the section between its own markers (coverage-<version>:begin/end).
+OMJL_COVERAGE_LIBRARY ("Name@version", another library) writes docs/COVERAGE_<Name>_<version>.md
+only, for the coverage site (the README covers the MSL).
 =#
 
 using Dates
@@ -28,14 +30,17 @@ const COMMITS = length(ARGS) >= 2 && isfile(ARGS[2]) ?
 const NOTE = length(ARGS) >= 3 ? ARGS[3] : ""
 const ROOT = joinpath(@__DIR__, "..") |> abspath
 const MEASURED = Dates.format(Dates.unix2datetime(mtime(ARGS[1])), "yyyy-mm-dd")
-const VERSION_MSL = OLT.msl_library_version(get(ENV, "OMJL_COVERAGE_MSL", "MSL:3.2.3"))
-const TOP_LEVEL = VERSION_MSL == OLT.TOP_LEVEL_MSL_VERSION
-const COVERAGE_MD = TOP_LEVEL ? "COVERAGE.md" : "COVERAGE_$(VERSION_MSL).md"
+const TARGET = OLT.coverage_target_from_env()
+const MSL_RUN = TARGET.library == "Modelica"
+const VERSION_MSL = TARGET.version
+const TOP_LEVEL = MSL_RUN && VERSION_MSL == OLT.TOP_LEVEL_MSL_VERSION
+const COVERAGE_MD = TOP_LEVEL ? "COVERAGE.md" :
+                    MSL_RUN ? "COVERAGE_$(VERSION_MSL).md" : "COVERAGE_$(TARGET.library)_$(TARGET.version).md"
 
 const ok = OLT.coverage_ok          # the definitions the coverage site uses (src/site.jl)
 const reached = OLT.coverage_reached
 domainOf(r) = join(split(r.spec.domain, '.')[1:min(2, end)], '.')
-short(name) = replace(name, "Modelica." => "")
+short(name) = replace(name, "$(TARGET.library)." => "")
 function firstError(r)
     local failed = [pr for pr in r.phases if !pr.success]
     return isempty(failed) ? "" : something(first(failed).error, "")
@@ -53,10 +58,16 @@ const FUNNEL = [(OLT.PHASE_NAMES[p], count(r -> reached(r, p), RESULTS)) for p i
 pct(n) = @sprintf("%.1f %%", 100n / N)
 
 function write_coverage(io)
-    println(io, "# MSL $VERSION_MSL coverage of OM.jl\n")
-    println(io, "Measured $MEASURED: $N example models of the Modelica Standard Library $VERSION_MSL, each run through OM.jl's ",
-            "pipeline (flatten, translate, simulate) and validated against the reference trajectories.",
-            isempty(NOTE) ? "" : " $NOTE.", "\n")
+    println(io, "# $(TARGET.label) coverage of OM.jl\n")
+    if MSL_RUN
+        println(io, "Measured $MEASURED: $N example models of the Modelica Standard Library $VERSION_MSL, each run through OM.jl's ",
+                "pipeline (flatten, translate, simulate) and validated against the reference trajectories.",
+                isempty(NOTE) ? "" : " $NOTE.", "\n")
+    else
+        println(io, "Measured $MEASURED: $N experiment models of $(TARGET.label), each run through OM.jl's ",
+                "pipeline (flatten, translate, simulate); there are no reference results to validate against.",
+                isempty(NOTE) ? "" : " $NOTE.", "\n")
+    end
     if !isempty(COMMITS)
         println(io, "Commits: ", join(("$(c[1]) `$(c[2])`" for c in COMMITS), ", "), ".\n")
     end
@@ -96,6 +107,7 @@ mkpath(joinpath(ROOT, "docs"))
 open(write_coverage, joinpath(ROOT, "docs", COVERAGE_MD), "w")
 
 #= The README's section between the markers: the headline numbers and a link. =#
+MSL_RUN || (@info "Published" coverage = joinpath(ROOT, "docs", COVERAGE_MD) funnel = FUNNEL; exit(0))
 const MARK = TOP_LEVEL ? "coverage" : "coverage-$VERSION_MSL"
 const BEGIN_MARK = "<!-- $MARK:begin (scripts/publish_coverage.jl) -->"
 const END_MARK = "<!-- $MARK:end -->"

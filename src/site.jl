@@ -71,27 +71,39 @@ site_folder(version::AbstractString)::String =
     version == TOP_LEVEL_MSL_VERSION ? "" : "msl-$version"
 
 """
+    library_site_folder(name, version) -> String
+
+The folder of the runs of library `name` (not the MSL) in `version` on the coverage site:
+`lib-<name>-<version>`, characters other than letters, digits, `.`, `_` and `-` as `_`.
+"""
+library_site_folder(name::AbstractString, version::AbstractString)::String =
+    "lib-$name-$(replace(version, r"[^A-Za-z0-9._-]" => "_"))"
+
+"""
     publish_site(site, results; version = "3.2.3", date = today(), report = "", analysis = "",
-                 commits = String[], note = "", library = "MSL <version>", url = "") -> String
+                 commits = String[], note = "", library = "MSL <version>", url = "",
+                 folder = site_folder(version), badge = VALIDATE) -> String
 
 Add a coverage run of MSL `version` to the static site in the directory `site` (created if
-missing), in the version's folder (`site_folder`), and rebuild that folder's index, badges and
+missing), in the version's folder (`site_folder`; for another library `folder` is its
+`library_site_folder` and `library` its label), and rebuild that folder's index, badges and
 `latest` redirect; every version's index links to the other versions. Runs are keyed by `date`: a
 second run of the same date replaces the first. `report` is the HTML report of `generate_report`,
 `analysis` the Markdown of scripts/publish_coverage.jl (docs/COVERAGE.md), `commits` lines such as
-"OMBackend.jl f661a4a", `url` the site's address (for the badge snippet). Returns the run's directory.
+"OMBackend.jl f661a4a", `url` the site's address (for the badge snippet). `badge` is the phase of the
+folder's `badge.json`: `SIMULATE` for a library without reference results. Returns the run's directory.
 """
 function publish_site(site::AbstractString, results::Vector{ModelResult};
                       version::AbstractString = TOP_LEVEL_MSL_VERSION, date::Date = today(),
                       report::AbstractString = "", analysis::AbstractString = "",
                       commits::Vector{String} = String[], note::AbstractString = "",
-                      library::AbstractString = "MSL $version", url::AbstractString = "")
+                      library::AbstractString = "MSL $version", url::AbstractString = "",
+                      folder::AbstractString = site_folder(version), badge::Phase = VALIDATE)
     local run = Dict{String, Any}("date" => string(date), "models" => length(results),
                                   "note" => String(note), "commits" => commits)
     for (p, c) in coverage_funnel(results)
         run[p] = c
     end
-    local folder = site_folder(version)
     local here = joinpath(site, folder)
     local dir = joinpath(here, "runs", string(date))
     mkpath(dir)
@@ -105,14 +117,15 @@ function publish_site(site::AbstractString, results::Vector{ModelResult};
     push!(history, run)
     sort!(history; by = r -> r["date"], rev = true)
     _prune_signals!(here, history)
-    open(io -> TOML.print(io, Dict("runs" => history); sorted = true), joinpath(here, "history.toml"), "w")
+    open(io -> TOML.print(io, Dict("runs" => history, "library" => String(library), "badge" => PHASE_NAMES[badge]);
+                          sorted = true), joinpath(here, "history.toml"), "w")
     local versions = _site_versions(site)
-    _write_site_index(here, history, library, url, versions, folder)
+    _write_site_index(here, history, library, url, versions, folder, badge)
     #= The other versions' indexes, for their links to this one. =#
     for (label, other) in versions
         other == folder && continue
         local d = joinpath(site, other)
-        _write_site_index(d, site_history(d), label, url, versions, other)
+        _write_site_index(d, site_history(d), label, url, versions, other, _site_badge(d))
     end
     return dir
 end
@@ -133,16 +146,28 @@ end
 
 const _SIGNALS_LINK = "<a href=\"signals.json\">signals.json</a>"
 
-#= The MSL versions with runs on the site, as (label, folder) pairs: 3.2.3 at the root first,
-   then the msl-<version> folders. =#
+#= The MSL versions and libraries with runs on the site, as (label, folder) pairs: 3.2.3 at the root first,
+   then the msl-<version> folders, then the lib-<name>-<version> folders (their label as history.toml has it). =#
 function _site_versions(site::AbstractString)::Vector{Tuple{String, String}}
     local versions = Tuple{String, String}[]
     isfile(joinpath(site, "history.toml")) && push!(versions, ("MSL $TOP_LEVEL_MSL_VERSION", ""))
+    local libraries::Vector{Tuple{String, String}} = Tuple{String, String}[]
     for d in sort(readdir(site))
+        isfile(joinpath(site, d, "history.toml")) || continue
         local m = match(r"^msl-(.+)$", d)
-        m !== nothing && isfile(joinpath(site, d, "history.toml")) && push!(versions, ("MSL $(m[1])", d))
+        if m !== nothing
+            push!(versions, ("MSL $(m[1])", d))
+        elseif startswith(d, "lib-")
+            push!(libraries, (String(get(TOML.parsefile(joinpath(site, d, "history.toml")), "library", d[5:end])), d))
+        end
     end
-    return versions
+    return append!(versions, libraries)
+end
+
+#= The phase of the badge of the site folder `dir`, as history.toml has it (validate when it has none). =#
+function _site_badge(dir::AbstractString)::Phase
+    local name::String = String(get(TOML.parsefile(joinpath(dir, "history.toml")), "badge", PHASE_NAMES[VALIDATE]))
+    return phase_from_string(name)
 end
 
 #= The link from the index of `folder` to the index of `target` (folders of _site_versions). =#
@@ -185,9 +210,11 @@ function _write_badge(path, label, n, total)
 end
 
 function _write_site_index(site::AbstractString, history::Vector{Dict{String, Any}}, library::AbstractString,
-                           url::AbstractString, versions::Vector{Tuple{String, String}}, folder::AbstractString)
+                           url::AbstractString, versions::Vector{Tuple{String, String}}, folder::AbstractString,
+                           badge::Phase)
     local latest = first(history)
-    _write_badge(joinpath(site, "badge.json"), "$library validate", latest["validate"], latest["models"])
+    local badgeName::String = PHASE_NAMES[badge]
+    _write_badge(joinpath(site, "badge.json"), "$library $badgeName", latest[badgeName], latest["models"])
     for p in SITE_PHASES
         local name = PHASE_NAMES[p]
         _write_badge(joinpath(site, "badges", "$name.json"), "$library $name", latest[name], latest["models"])
@@ -198,7 +225,7 @@ function _write_site_index(site::AbstractString, history::Vector{Dict{String, An
         <title>Latest coverage</title><a href="../runs/$(latest["date"])/">Latest coverage: $(latest["date"])</a>
         """))
     touch(joinpath(site, ".nojekyll"))   # plain files, no Jekyll build
-    write(joinpath(site, "index.html"), _site_index_page(history, library, url, versions, folder))
+    write(joinpath(site, "index.html"), _site_index_page(history, library, url, versions, folder, badge))
 end
 
 const _SITE_CSS = """
@@ -286,7 +313,7 @@ function _site_trend(history)
 end
 
 function _site_index_page(history::Vector{Dict{String, Any}}, library::AbstractString, url::AbstractString,
-                          versions::Vector{Tuple{String, String}}, folder::AbstractString)
+                          versions::Vector{Tuple{String, String}}, folder::AbstractString, badge::Phase)
     local latest = first(history)
     local io = IOBuffer()
     if length(versions) > 1
@@ -297,7 +324,9 @@ function _site_index_page(history::Vector{Dict{String, Any}}, library::AbstractS
     println(io, "<h1>OM.jl coverage of the $(html_escape(String(library))) examples</h1>")
     println(io, "<p class=\"lead\">Each experiment model goes through OM.jl's pipeline: flatten (frontend), translate (backend), ",
             "simulate, and validate against the reference trajectories. Measured by ",
-            "<a href=\"https://github.com/OpenModelica/OMLibraryTesting.jl\">OMLibraryTesting.jl</a>.</p>")
+            "<a href=\"https://github.com/OpenModelica/OMLibraryTesting.jl\">OMLibraryTesting.jl</a>.",
+            badge == VALIDATE ? "" : " There are no reference results for this library: its models go up to $(PHASE_NAMES[badge]).",
+            "</p>")
     println(io, "<h2>Latest: <a href=\"runs/$(latest["date"])/\">$(latest["date"])</a>, $(latest["models"]) models</h2>")
     println(io, _site_funnel(latest))
     println(io, "<h2>Per run</h2>", _site_trend(history))
@@ -310,11 +339,14 @@ function _site_index_page(history::Vector{Dict{String, Any}}, library::AbstractS
                 "<td><a href=\"runs/$(run["date"])/report.html\">per model</a></td></tr>")
     end
     println(io, "</table></div>")
-    println(io, "<h2>Badge</h2><p class=\"muted\">The share of models that validate in the latest run ",
-            "(<code>badge.json</code>; <code>badges/&lt;phase&gt;.json</code> per phase), for a README:</p>")
-    local base = isempty(url) ? "&lt;this site&gt;/" :
-                 html_escape(String(rstrip(url, '/') * "/" * (isempty(folder) ? "" : "$folder/")))
-    println(io, "<pre>[![Coverage](https://img.shields.io/endpoint?url=$(base)badge.json)]($base)</pre>")
+    #= A README badge for the MSL only; another library's page has none. =#
+    if !startswith(folder, "lib-")
+        println(io, "<h2>Badge</h2><p class=\"muted\">The share of models that validate in the latest run ",
+                "(<code>badge.json</code>; <code>badges/&lt;phase&gt;.json</code> per phase), for a README:</p>")
+        local base = isempty(url) ? "&lt;this site&gt;/" :
+                     html_escape(String(rstrip(url, '/') * "/" * (isempty(folder) ? "" : "$folder/")))
+        println(io, "<pre>[![Coverage](https://img.shields.io/endpoint?url=$(base)badge.json)]($base)</pre>")
+    end
     return _site_page("OM.jl coverage", String(take!(io)))
 end
 
